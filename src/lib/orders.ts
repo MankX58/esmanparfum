@@ -1,10 +1,10 @@
 import { sql } from "./db";
 
 // Estados de un pedido, en el orden en que avanza. Cada paso lo mueve una sola acción:
-//   pending → (cliente: "Ya pagué") → payment_reported → (panel: confirmar pago) →
-//   payment_confirmed → (panel: marcar como enviado) → shipped →
-//   (panel o cliente: entregado) → delivered
-// "preparing" es un estado antiguo: ya no se asigna y se muestra igual que payment_confirmed.
+//   pending → (Wompi aprueba el pago) → payment_confirmed → (panel: marcar como enviado) →
+//   shipped → (panel o cliente: entregado) → delivered
+// Estados antiguos que ya no se asignan: "payment_reported" (el cliente avisaba de una
+// transferencia; se muestra como Por pagar) y "preparing" (se muestra como payment_confirmed).
 export const statusLabels = {
   pending: "Por pagar",
   payment_reported: "Pago en revisión",
@@ -18,10 +18,11 @@ export const statusLabels = {
 export type OrderStatus = keyof typeof statusLabels;
 
 // Los pasos que se muestran en el recorrido del pedido.
-export const orderSteps: OrderStatus[] = ["pending", "payment_reported", "payment_confirmed", "shipped", "delivered"];
+export const orderSteps: OrderStatus[] = ["pending", "payment_confirmed", "shipped", "delivered"];
 
-// En qué paso del recorrido está un pedido (0 a 4). No aplica a los cancelados.
-export const stepOf = (status: OrderStatus) => orderSteps.indexOf(status === "preparing" ? "payment_confirmed" : status);
+// En qué paso del recorrido está un pedido (0 a 3). No aplica a los cancelados.
+const stepAlias: Partial<Record<OrderStatus, OrderStatus>> = { payment_reported: "pending", preparing: "payment_confirmed" };
+export const stepOf = (status: OrderStatus) => orderSteps.indexOf(stepAlias[status] ?? status);
 
 // Un pedido ya pagado que falta despachar.
 export const isToShip = (status: OrderStatus) => status === "payment_confirmed" || status === "preparing";
@@ -49,6 +50,8 @@ export type Order = {
   payment_confirmed_at: string | null;
   confirmed_by: string | null;
   admin_notes: string | null;
+  wompi_transaction_id: string | null;
+  wompi_status: string | null;
   items_total: number;
 };
 
@@ -62,7 +65,7 @@ export async function getOrder(id: number) {
            o.shipping_fee, o.tracking, o.payment_reference,
            o.payment_reported_at::text as payment_reported_at,
            o.payment_confirmed_at::text as payment_confirmed_at,
-           u.email as confirmed_by, o.admin_notes,
+           u.email as confirmed_by, o.admin_notes, o.wompi_transaction_id, o.wompi_status,
            (select coalesce(sum(total), 0) from order_items where order_id = o.id)::int as items_total
     from orders o
     left join customers c on c.id = o.customer_id
@@ -78,18 +81,17 @@ export async function getOrderItems(orderId: number) {
 }
 
 // Datos de la tienda que el dueño configura en Panel → Ajustes.
+// (Los pagos van por Wompi: sus llaves viven en las variables de entorno, no aquí.)
 export type StoreSettings = {
-  brebKey: string; // llave Bre-B o número de Nequi al que se transfiere
-  holder: string; // titular de la cuenta
-  bank: string; // banco o billetera
   whatsapp: string; // número con indicativo, solo dígitos: 573001234567
   shippingFee: number; // costo fijo de envío en pesos (0 = sin cobro en la web)
-  qrImage: string; // imagen del QR de pago dentro de la carpeta public, por ejemplo "/pago-qr.jpg"
 };
 
-const emptySettings: StoreSettings = { brebKey: "", holder: "", bank: "", whatsapp: "", shippingFee: 0, qrImage: "" };
+const emptySettings: StoreSettings = { whatsapp: "", shippingFee: 0 };
 
 export async function getStoreSettings(): Promise<StoreSettings> {
   const [row] = await sql`select value from settings where key = 'store'`;
-  return { ...emptySettings, ...((row?.value ?? {}) as Partial<StoreSettings>) };
+  const saved = (row?.value ?? {}) as Partial<StoreSettings>;
+  // Solo los campos actuales: los datos de transferencia de antes pueden seguir guardados.
+  return { whatsapp: saved.whatsapp ?? emptySettings.whatsapp, shippingFee: saved.shippingFee ?? emptySettings.shippingFee };
 }

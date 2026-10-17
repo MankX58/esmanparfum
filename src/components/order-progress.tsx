@@ -6,13 +6,13 @@ import { orderSteps, statusLabels, stepOf, type OrderStatus } from "@/lib/orders
 // - OrderStatusBadge: versión corta para listas y encabezados.
 
 // Nombre corto de cada paso del recorrido, en el orden de orderSteps.
-const stepNames = ["Pedido hecho", "Pago en revisión", "Pago confirmado", "Enviado", "Entregado"];
+const stepNames = ["Pedido hecho", "Pago confirmado", "Enviado", "Entregado"];
 
 // Qué está pasando en cada estado y a quién le toca actuar, dicho para el cliente y para el panel.
 export const statusHints: Record<"customer" | "admin", Record<OrderStatus, string>> = {
   customer: {
-    pending: "Te toca: transfiere el valor exacto y pulsa Ya pagué.",
-    payment_reported: "Nos toca: estamos revisando tu transferencia en el banco.",
+    pending: "Te toca: paga con Wompi. Al aprobarse el pago, tu pedido se confirma solo.",
+    payment_reported: "Nos toca: estamos revisando tu transferencia.",
     payment_confirmed: "Recibimos tu pago. Estamos alistando tu pedido para enviarlo.",
     preparing: "Recibimos tu pago. Estamos alistando tu pedido para enviarlo.",
     shipped: "Tu pedido va en camino. Avísanos cuando lo recibas.",
@@ -20,8 +20,8 @@ export const statusHints: Record<"customer" | "admin", Record<OrderStatus, strin
     cancelled: "Este pedido se canceló.",
   },
   admin: {
-    pending: "El cliente aún no avisa que pagó.",
-    payment_reported: "Te toca: revisa tu banco y confirma el pago.",
+    pending: "El cliente aún no ha pagado en Wompi. Cuando Wompi apruebe el pago, el pedido se confirma solo.",
+    payment_reported: "Pedido de antes de Wompi: revisa tu banco y confirma la transferencia.",
     payment_confirmed: "Te toca: alista el pedido y márcalo como enviado.",
     preparing: "Te toca: alista el pedido y márcalo como enviado.",
     shipped: "En camino. Márcalo como entregado cuando el cliente lo reciba.",
@@ -93,7 +93,7 @@ export function OrderProgress({ status, audience }: { status: OrderStatus; audie
   );
 }
 
-// Estado en corto: el nombre y una barrita de cinco tramos que se llena hasta el paso actual.
+// Estado en corto: el nombre y una barrita de cuatro tramos que se llena hasta el paso actual.
 export function OrderStatusBadge({ status }: { status: OrderStatus }) {
   if (status === "cancelled") {
     return <span className="text-sm font-medium text-danger">{statusLabels.cancelled}</span>;

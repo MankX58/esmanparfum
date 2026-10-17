@@ -92,7 +92,7 @@ export function CheckoutForm({ defaultName, shippingFee }: { defaultName: string
           </Link>
         </div>
         <p className="text-xs leading-relaxed text-ink-faint">
-          Al hacer el pedido te mostramos los datos para pagar por transferencia. No se cobra nada en esta página.
+          Después de hacer el pedido pagas en Wompi, de forma segura, con tarjeta, PSE, Nequi o Bancolombia. No se cobra nada en esta página.
         </p>
       </div>
 

@@ -17,7 +17,7 @@ Next.js (App Router), React, TypeScript, Tailwind CSS, Neon (PostgreSQL), Auth0,
 
 ## Product Purpose
 
-Tienda online de perfumes y lociones internacionales. Muchas ventas son bajo pedido: el cliente paga, el dueño verifica el pago, compra al proveedor y envía.
+Tienda online de perfumes y lociones internacionales. Muchas ventas son bajo pedido: el cliente paga con Wompi, el dueño compra al proveedor y envía.
 
 ## Positioning
 
@@ -25,7 +25,7 @@ Boutique de perfumería internacional: premium, elegante, moderna, limpia y mini
 
 ## Operating Context
 
-- Pago por transferencia (Bre-B o Nequi), confirmado a mano por el administrador. Sin pasarela.
+- Pago en línea con Wompi (tarjeta, PSE, Nequi, Bancolombia). El pedido se confirma solo cuando Wompi aprueba el pago.
 - Sin dominio propio: `<proyecto>.vercel.app`.
 - Sin correos transaccionales: el estado del pedido se ve en la web y se avisa por WhatsApp.
 

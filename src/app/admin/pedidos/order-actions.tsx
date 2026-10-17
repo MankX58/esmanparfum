@@ -7,7 +7,8 @@ import { Field, fieldProps, inputStyles } from "@/components/field";
 import { useServerForm } from "@/lib/use-server-form";
 import { confirmPayment, saveOrderDetails, shipOrder } from "./actions";
 
-// Confirmar el pago pide un segundo clic: es la decisión que mueve plata e inventario.
+// Confirmar el pago a mano pide un segundo clic: es la decisión que mueve plata e inventario.
+// Normalmente no se usa: Wompi confirma solo los pagos aprobados.
 export function ConfirmPayment({ orderId }: { orderId: number }) {
   const [asking, setAsking] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -24,13 +25,13 @@ export function ConfirmPayment({ orderId }: { orderId: number }) {
   if (!asking) {
     return (
       <button type="button" onClick={() => setAsking(true)} className={buttonStyles.primary}>
-        Confirmar pago recibido
+        Confirmar el pago a mano
       </button>
     );
   }
   return (
     <div className="flex flex-col gap-3 text-sm">
-      <p className="font-medium">¿Ya viste la transferencia en tu banco?</p>
+      <p className="font-medium">¿Ya viste el pago aprobado en Wompi o en tu banco?</p>
       <div className="flex items-center gap-4">
         <button type="button" onClick={confirm} disabled={pending} className={buttonStyles.primary}>
           {pending ? "Confirmando…" : "Sí, confirmar"}

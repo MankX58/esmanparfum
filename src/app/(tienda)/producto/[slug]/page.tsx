@@ -181,7 +181,7 @@ export default async function ProductPage({ params }: PageProps<"/producto/[slug
           </dl>
 
           <p className="mt-8 border-t border-line pt-6 text-sm leading-relaxed text-ink-soft">
-            Pago por transferencia con llave Bre-B o Nequi. Verificamos cada pago antes de procesar el pedido.
+            Pagos seguros con Wompi: tarjeta de crédito o débito, PSE, Nequi o Bancolombia.
           </p>
         </div>
       </div>

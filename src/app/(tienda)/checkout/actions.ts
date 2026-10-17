@@ -60,7 +60,7 @@ export async function createOrder(items: CartItem[], formData: FormData): Promis
         (customer_id, user_id, status, channel, payment_method,
          shipping_name, shipping_phone, shipping_address, shipping_city, shipping_notes, shipping_fee)
       values
-        (${customer.id}, ${user.id}, 'pending', 'Tienda web', 'Transferencia',
+        (${customer.id}, ${user.id}, 'pending', 'Tienda web', 'Wompi',
          ${name}, ${phone}, ${address}, ${city}, ${notes}, ${shippingFee})
       returning id
     )

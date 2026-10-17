@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl), // con esto, las direcciones relativas (fotos, canonical) salen completas
   title: { default: "Velare Perfumes · Fragancias que dejan huella", template: "%s · Velare" },
   description:
-    "Velare: perfumes originales para hombre y mujer con envío en Colombia. Elige tu fragancia, paga por transferencia y recíbela en casa.",
+    "Velare: perfumes originales para hombre y mujer con envío en Colombia. Elige tu fragancia, paga seguro con Wompi y recíbela en casa.",
   applicationName: "Velare",
   openGraph: { siteName: "Velare", locale: "es_CO", type: "website" },
   twitter: { card: "summary_large_image" },

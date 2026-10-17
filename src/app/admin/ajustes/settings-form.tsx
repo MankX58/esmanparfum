@@ -9,7 +9,7 @@ import { saveStoreSettings } from "./actions";
 
 const input = `${inputStyles} h-11`;
 
-export function SettingsForm({ settings }: { settings: StoreSettings }) {
+export function SettingsForm({ settings, wompi }: { settings: StoreSettings; wompi: { configured: boolean; testMode: boolean } }) {
   const { state, pending, busy, handleSubmit } = useServerForm(saveStoreSettings, () => {
     sileo.success({ title: "Ajustes guardados" });
   });
@@ -17,30 +17,24 @@ export function SettingsForm({ settings }: { settings: StoreSettings }) {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-12">
-      <section className="flex flex-col gap-6">
-        <h2 className="font-display text-xl">Datos para recibir pagos</h2>
-        <p className="-mt-3 max-w-[60ch] text-sm leading-relaxed text-ink-soft">
-          Es lo que ve el cliente después de hacer un pedido, junto con el valor exacto a pagar.
-        </p>
-        <div className="grid gap-6 sm:grid-cols-2">
-          <Field label="Llave Bre-B o número de Nequi" name="brebKey" error={errors.brebKey}>
-            <input {...fieldProps("brebKey", errors.brebKey)} defaultValue={settings.brebKey} className={input} />
-          </Field>
-          <Field label="Titular de la cuenta" name="holder" error={errors.holder}>
-            <input {...fieldProps("holder", errors.holder)} defaultValue={settings.holder} className={input} />
-          </Field>
-          <Field label="Banco o billetera" name="bank" error={errors.bank} hint="Ejemplo: Nequi, Bancolombia.">
-            <input {...fieldProps("bank", errors.bank)} defaultValue={settings.bank} className={input} />
-          </Field>
-          <Field
-            label="Imagen del QR de pago"
-            name="qrImage"
-            error={errors.qrImage}
-            hint="Nombre del archivo guardado en la carpeta public del proyecto. Ejemplo: /pago-qr.jpg. Vacío = no se muestra QR."
-          >
-            <input {...fieldProps("qrImage", errors.qrImage)} defaultValue={settings.qrImage} className={input} />
-          </Field>
-        </div>
+      {/* Wompi no se configura aquí: sus llaves son secretas y van en las variables de entorno. */}
+      <section className="flex flex-col gap-3">
+        <h2 className="font-display text-xl">Pagos con Wompi</h2>
+        {wompi.configured ? (
+          <p className="max-w-[60ch] text-sm leading-relaxed text-ink-soft">
+            <span className={`mr-2 px-2 py-1 text-[11px] font-medium tracking-[0.08em] uppercase ${wompi.testMode ? "bg-warn-soft text-warn" : "bg-ok-soft text-ok"}`}>
+              {wompi.testMode ? "Modo de pruebas" : "Activo"}
+            </span>
+            {wompi.testMode
+              ? "Los pagos son de prueba: no se mueve dinero real. Para cobrar de verdad, cambia las llaves por las de producción."
+              : "Los clientes pagan con tarjeta, PSE, Nequi o Bancolombia, y el pedido se confirma solo cuando Wompi aprueba el pago."}
+          </p>
+        ) : (
+          <p role="alert" className="border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
+            Falta conectar Wompi: los clientes no pueden pagar. Agrega las llaves WOMPI_* en las variables de entorno (los pasos
+            están en el README).
+          </p>
+        )}
       </section>
 
       <section className="flex flex-col gap-6 border-t border-line pt-10">

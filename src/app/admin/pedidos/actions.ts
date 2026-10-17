@@ -4,33 +4,19 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { readForm, type FormState } from "@/lib/form";
-import { todayInBogota } from "@/lib/format";
+import { markOrderPaid } from "@/lib/payments";
 
 // Cada acción mueve el pedido un solo paso. El "where" de cada una comprueba el estado
 // actual, así un pedido nunca salta pasos ni retrocede aunque se pulse dos veces.
 
-// Paso 1. Confirma que el dinero llegó. Queda registrado quién lo confirmó y cuándo, la venta
-// empieza a contar (stock, resumen, ventas) y entra a caja con la fecha de hoy.
+// Paso 1, a mano. Normalmente Wompi confirma el pago solo; esto queda por si un aviso de Wompi
+// se perdió o el pago llegó por otro medio. Queda registrado quién lo confirmó y cuándo.
 export async function confirmPayment(orderId: number): Promise<FormState> {
   const admin = await requireAdmin();
   if (!Number.isInteger(orderId)) return { message: "Pedido no válido." };
 
-  // Las dos sentencias van en una transacción: o se aplican ambas o ninguna.
-  const [, confirmed] = await sql.transaction([
-    // El costo de cada línea se actualiza al costo promedio de este momento.
-    sql`
-      update order_items oi set unit_cost = s.avg_cost
-      from product_stats s, orders o
-      where s.product_id = oi.product_id and o.id = oi.order_id
-        and o.id = ${orderId} and o.status in ('pending', 'payment_reported')`,
-    sql`
-      update orders
-      set status = 'payment_confirmed', payment_confirmed_at = now(),
-          payment_confirmed_by = ${admin.id}, paid_on = ${todayInBogota()}
-      where id = ${orderId} and status in ('pending', 'payment_reported')
-      returning id`,
-  ]);
-  if (confirmed.length === 0) return { message: "Este pedido ya no está esperando confirmación de pago." };
+  const confirmed = await markOrderPaid(orderId, admin.id);
+  if (!confirmed) return { message: "Este pedido ya no está esperando confirmación de pago." };
 
   revalidatePath("/", "layout");
   return { ok: true };

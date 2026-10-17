@@ -11,6 +11,14 @@ import { ConfirmPayment, DetailsForm, ShipForm } from "../order-actions";
 
 export const metadata = { title: "Pedido" };
 
+const wompiStatusLabels: Record<string, string> = {
+  APPROVED: "Aprobado",
+  DECLINED: "Rechazado",
+  VOIDED: "Anulado",
+  ERROR: "Error",
+  PENDING: "En proceso",
+};
+
 const dateTime = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short", timeZone: "America/Bogota" });
 
 export default async function AdminOrderPage({ params }: PageProps<"/admin/pedidos/[id]">) {
@@ -43,7 +51,8 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/pedid
           <h2 className="font-display text-2xl">Qué sigue</h2>
           <p className="mt-2 mb-6 max-w-[60ch] text-sm leading-relaxed text-ink-soft">
             {statusHints.admin[order.status]}
-            {awaitingPayment && ` Deben llegar ${formatCOP(total)}. Confirma solo después de ver la transferencia en tu banco: una captura de pantalla no es prueba.`}
+            {awaitingPayment &&
+              ` Deben llegar ${formatCOP(total)}. Confirma a mano solo si ves el pago aprobado en tu panel de Wompi (o en tu banco) y el pedido no se confirmó solo: una captura de pantalla no es prueba.`}
           </p>
           {order.payment_reference && awaitingPayment && (
             <p className="mb-6 text-sm">
@@ -149,6 +158,13 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/pedid
               <dt className="text-ink-soft">Debe llegar</dt>
               <dd className="font-medium tabular-nums">{formatCOP(total)}</dd>
             </div>
+            {order.wompi_transaction_id && (
+              <div>
+                <dt className="text-ink-soft">Wompi</dt>
+                <dd className="mt-1 break-all">{order.wompi_transaction_id}</dd>
+                <dd className="text-xs text-ink-faint">Último estado: {wompiStatusLabels[order.wompi_status ?? ""] ?? order.wompi_status}</dd>
+              </div>
+            )}
             {order.payment_reported_at && (
               <div>
                 <dt className="text-ink-soft">El cliente reportó</dt>
@@ -159,7 +175,7 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/pedid
             {order.payment_confirmed_at && (
               <div>
                 <dt className="text-ink-soft">Confirmado por</dt>
-                <dd className="mt-1">{order.confirmed_by}</dd>
+                <dd className="mt-1">{order.confirmed_by ?? "Wompi, automáticamente"}</dd>
                 <dd className="text-xs text-ink-faint">{dateTime.format(new Date(order.payment_confirmed_at))}</dd>
               </div>
             )}

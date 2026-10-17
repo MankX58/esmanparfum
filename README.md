@@ -58,6 +58,17 @@ Hay dos formas de ponerle fotos a un perfume. Sin fotos, la tienda muestra una e
   3. En tu computador las subidas necesitan un `BLOB_READ_WRITE_TOKEN` en `.env.local`. Sin él, todo funciona salvo el botón "Subir una foto".
 - **Desde una carpeta:** guarda las fotos en `public/productos` con el SKU como nombre (`P001.jpg`, `P001-2.jpg`) y ejecuta `npm run db:fotos`.
 
+## Pagos con Wompi
+
+Los clientes pagan en Wompi (tarjeta, PSE, Nequi o Bancolombia). Con el pago aprobado, el pedido pasa solo a "Pagado, por enviar": no hay que revisar el banco.
+
+1. Crea tu cuenta de comercio en [Wompi](https://comercios.wompi.co) y entra a Desarrolladores.
+2. Copia las cuatro llaves en `.env.local` (y en Vercel para producción): `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_INTEGRITY_SECRET` (secreto de integridad) y `WOMPI_EVENTS_SECRET` (secreto de eventos). Para probar, usa las de pruebas (empiezan por `pub_test_`, `prv_test_`...): no mueven dinero real.
+3. En Desarrolladores → URL de eventos, registra `https://<proyecto>.vercel.app/api/wompi/eventos`. Cada ambiente (pruebas y producción) tiene su propia URL.
+4. Revisa Panel → Ajustes: arriba dice si Wompi está conectado y si está en modo de pruebas.
+
+En tu computador Wompi no puede enviar avisos a `localhost`, pero no hace falta: al volver de Wompi, la página del pedido le pregunta el resultado a Wompi y lo confirma. Si un pago aprobado no se confirmó solo, en Panel → Pedidos se puede confirmar a mano.
+
 ## Publicar en Vercel
 
 1. Importa el repositorio en Vercel. El plan gratuito (Hobby) no permite uso comercial: para vender hace falta el plan Pro.
@@ -65,6 +76,7 @@ Hay dos formas de ponerle fotos a un perfume. Sin fotos, la tienda muestra una e
    - `APP_BASE_URL`: `https://<proyecto>.vercel.app`
    - `DATABASE_URL` y `DATABASE_URL_UNPOOLED`: las de la rama `production` de Neon.
    - Las cuatro de Auth0 (usa un `AUTH0_SECRET` distinto al de desarrollo).
+   - Las cuatro de Wompi, con las llaves de producción (ver Pagos con Wompi).
 3. En Auth0, agrega `https://<proyecto>.vercel.app/auth/callback` a Allowed Callback URLs y `https://<proyecto>.vercel.app` a Allowed Logout URLs.
 4. Crea las tablas en la base de producción. Guarda las dos direcciones de la rama `production` en un archivo `.env.production.local` (tampoco se sube al repositorio) y ejecuta:
 
@@ -73,7 +85,7 @@ Hay dos formas de ponerle fotos a un perfume. Sin fotos, la tienda muestra una e
    ```
 
    El mismo patrón sirve para cualquier otro script, por ejemplo `scripts/make-admin.mjs tu@correo.com` después de iniciar sesión por primera vez en producción.
-5. Entra al panel y revisa Ajustes: datos de pago, WhatsApp, saldo inicial y meta mensual.
+5. Entra al panel y revisa Ajustes: estado de Wompi, WhatsApp, saldo inicial y meta mensual.
 
 Los buscadores encuentran la tienda por `/sitemap.xml` y `/robots.txt`, que se generan solos a partir de `APP_BASE_URL` y de los productos activos.
 

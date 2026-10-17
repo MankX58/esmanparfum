@@ -1,11 +1,13 @@
 // Pruebas de las cuentas de dinero. Se ejecutan con: npm test
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { test } from "node:test";
 import { parseMoney, parsePercent, percentText, readForm } from "./form.ts";
 import { whatsappLink } from "./format.ts";
 import { purchaseEffect } from "./inventory.ts";
 import { monthLabel, parsePeriod } from "./period.ts";
 import { suggestPrice } from "./pricing.ts";
+import { integritySignature, orderIdFromReference, paymentReference, verifyEventSignature } from "./wompi-signature.ts";
 
 test("parseMoney acepta pesos con o sin puntos de miles", () => {
   assert.equal(parseMoney("215000"), 215000);
@@ -90,4 +92,42 @@ test("purchaseEffect da los mismos valores que el Excel", () => {
   // Una segunda unidad más barata baja el promedio.
   const after = { stock: 0, unitsIn: 1, costBasis: 177144, avgCost: 177144 };
   assert.equal(purchaseEffect(after, 1, 150000, 0).newAvgCost, 163572);
+});
+
+// Ejemplos oficiales de la documentación de Wompi (Web Checkout y Eventos).
+test("la firma de integridad coincide con el ejemplo de Wompi", () => {
+  assert.equal(
+    integritySignature("sk8-438k4-xmxm392-sn2m", "2490000", "prod_integrity_Z5mMke9x0k8gpErbDqwrJXMqsI6SFli6"),
+    "37c8407747e595535433ef8f6a811d853cd943046624a0ec04662b17bbf33bf5",
+  );
+});
+
+test("la firma de un evento se valida como en el ejemplo de Wompi, y un cambio la invalida", () => {
+  const secret = "prod_events_OcHnIzeBl5socpwByQ4hA52Em3USQ93Z";
+  const event = {
+    event: "transaction.updated",
+    data: { transaction: { id: "1234-1610641025-49201", amount_in_cents: 4490000, status: "APPROVED" } },
+    signature: {
+      properties: ["transaction.id", "transaction.status", "transaction.amount_in_cents"],
+      // La documentación arma esta cadena en su ejemplo; el checksum que muestra al lado es
+      // ilustrativo y no corresponde a ella, así que aquí se usa el SHA-256 real de la cadena
+      // (en mayúsculas, como lo envía Wompi).
+      checksum: createHash("sha256")
+        .update("1234-1610641025-49201APPROVED44900001530291411prod_events_OcHnIzeBl5socpwByQ4hA52Em3USQ93Z")
+        .digest("hex")
+        .toUpperCase(),
+    },
+    timestamp: 1530291411,
+  };
+  assert.equal(verifyEventSignature(event, secret), true);
+  const tampered = { ...event, data: { transaction: { ...event.data.transaction, amount_in_cents: 100 } } };
+  assert.equal(verifyEventSignature(tampered, secret), false);
+  assert.equal(verifyEventSignature(event, "otro_secreto"), false);
+  assert.equal(verifyEventSignature(event, ""), false);
+});
+
+test("la referencia de pago dice de qué pedido es", () => {
+  assert.equal(orderIdFromReference(paymentReference(42)), 42);
+  assert.equal(orderIdFromReference("VEL42"), null);
+  assert.equal(orderIdFromReference("otra-cosa"), null);
 });

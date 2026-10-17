@@ -22,7 +22,7 @@ export async function generateMetadata({ searchParams }: PageProps<"/catalogo">)
   if (brand) {
     return {
       title: `Perfumes ${brand}`,
-      description: `Perfumes ${brand} originales en Velare, con precio y envío en Colombia. Elige el tuyo y paga por transferencia.`,
+      description: `Perfumes ${brand} originales en Velare, con precio y envío en Colombia. Elige el tuyo y paga seguro con Wompi.`,
       alternates: { canonical: brandPath(brand) },
     };
   }

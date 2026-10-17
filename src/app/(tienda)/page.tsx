@@ -1,3 +1,4 @@
+import { ShieldCheck } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Fragment, ViewTransition } from "react";
@@ -13,8 +14,8 @@ const audienceNames: Record<string, string> = { Hombre: "Para él", Mujer: "Para
 
 const steps = [
   { title: "Elige", text: "Explora el catálogo y agrega al carrito lo que te guste." },
-  { title: "Paga por transferencia", text: "Con tu llave Bre-B o Nequi. Te mostramos los datos al hacer el pedido." },
-  { title: "Confirmamos tu pago", text: "Revisamos que la transferencia llegó antes de procesar el pedido." },
+  { title: "Paga seguro con Wompi", text: "Con tarjeta de crédito o débito, PSE, Nequi o Bancolombia, en la pasarela de Bancolombia." },
+  { title: "Tu pedido queda confirmado", text: "Apenas Wompi aprueba el pago, lo alistamos. Sin comprobantes ni esperas." },
   { title: "Recíbelo", text: "Te lo enviamos a la dirección que indiques al hacer el pedido." },
 ];
 
@@ -73,7 +74,7 @@ export default async function HomePage() {
             ))}
           </h1>
           <p className="mt-6 max-w-[44ch] text-lg leading-relaxed text-ink-soft motion-safe:animate-unveil motion-safe:[animation-delay:var(--duration-fast)]">
-            Perfumes originales con envío en Colombia. Elige tu fragancia, paga por transferencia y recíbela en casa.
+            Perfumes originales con envío en Colombia. Elige tu fragancia, paga seguro con Wompi y recíbela en casa.
           </p>
           <div className="mt-10 flex flex-wrap gap-4 motion-safe:animate-unveil motion-safe:[animation-delay:var(--duration-medium)]">
             <Link href="/catalogo" className={buttonStyles.primary}>
@@ -83,6 +84,10 @@ export default async function HomePage() {
               Cotizar un perfume
             </Link>
           </div>
+          <p className="mt-8 flex items-center gap-2 text-sm text-ink-soft motion-safe:animate-unveil motion-safe:[animation-delay:var(--duration-slow)]">
+            <ShieldCheck size={20} weight="light" aria-hidden className="shrink-0 text-brand" />
+            Pagos seguros con Wompi
+          </p>
         </div>
 
         {heroProducts.length > 0 && (
