@@ -9,6 +9,7 @@ import { OrderProgress, OrderStatusBadge } from "@/components/order-progress";
 import { getOrder, getOrderItems, getStoreSettings, isToShip, showsCode } from "@/lib/orders";
 import { ActionButton } from "@/components/action-button";
 import { QrImage } from "@/components/store/qr-image";
+import { SpamNotice } from "@/components/store/spam-notice";
 import { deliveryEstimate } from "@/lib/site";
 import { applyTransaction, checkoutFields, fetchTransaction, wompiConfigured, wompiTestMode } from "@/lib/wompi";
 import { cancelOrder, confirmDelivery } from "../actions";
@@ -68,7 +69,7 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/pe
       </div>
 
       <div className="mt-12 grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-10 motion-safe:animate-settle motion-safe:[animation-delay:var(--duration-micro)]">
           {order.status === "pending" && byTransfer && (
             <section className="bg-brand p-6 text-on-brand sm:p-8">
               <h2 className="font-display text-2xl">Paga por transferencia</h2>
@@ -231,6 +232,11 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/pe
               </p>
             )}
           </section>
+
+          {/* Cada cambio de estado llega por correo (ver lib/notifications.ts). */}
+          {order.status !== "delivered" && order.status !== "cancelled" && order.user_id === user.id && (
+            <SpamNotice email={user.email} />
+          )}
 
           <div className="flex flex-wrap items-center gap-6">
             {store.whatsapp && (

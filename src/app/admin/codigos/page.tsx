@@ -71,14 +71,19 @@ export default async function PromoCodesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {promos.map((promo) => {
+              {promos.map((promo, index) => {
                 const state = promo.expired ? "Vencido" : promo.is_active ? "Activo" : "Pausado";
                 return (
-                  <tr key={promo.id} className={row}>
+                  <tr
+                    key={promo.id}
+                    style={{ animationDelay: `calc(var(--duration-stagger) * ${Math.min(index, 8)})` }}
+                    className={`${row} motion-safe:animate-settle`}
+                  >
                     <td className={`${cell} py-4`}>
                       <p className="font-medium tracking-wide">{promo.code}</p>
                       <span
-                        className={`mt-1 inline-block px-2 py-1 text-[11px] leading-none font-medium tracking-[0.08em] uppercase ${
+                        key={state}
+                        className={`mt-1 inline-block px-2 py-1 motion-safe:animate-swap text-[11px] leading-none font-medium tracking-[0.08em] uppercase ${
                           state === "Activo" ? "bg-ok-soft text-ok" : "bg-mist text-ink-soft"
                         }`}
                       >

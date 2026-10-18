@@ -120,7 +120,10 @@ export function SearchSelect({
         // Con algo elegido y la lista cerrada, el texto de ayuda se ve como texto normal.
         className={`${inputStyles} h-11 pr-9 ${selected && !open ? "placeholder:text-ink!" : ""}`}
       />
-      <span aria-hidden className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-xs text-ink-faint">
+      <span
+        aria-hidden
+        className={`pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-xs text-ink-faint transition-transform duration-(--duration-fast) ease-smooth-out ${open ? "rotate-180" : ""}`}
+      >
         ▾
       </span>
 
@@ -129,7 +132,7 @@ export function SearchSelect({
           ref={list}
           id={listId}
           role="listbox"
-          className="absolute inset-x-0 top-full z-30 mt-1 max-h-72 overflow-y-auto border border-line bg-surface text-sm shadow-lg"
+          className="absolute inset-x-0 top-full z-30 mt-1 max-h-72 origin-top overflow-y-auto border border-line bg-surface text-sm shadow-lg motion-safe:animate-disclose"
         >
           {shown.length === 0 ? (
             <li className="px-3 py-3 text-ink-faint">Nada coincide con &quot;{query}&quot;.</li>
@@ -146,7 +149,7 @@ export function SearchSelect({
                   choose(option);
                 }}
                 onMouseEnter={() => setActive(index)}
-                className={`flex cursor-pointer items-baseline justify-between gap-3 px-3 py-2.5 ${
+                className={`flex cursor-pointer items-baseline justify-between gap-3 px-3 py-2.5 transition-colors duration-(--duration-quick) ease-smooth-out ${
                   index === active ? "bg-mist" : ""
                 } ${option.value === value ? "font-medium" : ""} ${option.value === "" ? "text-ink-soft" : ""}`}
               >

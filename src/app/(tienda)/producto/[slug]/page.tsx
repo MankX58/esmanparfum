@@ -133,7 +133,10 @@ export default async function ProductPage({ params }: PageProps<"/producto/[slug
           {/* Cada tamaño es un producto con su propia página: elegir uno es ir a ella.
               scroll={false} y replace: la página no salta arriba ni llena el botón Atrás. */}
           {sizes.length > 1 && (
-            <nav aria-label="Tamaño" className="mt-6 flex flex-wrap gap-2">
+            <nav
+              aria-label="Tamaño"
+              className="group/sizes mt-6 flex flex-wrap gap-2 motion-safe:animate-unveil motion-safe:[animation-delay:calc(var(--duration-micro)*3)]"
+            >
               {sizes.map((size) => {
                 const current = size.slug === product.slug;
                 return (
@@ -143,7 +146,8 @@ export default async function ProductPage({ params }: PageProps<"/producto/[slug
                     scroll={false}
                     replace
                     aria-current={current ? "page" : undefined}
-                    className={`flex min-h-11 flex-col justify-center border px-4 py-2 text-sm transition-colors duration-(--duration-quick) ease-smooth-out ${
+                    // Al señalar uno, sube un poco y los demás se atenúan (como en el catálogo).
+                    className={`flex min-h-11 flex-col justify-center border px-4 py-2 text-sm transition duration-(--duration-medium) ease-smooth-out hover:-translate-y-0.5 hover:duration-(--duration-quick) active:translate-y-0 [@media(hover:hover)]:group-has-[a:hover]/sizes:not-hover:opacity-50 ${
                       current ? "border-brand bg-brand text-on-brand" : "border-line bg-surface hover:border-ink"
                     }`}
                   >

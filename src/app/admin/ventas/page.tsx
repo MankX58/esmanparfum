@@ -140,7 +140,7 @@ export default async function SalesPage({ searchParams }: PageProps<"/admin/vent
             </thead>
             <tbody className="divide-y divide-line">
               {sales.map((sale) => (
-                <tr key={sale.id} className={`${row} relative cursor-pointer`}>
+                <tr key={sale.id} className={`${row} group/sale relative cursor-pointer`}>
                   <td className={`${cell} py-4 whitespace-nowrap text-ink-soft tabular-nums`}>
                     {formatDate(sale.ordered_on)}
                   </td>
@@ -153,6 +153,12 @@ export default async function SalesPage({ searchParams }: PageProps<"/admin/vent
                       {sale.product_name}
                     </Link>
                     <span className="ml-2 text-xs text-ink-faint tabular-nums">{sale.code}</span>
+                    <span
+                      aria-hidden
+                      className="ml-1 inline-block text-ink-faint opacity-0 transition duration-(--duration-quick) ease-smooth-out group-hover/sale:translate-x-1 group-hover/sale:opacity-100"
+                    >
+                      →
+                    </span>
                     <p className="mt-1 text-xs text-ink-faint">{sale.customer ?? "Sin cliente"}</p>
                     {sale.discount > 0 && (
                       <p className="mt-1 text-xs text-ok">

@@ -38,7 +38,7 @@ export function ProductSizes({ productId, sizes, suggestedSku }: { productId: nu
 
       <ul className="border-b border-line">
         {sizes.map((size) => (
-          <li key={size.id} className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-line py-4">
+          <li key={size.id} className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-line py-4 motion-safe:animate-settle">
             <div className="min-w-40">
               <p className="font-medium tabular-nums">{sizeLabel(size)}</p>
               <p className="mt-1 text-xs text-ink-faint">

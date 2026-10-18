@@ -76,7 +76,10 @@ export function SaleForm({
             {lines.map((line, index) => {
               const product = products.find((p) => String(p.id) === line.productId);
               return (
-                <li key={line.key} className="grid gap-3 border-b border-line pb-4 sm:grid-cols-[minmax(0,1fr)_5.5rem_9rem_auto] sm:items-end">
+                <li
+                  key={line.key}
+                  className="grid gap-3 border-b border-line pb-4 motion-safe:animate-disclose sm:grid-cols-[minmax(0,1fr)_5.5rem_9rem_auto] sm:items-end"
+                >
                   <div className="flex flex-col gap-2 text-sm font-medium">
                     <label htmlFor={`product-${line.key}`}>Producto {lines.length > 1 && index + 1}</label>
                     <div className="font-normal">

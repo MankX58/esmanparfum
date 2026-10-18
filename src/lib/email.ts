@@ -72,6 +72,15 @@ ${
   return { html, text };
 }
 
+// Remitente: el nombre de EMAIL_FROM ("Velare") con la dirección de SMTP_USER. Gmail manda a Spam
+// (o rechaza) un correo que dice venir de una dirección distinta a la cuenta con la que se envía,
+// así que la dirección siempre es la de la cuenta, aunque EMAIL_FROM diga otra.
+function sender() {
+  const user = process.env.SMTP_USER ?? "";
+  const name = (process.env.EMAIL_FROM ?? "").replace(/<[^>]*>/, "").replace(/"/g, "").trim() || "Velare";
+  return { name: name.includes("@") ? "Velare" : name, address: user };
+}
+
 // Envía un correo. Nunca lanza error: un correo que falla no debe tumbar un pago ni un pedido.
 export async function sendEmail(email: Email) {
   const to = [email.to].flat().filter(Boolean);
@@ -81,7 +90,7 @@ export async function sendEmail(email: Email) {
     return;
   }
   try {
-    await transport.sendMail({ from: process.env.EMAIL_FROM ?? process.env.SMTP_USER, to, subject: email.subject, ...render(email) });
+    await transport.sendMail({ from: sender(), to, subject: email.subject, ...render(email) });
   } catch (error) {
     console.error(`No se pudo enviar el correo "${email.subject}":`, error);
   }

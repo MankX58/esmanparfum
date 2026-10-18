@@ -14,15 +14,22 @@ export function LegalPage({ title, intro, sections }: { title: string; intro: Re
   return (
     <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-12 pb-24 sm:px-8">
       <h1 className="font-display text-4xl font-light tracking-tight text-balance motion-safe:animate-unveil sm:text-5xl">{title}</h1>
-      <p className="mt-3 text-sm text-ink-faint">Última actualización: {legalUpdated}</p>
-      <div className="mt-6 max-w-[68ch] leading-relaxed text-ink-soft">{intro}</div>
+      <p className="mt-3 text-sm text-ink-faint motion-safe:animate-unveil motion-safe:[animation-delay:var(--duration-micro)]">
+        Última actualización: {legalUpdated}
+      </p>
+      <div className="mt-6 max-w-[68ch] leading-relaxed text-ink-soft motion-safe:animate-unveil motion-safe:[animation-delay:calc(var(--duration-micro)*2)]">
+        {intro}
+      </div>
 
       <div className="mt-12 grid items-start gap-12 lg:grid-cols-[16rem_minmax(0,1fr)]">
-        <nav aria-label="Contenido" className="border-y border-line py-5 text-sm lg:sticky lg:top-24 lg:border-y-0 lg:py-0">
+        <nav aria-label="Contenido" className="border-y border-line py-5 text-sm motion-safe:animate-settle lg:sticky lg:top-24 lg:border-y-0 lg:py-0">
           <ol className="flex flex-col gap-2">
             {sections.map((section, index) => (
               <li key={section.id}>
-                <a href={`#${section.id}`} className="text-ink-soft transition-colors duration-(--duration-quick) ease-smooth-out hover:text-ink">
+                <a
+                  href={`#${section.id}`}
+                  className="inline-block text-ink-soft transition duration-(--duration-quick) ease-smooth-out hover:translate-x-1 hover:text-ink"
+                >
                   {index + 1}. {section.title}
                 </a>
               </li>
@@ -32,7 +39,7 @@ export function LegalPage({ title, intro, sections }: { title: string; intro: Re
 
         <div className="flex max-w-[68ch] flex-col gap-12">
           {sections.map((section, index) => (
-            <section key={section.id} id={section.id} aria-labelledby={`${section.id}-titulo`}>
+            <section key={section.id} id={section.id} aria-labelledby={`${section.id}-titulo`} className="reveal">
               <h2 id={`${section.id}-titulo`} className="font-display text-2xl">
                 {index + 1}. {section.title}
               </h2>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { buttonStyles } from "@/components/button";
 import { QuoteBadge } from "@/components/quote-badge";
+import { SpamNotice } from "@/components/store/spam-notice";
 import { getCurrentUser } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { queryText } from "@/lib/form";
@@ -101,6 +102,7 @@ export default async function QuotePage({ searchParams }: PageProps<"/cotizar">)
             <h2 id="mis-cotizaciones" className="scroll-mt-24 font-display text-2xl">
               Tus cotizaciones
             </h2>
+            <SpamNotice email={user?.email} className="mt-4" />
             {/* key: la lista vuelve a entrar cuando se agrega una cotización. */}
             <ul key={quotes.length} className="mt-6 border-b border-line motion-safe:animate-settle">
               {quotes.map((quote) => (

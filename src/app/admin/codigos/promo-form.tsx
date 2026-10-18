@@ -50,9 +50,11 @@ export function PromoForm() {
           </select>
         </Field>
         {duration === "fecha" && (
-          <Field label="Vigente hasta" name="until" error={errors.until} hint="Incluye todo ese día.">
-            <input {...fieldProps("until", errors.until)} type="date" className={input} />
-          </Field>
+          <div className="motion-safe:animate-disclose">
+            <Field label="Vigente hasta" name="until" error={errors.until} hint="Incluye todo ese día.">
+              <input {...fieldProps("until", errors.until)} type="date" className={input} />
+            </Field>
+          </div>
         )}
       </div>
       <button type="submit" disabled={busy} className={`self-start ${buttonStyles.primary}`}>

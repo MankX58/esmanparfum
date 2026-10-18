@@ -16,7 +16,7 @@ export function QuoteForm({ defaultPerfume, defaultPhone }: { defaultPerfume: st
   // campos del perfume: tras cada envío vuelven a montarse vacíos. El WhatsApp se conserva.
   const [sent, setSent] = useState(0);
   const { state, pending, busy, handleSubmit } = useServerForm(requestQuote, () => {
-    sileo.success({ title: "Cotización enviada", description: "Verás la respuesta en esta página." });
+    sileo.success({ title: "Cotización enviada", description: "Verás la respuesta aquí y te llegará por correo (revisa también Spam)." });
     setSent((count) => count + 1);
   });
   const errors = state.errors ?? {};

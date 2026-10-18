@@ -129,7 +129,7 @@ export function CheckoutForm({ defaultName, shippingRates }: { defaultName: stri
           </Field>
         </div>
 
-        <fieldset className="mt-4 flex flex-col gap-3 border-t border-line pt-8">
+        <fieldset className="group/pay mt-4 flex flex-col gap-3 border-t border-line pt-8">
           <legend className="mb-4 font-display text-xl">¿Cómo quieres pagar?</legend>
           {[
             {
@@ -145,7 +145,7 @@ export function CheckoutForm({ defaultName, shippingRates }: { defaultName: stri
           ].map((option) => (
             <label
               key={option.value}
-              className="flex cursor-pointer gap-3 border border-line bg-surface p-4 transition-colors duration-(--duration-quick) ease-smooth-out hover:border-ink-faint has-checked:border-brand"
+              className="flex cursor-pointer gap-3 border border-line bg-surface p-4 transition duration-(--duration-fast) ease-smooth-out hover:-translate-y-0.5 hover:border-ink-faint active:translate-y-0 has-checked:border-brand has-checked:bg-paper has-checked:shadow-[inset_3px_0_0_var(--color-brand)]"
             >
               <input
                 type="radio"
@@ -200,7 +200,8 @@ export function CheckoutForm({ defaultName, shippingRates }: { defaultName: stri
           </Link>
         </div>
         <p className="text-xs leading-relaxed text-ink-faint">
-          No se cobra nada en esta página: después de hacer el pedido te mostramos cómo pagarlo.
+          No se cobra nada en esta página: después de hacer el pedido te mostramos cómo pagarlo. Te avisaremos por correo cada
+          novedad de tu pedido; si no ves nuestros correos, revisa tu carpeta de Spam o Promociones.
         </p>
       </div>
 
@@ -267,7 +268,7 @@ export function CheckoutForm({ defaultName, shippingRates }: { defaultName: stri
             Código promocional
           </label>
           {promo ? (
-            <p className="mt-2 flex items-center justify-between gap-4 text-sm">
+            <p key={promo.code} className="mt-2 flex items-center justify-between gap-4 text-sm motion-safe:animate-swap">
               <span className="font-medium tracking-wide">{promo.code}</span>
               <button
                 type="button"
