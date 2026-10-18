@@ -14,7 +14,7 @@ export default async function NewPurchasePage({ searchParams }: PageProps<"/admi
   // entrado y cuánto costaron, para mostrar el nuevo promedio antes de guardar.
   const [products, suppliers, [setting]] = await Promise.all([
     sql`
-      select p.id, p.sku, p.name, s.stock, s.avg_cost,
+      select p.id, p.sku, p.brand, p.name, p.size_ml, s.stock, s.avg_cost,
              p.initial_stock + s.units_purchased as units_in,
              (p.initial_stock * p.initial_unit_cost
                + coalesce((select sum(total_cost) from purchases where product_id = p.id), 0))::int as cost_basis

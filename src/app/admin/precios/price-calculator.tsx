@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { productOption, SearchSelect } from "@/components/search-select";
 import { Field, fieldProps, inputStyles } from "@/components/field";
 import { cell, numberCell, th } from "@/components/products-table";
 import { SummaryLine } from "@/components/summary-line";
@@ -8,7 +9,7 @@ import { parseMoney, parsePercent, percentText } from "@/lib/form";
 import { formatCOP, formatPercent } from "@/lib/format";
 import { suggestPrice } from "@/lib/pricing";
 
-export type PricedProduct = { id: number; sku: string; name: string; avg_cost: number; list_price: number };
+export type PricedProduct = { id: number; sku: string; brand: string | null; name: string; size_ml: number | null; avg_cost: number; list_price: number };
 
 const input = `${inputStyles} h-11`;
 const moneyError = "Escribe un valor en pesos, sin decimales.";
@@ -66,14 +67,13 @@ export function PriceCalculator({
       <div className="grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="grid gap-6 sm:grid-cols-2">
           <Field label="Producto" name="product" hint="Opcional. Trae su costo promedio." className="sm:col-span-2">
-            <select id="product" value={productId} onChange={(event) => chooseProduct(event.target.value)} className={input}>
-              <option value="">Escribir el costo a mano</option>
-              {products.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.sku} · {p.name}
-                </option>
-              ))}
-            </select>
+            <SearchSelect
+              id="product"
+              options={products.map((p) => productOption(p))}
+              value={productId}
+              onChange={chooseProduct}
+              emptyLabel="Escribir el costo a mano"
+            />
           </Field>
           <Field label="Costo por unidad" name="cost" error={errors.cost} hint="Lo que te cuesta el perfume, con flete.">
             <input

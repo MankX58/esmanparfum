@@ -11,7 +11,7 @@ export default async function NewSalePage() {
 
   const [products, customers, [setting]] = await Promise.all([
     sql`
-      select p.id, p.sku, p.name, p.size_ml, p.list_price, s.stock
+      select p.id, p.sku, p.brand, p.name, p.size_ml, p.list_price, s.stock
       from products p
       join product_stats s on s.product_id = p.id
       order by p.is_active desc, p.sku`,

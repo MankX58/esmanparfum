@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { readForm, type FormState } from "@/lib/form";
 import type { StoreSettings } from "@/lib/orders";
+import { shippingZones, type ShippingRates } from "@/lib/shipping";
 
 // Guarda los parámetros de las cuentas (lo que en el Excel era la hoja Config).
 // Cada uno es una fila de la tabla settings; los porcentajes se guardan como fracción (0.3 = 30 %).
@@ -39,13 +40,19 @@ export async function saveStoreSettings(formData: FormData): Promise<FormState> 
   const settings: StoreSettings = {
     // El número de WhatsApp se guarda solo con dígitos, como lo pide wa.me.
     whatsapp: (form.text("whatsapp", { max: 20 }) ?? "").replace(/\D/g, ""),
-    shippingFee: form.money("shippingFee") ?? 0,
+    // Vacío = el envío a esa zona se coordina con el cliente.
+    shippingRates: Object.fromEntries(
+      shippingZones.map((zone) => [zone.id, form.money(`rate_${zone.id}`)]),
+    ) as ShippingRates,
     qrImage: form.text("qrImage", { max: 120 }) ?? "",
     legalName: form.text("legalName", { max: 120 }) ?? "",
     legalId: form.text("legalId", { max: 30 }) ?? "",
     address: form.text("address", { max: 160 }) ?? "",
     email: form.text("email", { max: 120 }) ?? "",
   };
+  for (const zone of shippingZones) {
+    if (settings.shippingRates[zone.id] === 0) form.errors[`rate_${zone.id}`] = "Escribe un valor mayor que 0, o déjalo vacío.";
+  }
   if (settings.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(settings.email)) form.errors.email = "Escribe un correo válido.";
   // Solo se acepta una imagen de la carpeta public: nunca una dirección de otro sitio.
   if (settings.qrImage && !/^\/[\w./-]+\.(png|jpe?g|webp)$/i.test(settings.qrImage)) {

@@ -10,6 +10,8 @@ import { useCart } from "@/lib/cart";
 import type { StoreProduct } from "@/lib/catalog";
 import { formatCOP } from "@/lib/format";
 import { lineDiscount, TRANSFER_DISCOUNT, type PromoCode } from "@/lib/promo";
+import { SearchSelect } from "@/components/search-select";
+import { cityOptions, shippingFor, shippingZones, zoneOf, type ShippingRates } from "@/lib/shipping";
 import { deliveryEstimate } from "@/lib/site";
 import { useServerForm } from "@/lib/use-server-form";
 import { getCartProducts } from "../carrito/actions";
@@ -17,7 +19,7 @@ import { checkPromo, createOrder } from "./actions";
 
 const input = `${inputStyles} h-11`;
 
-export function CheckoutForm({ defaultName, shippingFee }: { defaultName: string; shippingFee: number }) {
+export function CheckoutForm({ defaultName, shippingRates }: { defaultName: string; shippingRates: ShippingRates }) {
   const router = useRouter();
   const { cart, clear } = useCart();
   const [products, setProducts] = useState<StoreProduct[] | null>(null);
@@ -42,6 +44,12 @@ export function CheckoutForm({ defaultName, shippingFee }: { defaultName: string
   const [promo, setPromo] = useState<PromoCode | null>(null);
   const [promoError, setPromoError] = useState("");
   const [checkingPromo, startPromoCheck] = useTransition();
+  // Municipio de entrega (código DANE). Decide la zona y el costo del envío.
+  const [cityCode, setCityCode] = useState("");
+  const rate = cityCode ? shippingFor(cityCode, shippingRates) : null;
+  const shippingFee = rate ?? 0;
+  const zoneLabel = cityCode ? shippingZones.find((zone) => zone.id === zoneOf(cityCode))?.label : null;
+
   // Cómo va a pagar. Con transferencia hay un descuento extra (TRANSFER_DISCOUNT).
   const [method, setMethod] = useState<"Wompi" | "Transferencia">("Wompi");
 
@@ -104,8 +112,17 @@ export function CheckoutForm({ defaultName, shippingFee }: { defaultName: string
           <Field label="Dirección" name="address" error={errors.address} className="sm:col-span-2" hint="Incluye barrio, torre o apartamento si aplica.">
             <input {...fieldProps("address", errors.address)} autoComplete="street-address" className={input} />
           </Field>
-          <Field label="Ciudad" name="city" error={errors.city}>
-            <input {...fieldProps("city", errors.city)} autoComplete="address-level2" className={input} />
+          <Field label="Ciudad o municipio" name="city" error={errors.city} hint="Escribe para buscarlo en la lista.">
+            <SearchSelect
+              id="city"
+              name="city"
+              options={cityOptions}
+              value={cityCode}
+              onChange={setCityCode}
+              placeholder="Ejemplo: Medellín"
+              invalid={Boolean(errors.city)}
+              describedBy={errors.city ? "city-error" : undefined}
+            />
           </Field>
           <Field label="Notas para la entrega" name="notes" error={errors.notes} hint="Opcional.">
             <input {...fieldProps("notes", errors.notes)} className={input} />
@@ -221,7 +238,16 @@ export function CheckoutForm({ defaultName, shippingFee }: { defaultName: string
               )}
               <div className="flex justify-between gap-4">
                 <dt className="text-ink-soft">Envío</dt>
-                <dd className="tabular-nums">{shippingFee > 0 ? formatCOP(shippingFee) : "Se coordina contigo"}</dd>
+                <dd key={cityCode} className="text-right tabular-nums motion-safe:animate-swap">
+                  {!cityCode ? (
+                    <span className="text-ink-soft">Elige tu ciudad</span>
+                  ) : rate === null ? (
+                    "Se coordina contigo"
+                  ) : (
+                    formatCOP(rate)
+                  )}
+                  {zoneLabel && <span className="block text-xs text-ink-faint">{zoneLabel}</span>}
+                </dd>
               </div>
               <div className="flex justify-between gap-4 text-base font-medium">
                 <dt>Total a pagar</dt>

@@ -12,7 +12,7 @@ export default async function PricingPage() {
   const [settings, products] = await Promise.all([
     getFinanceSettings(),
     sql`
-      select p.id, p.sku, p.name, s.avg_cost, p.list_price
+      select p.id, p.sku, p.brand, p.name, p.size_ml, s.avg_cost, p.list_price
       from products p
       join product_stats s on s.product_id = p.id
       order by p.sku`,

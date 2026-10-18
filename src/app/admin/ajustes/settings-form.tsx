@@ -5,6 +5,7 @@ import { buttonStyles } from "@/components/button";
 import { Field, fieldProps, inputStyles } from "@/components/field";
 import type { StoreSettings } from "@/lib/orders";
 import { TRANSFER_DISCOUNT } from "@/lib/promo";
+import { shippingZones } from "@/lib/shipping";
 import { useServerForm } from "@/lib/use-server-form";
 import { saveStoreSettings } from "./actions";
 
@@ -55,7 +56,7 @@ export function SettingsForm({ settings, wompi }: { settings: StoreSettings; wom
       </section>
 
       <section className="flex flex-col gap-6 border-t border-line pt-10">
-        <h2 className="font-display text-xl">Contacto y envío</h2>
+        <h2 className="font-display text-xl">Contacto</h2>
         <div className="grid gap-6 sm:grid-cols-2">
           <Field
             label="WhatsApp de la tienda"
@@ -65,19 +66,29 @@ export function SettingsForm({ settings, wompi }: { settings: StoreSettings; wom
           >
             <input {...fieldProps("whatsapp", errors.whatsapp)} type="tel" defaultValue={settings.whatsapp} className={input} />
           </Field>
-          <Field
-            label="Costo de envío"
-            name="shippingFee"
-            error={errors.shippingFee}
-            hint="Valor fijo que se suma a cada pedido. Con 0, el envío se coordina aparte con el cliente."
-          >
-            <input
-              {...fieldProps("shippingFee", errors.shippingFee)}
-              inputMode="numeric"
-              defaultValue={settings.shippingFee}
-              className={input}
-            />
-          </Field>
+
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-6 border-t border-line pt-10">
+        <h2 className="font-display text-xl">Costo de envío por zona</h2>
+        <p className="-mt-3 max-w-[60ch] text-sm leading-relaxed text-ink-soft">
+          El cliente elige su municipio al hacer el pedido y la tienda le suma el envío de su zona. Pon lo que te cobra la
+          transportadora por un perfume (con su empaque) desde la bodega. Si dejas una zona vacía, a esos clientes les dice que
+          el envío se coordina con ellos.
+        </p>
+        <div className="grid gap-6 sm:grid-cols-2">
+          {shippingZones.map((zone) => (
+            <Field key={zone.id} label={zone.label} name={`rate_${zone.id}`} error={errors[`rate_${zone.id}`]} hint={zone.hint}>
+              <input
+                {...fieldProps(`rate_${zone.id}`, errors[`rate_${zone.id}`])}
+                inputMode="numeric"
+                defaultValue={settings.shippingRates[zone.id] ?? ""}
+                placeholder="Se coordina"
+                className={input}
+              />
+            </Field>
+          ))}
         </div>
       </section>
 

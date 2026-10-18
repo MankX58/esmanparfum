@@ -144,6 +144,11 @@ export default async function TermsPage() {
             transportadora o la ciudad de destino. Si hay un retraso importante, te avisamos.
           </p>
           <p>
+            El costo del envío depende del municipio de entrega y se muestra antes de confirmar el pedido. Los perfumes contienen
+            alcohol y las transportadoras los llevan por tierra: a algunas zonas, como San Andrés y Providencia o la Amazonía, puede
+            no ser posible enviarlos, o el envío se coordina contigo.
+          </p>
+          <p>
             Cuando despachamos el pedido, verás la guía de envío en la página del pedido. Revisa que la dirección y el teléfono sean
             correctos: si el envío no se puede entregar por datos errados, el nuevo envío puede tener costo.
           </p>

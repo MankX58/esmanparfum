@@ -8,6 +8,7 @@ import { purchaseEffect } from "./inventory.ts";
 import { monthLabel, parsePeriod } from "./period.ts";
 import { suggestPrice } from "./pricing.ts";
 import { lineDiscount, normalizeCode, validCode } from "./promo.ts";
+import { cityOptions, findCity, shippingFor, zoneOf } from "./shipping.ts";
 import { integritySignature, orderIdFromReference, paymentReference, verifyEventSignature } from "./wompi-signature.ts";
 
 test("parseMoney acepta pesos con o sin puntos de miles", () => {
@@ -140,4 +141,19 @@ test("el descuento de un código se calcula por línea y se redondea al peso", (
   assert.equal(validCode("VERANO10"), true);
   assert.equal(validCode("AB"), false);
   assert.equal(validCode("CON ESPACIO"), false);
+});
+
+test("el envío se calcula por la zona del municipio (código DANE)", () => {
+  assert.equal(cityOptions.length, 1122); // todos los municipios y áreas no municipalizadas del DANE
+  assert.equal(findCity("05001")?.label, "Medellín, Antioquia");
+  assert.equal(zoneOf("05001"), "medellin");
+  assert.equal(zoneOf("05088"), "aburra"); // Bello
+  assert.equal(zoneOf("05360"), "aburra"); // Itagüí
+  assert.equal(zoneOf("05615"), "antioquia"); // Rionegro
+  assert.equal(zoneOf("11001"), "nacional"); // Bogotá
+  assert.equal(zoneOf("88001"), "remota"); // San Andrés
+  const rates = { medellin: 8000, aburra: 10000, antioquia: 14000, nacional: 16000, remota: null };
+  assert.equal(shippingFor("05266", rates), 10000); // Envigado
+  assert.equal(shippingFor("91001", rates), null); // Leticia: se coordina
+  assert.equal(shippingFor("99999", rates), null); // código que no existe
 });

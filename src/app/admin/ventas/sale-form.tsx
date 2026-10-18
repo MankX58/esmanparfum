@@ -6,12 +6,13 @@ import { useState } from "react";
 import { sileo } from "sileo";
 import { buttonStyles, linkStyles } from "@/components/button";
 import { Field, fieldProps, inputStyles } from "@/components/field";
+import { productOption, SearchSelect } from "@/components/search-select";
 import { parseMoney } from "@/lib/form";
 import { formatCOP } from "@/lib/format";
 import { useServerForm } from "@/lib/use-server-form";
 import { createInStoreSale } from "./actions";
 
-export type SaleProduct = { id: number; sku: string; name: string; size_ml: number | null; list_price: number; stock: number };
+export type SaleProduct = { id: number; sku: string; brand: string | null; name: string; size_ml: number | null; list_price: number; stock: number };
 
 // Una línea mientras se escribe: los números se guardan como texto hasta enviar.
 type Line = { key: number; productId: string; quantity: string; price: string };
@@ -34,6 +35,8 @@ export function SaleForm({
 }) {
   const router = useRouter();
   const [lines, setLines] = useState<Line[]>(() => [emptyLine()]);
+
+  const options = products.map((p) => productOption(p, `stock ${p.stock}`));
 
   const update = (key: number, change: Partial<Line>) =>
     setLines((current) => current.map((line) => (line.key === key ? { ...line, ...change } : line)));
@@ -74,26 +77,22 @@ export function SaleForm({
               const product = products.find((p) => String(p.id) === line.productId);
               return (
                 <li key={line.key} className="grid gap-3 border-b border-line pb-4 sm:grid-cols-[minmax(0,1fr)_5.5rem_9rem_auto] sm:items-end">
-                  <label className="flex flex-col gap-2 text-sm font-medium">
-                    Producto {lines.length > 1 && index + 1}
-                    <select
-                      value={line.productId}
-                      onChange={(event) => {
+                  <div className="flex flex-col gap-2 text-sm font-medium">
+                    <label htmlFor={`product-${line.key}`}>Producto {lines.length > 1 && index + 1}</label>
+                    <div className="font-normal">
+                      <SearchSelect
+                        id={`product-${line.key}`}
+                        options={options}
+                        value={line.productId}
                         // Al elegir el perfume se propone su precio de lista; se puede cambiar (descuento, regateo).
-                        const chosen = products.find((p) => String(p.id) === event.target.value);
-                        update(line.key, { productId: event.target.value, price: chosen ? String(chosen.list_price) : "" });
-                      }}
-                      className={`${input} font-normal`}
-                    >
-                      <option value="">Elige un producto</option>
-                      {products.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.sku} · {p.name}
-                          {p.size_ml ? `, ${p.size_ml} ml` : ""}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                        onChange={(productId) => {
+                          const chosen = products.find((p) => String(p.id) === productId);
+                          update(line.key, { productId, price: chosen ? String(chosen.list_price) : "" });
+                        }}
+                        placeholder="Busca por nombre, marca o SKU"
+                      />
+                    </div>
+                  </div>
                   <label className="flex flex-col gap-2 text-sm font-medium">
                     Cantidad
                     <input

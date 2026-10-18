@@ -5,6 +5,7 @@ import { sql } from "@/lib/db";
 import { readForm, type FormState } from "@/lib/form";
 import { getStoreSettings } from "@/lib/orders";
 import { normalizeCode, TRANSFER_DISCOUNT, validCode, type PromoCode } from "@/lib/promo";
+import { findCity, shippingFor } from "@/lib/shipping";
 
 export type CartItem = { id: number; quantity: number };
 
@@ -26,7 +27,10 @@ export async function createOrder(items: CartItem[], formData: FormData): Promis
   const name = form.text("name", { required: true, max: 80 });
   const phone = form.phone("phone", { required: true });
   const address = form.text("address", { required: true, max: 160 });
-  const city = form.text("city", { required: true, max: 60 });
+  // La ciudad llega como código DANE del municipio elegido en la lista.
+  const cityCode = form.text("city", { required: true, max: 5 });
+  const city = cityCode ? findCity(cityCode) : undefined;
+  if (cityCode && !city) form.errors.city = "Elige tu ciudad o municipio de la lista.";
   const notes = form.text("notes", { max: 300 });
   const promoText = form.text("promo", { max: 40 });
   // Wompi o transferencia. La transferencia tiene su propio descuento (TRANSFER_DISCOUNT).
@@ -53,7 +57,9 @@ export async function createOrder(items: CartItem[], formData: FormData): Promis
     return { message: "Un producto de tu carrito ya no está disponible. Revisa el carrito e inténtalo de nuevo." };
   }
 
-  const { shippingFee } = await getStoreSettings();
+  // El envío sale de la zona del municipio (lib/shipping.ts). 0 = se coordina con el cliente.
+  const { shippingRates } = await getStoreSettings();
+  const shippingFee = shippingFor(city!.code, shippingRates) ?? 0;
 
   // La persona queda como cliente (una sola ficha por cuenta).
   const [customer] = await sql`
@@ -73,7 +79,7 @@ export async function createOrder(items: CartItem[], formData: FormData): Promis
          promo_code, promo_percent, transfer_percent, terms_accepted_at)
       values
         (${customer.id}, ${user.id}, 'pending', 'Tienda web', ${paymentMethod},
-         ${name}, ${phone}, ${address}, ${city}, ${notes}, ${shippingFee},
+         ${name}, ${phone}, ${address}, ${city!.label}, ${notes}, ${shippingFee},
          ${promo?.code ?? null}, ${promo?.percent ?? null}, ${transferPercent}, now())
       returning id
     )

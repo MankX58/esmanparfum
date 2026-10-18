@@ -6,6 +6,7 @@ import { useState } from "react";
 import { sileo } from "sileo";
 import { buttonStyles } from "@/components/button";
 import { Field, fieldProps, inputStyles } from "@/components/field";
+import { productOption, SearchSelect } from "@/components/search-select";
 import { SummaryLine } from "@/components/summary-line";
 import { parseMoney } from "@/lib/form";
 import { formatCOP } from "@/lib/format";
@@ -16,7 +17,9 @@ import { createPurchase } from "./actions";
 export type PurchaseProduct = {
   id: number;
   sku: string;
+  brand: string | null;
   name: string;
+  size_ml: number | null;
   stock: number;
   avg_cost: number;
   units_in: number; // stock inicial + unidades compradas
@@ -73,19 +76,16 @@ export function PurchaseForm({
       <div className="flex flex-col gap-10">
         <div className="grid gap-6 sm:grid-cols-2">
           <Field label="Producto" name="product_id" error={errors.product_id} className="sm:col-span-2">
-            <select
-              {...fieldProps("product_id", errors.product_id)}
+<SearchSelect
+              id="product_id"
+              name="product_id"
+              options={products.map((p) => productOption(p, `stock ${p.stock}`))}
               value={productId}
-              onChange={(event) => setProductId(event.target.value)}
-              className={input}
-            >
-              <option value="">Elige un producto</option>
-              {products.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.sku} · {p.name}
-                </option>
-              ))}
-            </select>
+              onChange={setProductId}
+              placeholder="Busca por nombre, marca o SKU"
+              invalid={Boolean(errors.product_id)}
+              describedBy={errors.product_id ? "product_id-error" : undefined}
+            />
           </Field>
           <Field label="Fecha" name="purchased_on" error={errors.purchased_on}>
             <input {...fieldProps("purchased_on", errors.purchased_on)} type="date" defaultValue={today} className={input} />

@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { emptyRates, type ShippingRates } from "./shipping";
 
 // Estados de un pedido, en el orden en que avanza. Cada paso lo mueve una sola acción:
 //   pending → (Wompi aprueba el pago) → payment_confirmed → (panel: marcar como enviado) →
@@ -98,7 +99,7 @@ export async function getOrderItems(orderId: number) {
 // (Las llaves de Wompi viven en las variables de entorno, no aquí.)
 export type StoreSettings = {
   whatsapp: string; // número con indicativo, solo dígitos: 573001234567
-  shippingFee: number; // costo fijo de envío en pesos (0 = sin cobro en la web)
+  shippingRates: ShippingRates; // costo de envío por zona (ver lib/shipping.ts); null = se coordina
   qrImage: string; // QR para pagar por transferencia, dentro de la carpeta public: "/pago-qr.jpg"
   // Quién responde por la tienda. Salen en Términos, Privacidad y Cambios y devoluciones.
   legalName: string; // nombre completo o razón social
@@ -107,15 +108,15 @@ export type StoreSettings = {
   email: string; // correo para peticiones, quejas y datos personales
 };
 
-const emptySettings: StoreSettings = { whatsapp: "", shippingFee: 0, qrImage: "", legalName: "", legalId: "", address: "", email: "" };
+const emptySettings: StoreSettings = { whatsapp: "", shippingRates: emptyRates, qrImage: "", legalName: "", legalId: "", address: "", email: "" };
 
 export async function getStoreSettings(): Promise<StoreSettings> {
   const [row] = await sql`select value from settings where key = 'store'`;
   const saved = (row?.value ?? {}) as Partial<StoreSettings>;
-  // Solo los campos actuales: la llave, el titular y el banco de antes pueden seguir guardados.
+  // Solo los campos actuales: la llave, el titular, el banco y el envío fijo de antes pueden seguir guardados.
   return {
     whatsapp: saved.whatsapp ?? emptySettings.whatsapp,
-    shippingFee: saved.shippingFee ?? emptySettings.shippingFee,
+    shippingRates: { ...emptyRates, ...saved.shippingRates },
     qrImage: saved.qrImage ?? emptySettings.qrImage,
     legalName: saved.legalName ?? "",
     legalId: saved.legalId ?? "",

@@ -69,6 +69,12 @@ Los clientes pagan en Wompi (tarjeta, PSE, Nequi o Bancolombia). Con el pago apr
 
 En tu computador Wompi no puede enviar avisos a `localhost`, pero no hace falta: al volver de Wompi, la página del pedido le pregunta el resultado a Wompi y lo confirma. Si un pago aprobado no se confirmó solo, en Panel → Pedidos se puede confirmar a mano.
 
+## Costos de envío
+
+El cliente elige su municipio en el checkout y paga el envío de su zona (Medellín, Valle de Aburrá, resto de Antioquia, resto de Colombia y zonas de difícil acceso). Los precios se editan en Panel → Ajustes.
+
+`npm run db:envios` calcula un precio por zona que cubre el flete real en el 90 % de los envíos, simulando pedidos con los perfumes del catálogo (peso, caja, tarifa de la transportadora, seguro y empaque). Los supuestos están al comienzo de `scripts/shipping-rates.mjs`: cuando tengas cotizaciones reales, cámbialos y ejecuta `npm run db:envios -- --guardar`. Para producción: `node --env-file=.env.production.local scripts/shipping-rates.mjs --guardar`.
+
 ## Publicar en Vercel
 
 1. Importa el repositorio en Vercel. El plan gratuito (Hobby) no permite uso comercial: para vender hace falta el plan Pro.
