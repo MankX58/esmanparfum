@@ -205,7 +205,8 @@ export function CheckoutForm({ defaultName, shippingRates }: { defaultName: stri
         </p>
       </div>
 
-      <aside className="border border-line bg-surface p-6 lg:sticky lg:top-24">
+      {/* order-first: en el teléfono se ve primero, para saber cuánto se paga antes de llenar todo. */}
+      <aside className="order-first border border-line bg-surface p-6 lg:sticky lg:top-24 lg:order-none">
         <h2 className="font-display text-xl">Tu pedido</h2>
         {products === null ? (
           <div className="mt-6 h-24 bg-mist motion-safe:animate-skeleton" />

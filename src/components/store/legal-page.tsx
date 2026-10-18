@@ -1,3 +1,4 @@
+import { CaretDown } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { linkStyles } from "@/components/button";
 import type { StoreSettings } from "@/lib/orders";
@@ -22,19 +23,19 @@ export function LegalPage({ title, intro, sections }: { title: string; intro: Re
       </div>
 
       <div className="mt-12 grid items-start gap-12 lg:grid-cols-[16rem_minmax(0,1fr)]">
-        <nav aria-label="Contenido" className="border-y border-line py-5 text-sm motion-safe:animate-settle lg:sticky lg:top-24 lg:border-y-0 lg:py-0">
-          <ol className="flex flex-col gap-2">
-            {sections.map((section, index) => (
-              <li key={section.id}>
-                <a
-                  href={`#${section.id}`}
-                  className="inline-block text-ink-soft transition duration-(--duration-quick) ease-smooth-out hover:translate-x-1 hover:text-ink"
-                >
-                  {index + 1}. {section.title}
-                </a>
-              </li>
-            ))}
-          </ol>
+        {/* El índice: en pantallas grandes, fijo al lado. En el teléfono se pliega para no empujar
+            el texto hacia abajo (13 enlaces seguidos ocupan casi una pantalla). */}
+        <details className="accordion group border-y border-line motion-safe:animate-settle lg:hidden">
+          <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between text-sm font-medium [&::-webkit-details-marker]:hidden">
+            Contenido ({sections.length} secciones)
+            <CaretDown size={16} aria-hidden className="text-ink-faint transition-transform duration-(--duration-fast) ease-smooth-out group-open:rotate-180" />
+          </summary>
+          <nav aria-label="Contenido" className="pb-3">
+            <TableOfContents sections={sections} />
+          </nav>
+        </details>
+        <nav aria-label="Contenido" className="hidden text-sm motion-safe:animate-settle lg:sticky lg:top-24 lg:block">
+          <TableOfContents sections={sections} />
         </nav>
 
         <div className="flex max-w-[68ch] flex-col gap-12">
@@ -52,6 +53,24 @@ export function LegalPage({ title, intro, sections }: { title: string; intro: Re
         </div>
       </div>
     </main>
+  );
+}
+
+function TableOfContents({ sections }: { sections: LegalSection[] }) {
+  return (
+    <ol className="flex flex-col text-sm lg:gap-2">
+      {sections.map((section, index) => (
+        <li key={section.id}>
+          {/* En el teléfono cada enlace mide 40 px de alto, cómodo para el dedo. */}
+          <a
+            href={`#${section.id}`}
+            className="flex min-h-10 items-center text-ink-soft transition duration-(--duration-quick) ease-smooth-out hover:translate-x-1 hover:text-ink lg:inline-block lg:min-h-0"
+          >
+            {index + 1}. {section.title}
+          </a>
+        </li>
+      ))}
+    </ol>
   );
 }
 

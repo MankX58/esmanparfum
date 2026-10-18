@@ -42,7 +42,9 @@ export function FilterBar({
   const active = Object.values(current).some(Boolean);
 
   return (
-    <div role="search" className="mb-6 flex flex-wrap items-center gap-3">
+    // En el teléfono: el buscador a todo el ancho y los filtros de dos en dos (el último, si queda
+    // solo, ocupa la fila). Desde pantallas medianas, todo en una fila que se acomoda sola.
+    <div role="search" className="mb-6 grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap sm:gap-3">
       {placeholder && (
         <input
           type="search"
@@ -50,16 +52,18 @@ export function FilterBar({
           placeholder={placeholder}
           value={current.q ?? ""}
           onChange={(event) => apply({ ...current, q: event.target.value }, 250)}
-          className={`${controlStyles} h-11 min-w-56 flex-1`}
+          className={`${controlStyles} col-span-2 h-11 w-full sm:w-auto sm:min-w-56 sm:flex-1`}
         />
       )}
-      {filters.map((filter) => (
+      {filters.map((filter, index) => (
         <select
           key={filter.name}
           aria-label={filter.label}
           value={current[filter.name] ?? ""}
           onChange={(event) => apply({ ...current, [filter.name]: event.target.value })}
-          className={`${controlStyles} h-11 max-w-full`}
+          className={`${controlStyles} h-11 w-full min-w-0 sm:w-auto sm:max-w-full ${
+            filters.length % 2 === 1 && index === filters.length - 1 ? "col-span-2" : ""
+          }`}
         >
           <option value="">{filter.label}</option>
           {filter.options.map((option) => (
@@ -70,7 +74,7 @@ export function FilterBar({
         </select>
       ))}
       {active && (
-        <button type="button" onClick={() => apply({})} className={`text-sm ${linkStyles.default}`}>
+        <button type="button" onClick={() => apply({})} className={`justify-self-start text-sm ${linkStyles.default}`}>
           Limpiar
         </button>
       )}
