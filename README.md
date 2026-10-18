@@ -73,7 +73,9 @@ En tu computador Wompi no puede enviar avisos a `localhost`, pero no hace falta:
 
 El cliente elige su municipio en el checkout y paga el envío de su zona (Medellín, Valle de Aburrá, resto de Antioquia, resto de Colombia y zonas de difícil acceso). Los precios se editan en Panel → Ajustes.
 
-`npm run db:envios` calcula un precio por zona que cubre el flete real en el 90 % de los envíos, simulando pedidos con los perfumes del catálogo (peso, caja, tarifa de la transportadora, seguro y empaque). Los supuestos están al comienzo de `scripts/shipping-rates.mjs`: cuando tengas cotizaciones reales, cámbialos y ejecuta `npm run db:envios -- --guardar`. Para producción: `node --env-file=.env.production.local scripts/shipping-rates.mjs --guardar`.
+Los precios actuales cubren lo que cobra la transportadora en al menos 9 de cada 10 pedidos de un perfume; el seguro y el empaque los asume la tienda, como hacen las tiendas de la competencia. `npm run db:envios -- --cobertura` mide qué parte de los envíos cubren los precios guardados.
+
+`npm run db:envios` calcula, en cambio, un precio por zona que cubre el costo total (flete, seguro y empaque) en el 90 % de los envíos, simulando pedidos con los perfumes del catálogo (peso, caja, tarifa de la transportadora, seguro y empaque). Los supuestos están al comienzo de `scripts/shipping-rates.mjs`: cuando tengas cotizaciones reales, cámbialos y ejecuta `npm run db:envios -- --guardar`. Para producción: `node --env-file=.env.production.local scripts/shipping-rates.mjs --guardar`.
 
 ## Publicar en Vercel
 

@@ -1,7 +1,8 @@
 // Calcula el precio de envío de cada zona para que cubra el flete real en al menos el 90 % de los envíos.
 //
-//   npm run db:envios               solo calcula y muestra la tabla
-//   npm run db:envios -- --guardar  además guarda los precios en Ajustes (tabla settings)
+//   npm run db:envios                 solo calcula y muestra la tabla
+//   npm run db:envios -- --guardar    además guarda los precios en Ajustes (tabla settings)
+//   npm run db:envios -- --cobertura  dice qué parte de los envíos cubren los precios guardados en Ajustes
 //
 // Cómo funciona: simula muchos envíos. En cada uno elige al azar cuántos perfumes lleva el pedido,
 // cuáles (del catálogo activo, con su tamaño y precio reales), cuánto pesan, el tamaño de la caja,
@@ -83,23 +84,49 @@ function shipmentCost(zone, catalog) {
   const freight = between(rate.firstKg) + (billedKg - 1) * between(rate.extraKg);
   const declared = perfumes.reduce((sum, p) => sum + p.list_price, 0);
   const insurance = Math.max(INSURANCE_MIN, declared * between(INSURANCE_RATE));
-  return freight + insurance + between(PACKING_COST);
+  return { units, freight, total: freight + insurance + between(PACKING_COST) };
 }
 
 const db = await connect();
 const { rows: catalog } = await db.query("select size_ml, list_price from products where is_active and list_price > 0");
 if (catalog.length === 0) throw new Error("No hay productos activos con precio para simular.");
 
+const peso = (n) => `$${Math.round(n).toLocaleString("es-CO")}`;
+const pct = (part, all) => `${((part / all) * 100).toFixed(0)} %`.padStart(5);
+
+// Con --cobertura no se calcula nada nuevo: se miden los precios que ya están en Ajustes.
+// "Flete" es solo lo que cobra la transportadora; "costo total" suma seguro y empaque.
+if (process.argv.includes("--cobertura")) {
+  const { rows } = await db.query("select value->'shippingRates' as rates from settings where key = 'store'");
+  const saved = rows[0]?.rates ?? {};
+  console.log("Qué parte de los envíos cubre cada precio guardado:\n");
+  console.log("Zona          Precio    Flete (todos)   Flete (1 perfume)   Costo total (todos)   Costo total (1 perfume)");
+  for (const zone of Object.keys(CARRIER)) {
+    const price = saved[zone];
+    if (price == null) {
+      console.log(`${zone.padEnd(13)} se coordina`);
+      continue;
+    }
+    const sims = Array.from({ length: SAMPLES }, () => shipmentCost(zone, catalog));
+    const single = sims.filter((sim) => sim.units === 1);
+    const share = (list, key) => pct(list.filter((sim) => sim[key] <= price).length, list.length);
+    console.log(
+      `${zone.padEnd(13)} ${peso(price).padStart(7)}   ${share(sims, "freight").padStart(13)}   ${share(single, "freight").padStart(17)}   ${share(sims, "total").padStart(19)}   ${share(single, "total").padStart(23)}`,
+    );
+  }
+  await db.end();
+  process.exit(0);
+}
+
 const rates = {};
 console.log(`Simulando ${SAMPLES.toLocaleString("es-CO")} envíos por zona con ${catalog.length} perfumes activos.\n`);
 console.log("Zona          Mediana   Percentil 90   Precio al cliente   Envíos cubiertos");
 for (const zone of Object.keys(CARRIER)) {
-  const costs = Array.from({ length: SAMPLES }, () => shipmentCost(zone, catalog)).sort((a, b) => a - b);
+  const costs = Array.from({ length: SAMPLES }, () => shipmentCost(zone, catalog).total).sort((a, b) => a - b);
   const p90 = costs[Math.ceil(SAMPLES * COVERAGE) - 1];
   const price = Math.ceil(p90 / 1000) * 1000;
   const covered = costs.filter((cost) => cost <= price).length / SAMPLES;
   rates[zone] = price;
-  const peso = (n) => `$${Math.round(n).toLocaleString("es-CO")}`;
   console.log(
     `${zone.padEnd(13)} ${peso(costs[SAMPLES / 2]).padStart(8)}   ${peso(p90).padStart(12)}   ${peso(price).padStart(17)}   ${(covered * 100).toFixed(1).padStart(15)} %`,
   );
