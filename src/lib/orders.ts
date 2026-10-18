@@ -8,8 +8,8 @@ import { sql } from "./db";
 export const statusLabels = {
   pending: "Por pagar",
   payment_reported: "Pago en revisión",
-  payment_confirmed: "Pagado, por enviar",
-  preparing: "Pagado, por enviar",
+  payment_confirmed: "Preparando tu pedido", // Wompi aprobó el pago: el pedido pasa aquí solo
+  preparing: "Preparando tu pedido",
   shipped: "Enviado",
   delivered: "Entregado",
   cancelled: "Cancelado",

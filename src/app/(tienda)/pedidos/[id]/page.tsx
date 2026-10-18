@@ -133,9 +133,9 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/pe
 
           {isToShip(order.status) && (
             <section className="border border-line bg-surface p-6">
-              <h2 className="font-display text-2xl">Pago confirmado</h2>
+              <h2 className="font-display text-2xl">Preparando tu pedido</h2>
               <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-                Recibimos tu pago. Estamos alistando tu pedido; cuando salga, aquí verás la guía de envío. La entrega tarda {deliveryEstimate} aproximadamente.
+                Wompi confirmó tu pago. Estamos alistando tu pedido; cuando salga, aquí verás la guía de envío. La entrega tarda {deliveryEstimate} aproximadamente.
               </p>
             </section>
           )}

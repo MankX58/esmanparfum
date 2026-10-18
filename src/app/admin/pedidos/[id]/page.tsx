@@ -1,3 +1,4 @@
+import { buttonStyles } from "@/components/button";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
 import { requireAdmin } from "@/lib/auth";
@@ -6,7 +7,7 @@ import { OrderProgress, statusHints } from "@/components/order-progress";
 import { ActionButton } from "@/components/action-button";
 import { ConfirmButton } from "@/components/confirm-button";
 import { getOrder, getOrderItems, isToShip } from "@/lib/orders";
-import { cancelOrder, deleteOrder, deliverOrder } from "../actions";
+import { cancelOrder, deleteOrder, deliverOrder, syncWompiPayment } from "../actions";
 import { ConfirmPayment, DetailsForm, ShipForm } from "../order-actions";
 
 export const metadata = { title: "Pedido" };
@@ -51,8 +52,8 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/pedid
           <h2 className="font-display text-2xl">Qué sigue</h2>
           <p className="mt-2 mb-6 max-w-[60ch] text-sm leading-relaxed text-ink-soft">
             {statusHints.admin[order.status]}
-            {awaitingPayment &&
-              ` Deben llegar ${formatCOP(total)}. Confirma a mano solo si ves el pago aprobado en tu panel de Wompi (o en tu banco) y el pedido no se confirmó solo: una captura de pantalla no es prueba.`}
+            {order.status === "payment_reported" &&
+              ` Deben llegar ${formatCOP(total)}. Confirma solo si ves la transferencia en tu banco: una captura de pantalla no es prueba.`}
           </p>
           {order.payment_reference && awaitingPayment && (
             <p className="mb-6 text-sm">
@@ -60,7 +61,16 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/pedid
               {order.payment_reference}
             </p>
           )}
-          {awaitingPayment && <ConfirmPayment orderId={order.id} />}
+          {order.status === "payment_reported" && <ConfirmPayment orderId={order.id} />}
+          {/* Por si el aviso de Wompi no llegó: se le pregunta de nuevo a Wompi, nunca se confirma a mano. */}
+          {order.status === "pending" && order.wompi_transaction_id && (
+            <ActionButton
+              action={syncWompiPayment.bind(null, order.id)}
+              label="Consultar el pago en Wompi"
+              successMessage="Pago aprobado: el pedido pasó a Preparando pedido"
+              className={buttonStyles.secondary}
+            />
+          )}
           {toShip && <ShipForm orderId={order.id} tracking={order.tracking} />}
           {order.status === "shipped" && (
             <ActionButton action={deliverOrder.bind(null, order.id)} label="Marcar como entregado" successMessage="Pedido entregado" />

@@ -5,21 +5,40 @@ import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { readForm, type FormState } from "@/lib/form";
 import { markOrderPaid } from "@/lib/payments";
+import { applyTransaction, fetchTransaction } from "@/lib/wompi";
 
 // Cada acción mueve el pedido un solo paso. El "where" de cada una comprueba el estado
 // actual, así un pedido nunca salta pasos ni retrocede aunque se pulse dos veces.
 
-// Paso 1, a mano. Normalmente Wompi confirma el pago solo; esto queda por si un aviso de Wompi
-// se perdió o el pago llegó por otro medio. Queda registrado quién lo confirmó y cuándo.
+// Paso 1, a mano: solo para pedidos de antes de Wompi (el cliente avisaba una transferencia).
+// Los pagos de Wompi se confirman solos. Queda registrado quién lo confirmó y cuándo.
 export async function confirmPayment(orderId: number): Promise<FormState> {
   const admin = await requireAdmin();
   if (!Number.isInteger(orderId)) return { message: "Pedido no válido." };
 
+  const [order] = await sql`select status from orders where id = ${orderId}`;
+  if (order?.status !== "payment_reported") return { message: "Los pagos con Wompi se confirman solos." };
   const confirmed = await markOrderPaid(orderId, admin.id);
   if (!confirmed) return { message: "Este pedido ya no está esperando confirmación de pago." };
 
   revalidatePath("/", "layout");
   return { ok: true };
+}
+
+// Le vuelve a preguntar a Wompi por el último intento de pago del pedido. Sirve si el aviso de
+// Wompi no llegó: si el pago está aprobado, el pedido pasa solo a Preparando pedido.
+export async function syncWompiPayment(orderId: number): Promise<FormState> {
+  await requireAdmin();
+  if (!Number.isInteger(orderId)) return { message: "Pedido no válido." };
+
+  const [order] = await sql`select wompi_transaction_id from orders where id = ${orderId} and status = 'pending'`;
+  if (!order?.wompi_transaction_id) return { message: "Este pedido no tiene un intento de pago en Wompi para consultar." };
+  const transaction = await fetchTransaction(order.wompi_transaction_id);
+  if (!transaction) return { message: "Wompi no respondió. Inténtalo de nuevo en un momento." };
+  await applyTransaction(transaction);
+
+  revalidatePath("/", "layout");
+  return transaction.status === "APPROVED" ? { ok: true } : { message: `Wompi dice que el pago está: ${transaction.status}.` };
 }
 
 // Paso 2. El pedido salió. La guía es opcional: una entrega en persona no tiene.

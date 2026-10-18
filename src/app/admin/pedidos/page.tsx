@@ -25,7 +25,7 @@ type OrderRow = {
 // Filtro de estado. "Por pagar" no está: esos pedidos no aparecen en el panel.
 const statusOptions = [
   { value: "payment_reported", label: "Pago en revisión" },
-  { value: "payment_confirmed", label: "Pagado, por enviar" },
+  { value: "payment_confirmed", label: "Preparando pedido" },
   { value: "shipped", label: "Enviado" },
   { value: "delivered", label: "Entregado" },
   { value: "cancelled", label: "Cancelado" },
@@ -71,7 +71,7 @@ export default async function OrdersPage({ searchParams }: PageProps<"/admin/ped
     <div className="motion-safe:animate-settle">
       <PageHeader
         title="Pedidos"
-        description="Los pedidos de la tienda aparecen aquí cuando el cliente avisa que pagó. Abre uno y pulsa el botón de Qué sigue: confirmar el pago, marcarlo como enviado o como entregado."
+        description="Los pedidos de la tienda aparecen aquí solos cuando Wompi aprueba el pago, ya en Preparando pedido: no tienes que confirmar nada. Abre uno y pulsa el botón de Qué sigue para marcarlo como enviado o como entregado."
       >
         <dl className="mt-4 flex flex-wrap gap-x-8 gap-y-2">
           <Fact label="Pedidos">{orders.length}</Fact>
@@ -95,12 +95,12 @@ export default async function OrdersPage({ searchParams }: PageProps<"/admin/ped
       <Glossary
         title="¿Qué significa cada estado?"
         terms={[
-          ["Pago en revisión", "El cliente avisó que ya transfirió. Te toca revisar el banco y confirmar el pago."],
-          ["Pagado, por enviar", "Viste el dinero. Ya cuenta como venta, descuenta stock y entra a caja. Te toca enviarlo."],
+          ["Preparando pedido", "Wompi aprobó el pago y el pedido llegó aquí solo, sin que tengas que confirmar nada. Ya cuenta como venta, descuenta stock y entra a caja. Te toca alistarlo y enviarlo."],
+          ["Pago en revisión", "Solo pedidos de antes de Wompi: el cliente avisó una transferencia. Te toca revisar el banco y confirmar el pago."],
           ["Enviado", "Ya lo despachaste. Si registraste la guía, el cliente la ve. Tú o el cliente lo marcan como entregado."],
           ["Entregado", "El cliente lo recibió. Pedido cerrado."],
           ["Cancelado", "No se hizo. No cuenta en ventas, stock ni caja."],
-          ["¿Y los que no han pagado?", "Un pedido sin aviso de pago no aparece en esta lista. Si necesitas verlo, búscalo por su código o por el nombre del cliente."],
+          ["¿Y los que no han pagado?", "Un pedido que aún no se paga en Wompi no aparece en esta lista. Si necesitas verlo, búscalo por su código o por el nombre del cliente."],
         ]}
       />
 
@@ -143,7 +143,7 @@ export default async function OrdersPage({ searchParams }: PageProps<"/admin/ped
                   <td className={`${cell} py-4`}>{order.customer ?? "Sin cliente"}</td>
                   <td className={numberCell}>{formatCOP(order.total)}</td>
                   <td className={`${cell} py-4`}>
-                    <OrderStatusBadge status={order.status} />
+                    <OrderStatusBadge status={order.status} audience="admin" />
                     {todo(order.status) && <p className="mt-1.5 text-xs text-ink-soft">{todo(order.status)}</p>}
                   </td>
                 </tr>

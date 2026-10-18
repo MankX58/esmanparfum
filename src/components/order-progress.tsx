@@ -5,25 +5,29 @@ import { orderSteps, statusLabels, stepOf, type OrderStatus } from "@/lib/orders
 // - OrderProgress: el recorrido completo (página del pedido, en tienda y en panel).
 // - OrderStatusBadge: versión corta para listas y encabezados.
 
-// Nombre corto de cada paso del recorrido, en el orden de orderSteps.
-const stepNames = ["Pedido hecho", "Pago confirmado", "Enviado", "Entregado"];
+// Nombre corto de cada paso del recorrido, en el orden de orderSteps. El panel no dice "tu".
+const stepNames = {
+  customer: ["Pedido hecho", "Preparando tu pedido", "Enviado", "Entregado"],
+  admin: ["Pedido hecho", "Preparando pedido", "Enviado", "Entregado"],
+};
+const adminLabels: Partial<Record<OrderStatus, string>> = { payment_confirmed: "Preparando pedido", preparing: "Preparando pedido" };
 
 // Qué está pasando en cada estado y a quién le toca actuar, dicho para el cliente y para el panel.
 export const statusHints: Record<"customer" | "admin", Record<OrderStatus, string>> = {
   customer: {
     pending: "Te toca: paga con Wompi. Al aprobarse el pago, tu pedido se confirma solo.",
     payment_reported: "Nos toca: estamos revisando tu transferencia.",
-    payment_confirmed: "Recibimos tu pago. Estamos alistando tu pedido para enviarlo.",
-    preparing: "Recibimos tu pago. Estamos alistando tu pedido para enviarlo.",
+    payment_confirmed: "Wompi confirmó tu pago. Estamos alistando tu pedido para enviarlo.",
+    preparing: "Wompi confirmó tu pago. Estamos alistando tu pedido para enviarlo.",
     shipped: "Tu pedido va en camino. Avísanos cuando lo recibas.",
     delivered: "Entregado. Gracias por tu compra.",
     cancelled: "Este pedido se canceló.",
   },
   admin: {
-    pending: "El cliente aún no ha pagado en Wompi. Cuando Wompi apruebe el pago, el pedido se confirma solo.",
+    pending: "El cliente aún no ha pagado en Wompi. No tienes que hacer nada: cuando Wompi apruebe el pago, el pedido pasa solo a Preparando pedido.",
     payment_reported: "Pedido de antes de Wompi: revisa tu banco y confirma la transferencia.",
-    payment_confirmed: "Te toca: alista el pedido y márcalo como enviado.",
-    preparing: "Te toca: alista el pedido y márcalo como enviado.",
+    payment_confirmed: "Wompi aprobó el pago. Te toca: alista el pedido y márcalo como enviado.",
+    preparing: "Wompi aprobó el pago. Te toca: alista el pedido y márcalo como enviado.",
     shipped: "En camino. Márcalo como entregado cuando el cliente lo reciba.",
     delivered: "Pedido cerrado. No hay nada más que hacer.",
     cancelled: "Este pedido se canceló.",
@@ -81,7 +85,7 @@ export function OrderProgress({ status, audience }: { status: OrderStatus; audie
 
             <div className="min-w-0 pt-1 md:pt-0">
               <p className={`text-sm ${isCurrent ? "font-medium" : done ? "text-ink-soft" : "text-ink-faint"}`}>
-                {stepNames[index]}
+                {stepNames[audience][index]}
                 {done && <span className="sr-only"> (completado)</span>}
               </p>
               {index === current && <p className="mt-1 text-xs leading-relaxed text-ink-soft">{statusHints[audience][status]}</p>}
@@ -94,7 +98,7 @@ export function OrderProgress({ status, audience }: { status: OrderStatus; audie
 }
 
 // Estado en corto: el nombre y una barrita de cuatro tramos que se llena hasta el paso actual.
-export function OrderStatusBadge({ status }: { status: OrderStatus }) {
+export function OrderStatusBadge({ status, audience = "customer" }: { status: OrderStatus; audience?: "customer" | "admin" }) {
   if (status === "cancelled") {
     return <span className="text-sm font-medium text-danger">{statusLabels.cancelled}</span>;
   }
@@ -102,7 +106,7 @@ export function OrderStatusBadge({ status }: { status: OrderStatus }) {
   const current = stepOf(status);
   return (
     <span className="inline-flex flex-col gap-1.5">
-      <span className="text-sm font-medium whitespace-nowrap">{statusLabels[status]}</span>
+      <span className="text-sm font-medium whitespace-nowrap">{(audience === "admin" && adminLabels[status]) || statusLabels[status]}</span>
       <span aria-hidden className="flex gap-0.5">
         {orderSteps.map((step, index) => (
           <span key={step} className={`h-1 w-4 ${index <= current ? "bg-brand" : "bg-line"}`} />
