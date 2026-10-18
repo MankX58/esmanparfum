@@ -31,7 +31,7 @@ export async function saveFinanceSettings(formData: FormData): Promise<FormState
   return { ok: true };
 }
 
-// Guarda los datos de contacto y envío que la tienda muestra a quien hace un pedido.
+// Guarda el QR de transferencia y los datos de contacto y envío que ve quien hace un pedido.
 export async function saveStoreSettings(formData: FormData): Promise<FormState> {
   await requireAdmin();
 
@@ -40,7 +40,17 @@ export async function saveStoreSettings(formData: FormData): Promise<FormState> 
     // El número de WhatsApp se guarda solo con dígitos, como lo pide wa.me.
     whatsapp: (form.text("whatsapp", { max: 20 }) ?? "").replace(/\D/g, ""),
     shippingFee: form.money("shippingFee") ?? 0,
+    qrImage: form.text("qrImage", { max: 120 }) ?? "",
+    legalName: form.text("legalName", { max: 120 }) ?? "",
+    legalId: form.text("legalId", { max: 30 }) ?? "",
+    address: form.text("address", { max: 160 }) ?? "",
+    email: form.text("email", { max: 120 }) ?? "",
   };
+  if (settings.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(settings.email)) form.errors.email = "Escribe un correo válido.";
+  // Solo se acepta una imagen de la carpeta public: nunca una dirección de otro sitio.
+  if (settings.qrImage && !/^\/[\w./-]+\.(png|jpe?g|webp)$/i.test(settings.qrImage)) {
+    form.errors.qrImage = "Escribe el nombre del archivo empezando con /. Ejemplo: /pago-qr.jpg";
+  }
   if (form.hasErrors()) return { errors: form.errors };
 
   await sql`

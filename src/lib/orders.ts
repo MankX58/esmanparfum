@@ -44,6 +44,7 @@ export type Order = {
   shipping_city: string | null;
   shipping_notes: string | null;
   shipping_fee: number;
+  payment_method: string | null; // 'Wompi' o 'Transferencia' en los pedidos de la tienda
   tracking: string | null;
   payment_reference: string | null;
   payment_reported_at: string | null;
@@ -54,6 +55,9 @@ export type Order = {
   wompi_status: string | null;
   promo_code: string | null; // código promocional usado, tal como estaba al hacer el pedido
   promo_percent: number | null;
+  transfer_percent: number | null; // descuento por pagar con transferencia
+  promo_discount: number; // pesos descontados por el código
+  transfer_discount: number; // pesos descontados por la transferencia
   items_total: number; // productos ya con el descuento del código
   items_discount: number; // descuento total del código en pesos
 };
@@ -66,12 +70,17 @@ export async function getOrder(id: number) {
   const rows = (await sql`
     select o.id, o.code, o.status, o.ordered_on::text as ordered_on, o.user_id, c.name as customer,
            o.shipping_name, o.shipping_phone, o.shipping_address, o.shipping_city, o.shipping_notes,
-           o.shipping_fee, o.tracking, o.payment_reference,
+           o.shipping_fee, o.payment_method, o.tracking, o.payment_reference,
            o.payment_reported_at::text as payment_reported_at,
            o.payment_confirmed_at::text as payment_confirmed_at,
-           u.email as confirmed_by, o.admin_notes, o.wompi_transaction_id, o.wompi_status, o.promo_code, o.promo_percent,
+           u.email as confirmed_by, o.admin_notes, o.wompi_transaction_id, o.wompi_status, o.promo_code, o.promo_percent, o.transfer_percent,
            (select coalesce(sum(total), 0) from order_items where order_id = o.id)::int as items_total,
-           (select coalesce(sum(discount), 0) from order_items where order_id = o.id)::int as items_discount
+           (select coalesce(sum(discount), 0) from order_items where order_id = o.id)::int as items_discount,
+           -- Cada descuento redondeado por línea, igual que al crear el pedido (lib/promo.ts).
+           (select coalesce(sum(round(quantity * unit_price * coalesce(o.promo_percent, 0) / 100.0)), 0)
+              from order_items where order_id = o.id)::int as promo_discount,
+           (select coalesce(sum(round(quantity * unit_price * coalesce(o.transfer_percent, 0) / 100.0)), 0)
+              from order_items where order_id = o.id)::int as transfer_discount
     from orders o
     left join customers c on c.id = o.customer_id
     left join users u on u.id = o.payment_confirmed_by
@@ -86,17 +95,31 @@ export async function getOrderItems(orderId: number) {
 }
 
 // Datos de la tienda que el dueño configura en Panel → Ajustes.
-// (Los pagos van por Wompi: sus llaves viven en las variables de entorno, no aquí.)
+// (Las llaves de Wompi viven en las variables de entorno, no aquí.)
 export type StoreSettings = {
   whatsapp: string; // número con indicativo, solo dígitos: 573001234567
   shippingFee: number; // costo fijo de envío en pesos (0 = sin cobro en la web)
+  qrImage: string; // QR para pagar por transferencia, dentro de la carpeta public: "/pago-qr.jpg"
+  // Quién responde por la tienda. Salen en Términos, Privacidad y Cambios y devoluciones.
+  legalName: string; // nombre completo o razón social
+  legalId: string; // cédula o NIT
+  address: string; // domicilio: dirección y ciudad
+  email: string; // correo para peticiones, quejas y datos personales
 };
 
-const emptySettings: StoreSettings = { whatsapp: "", shippingFee: 0 };
+const emptySettings: StoreSettings = { whatsapp: "", shippingFee: 0, qrImage: "", legalName: "", legalId: "", address: "", email: "" };
 
 export async function getStoreSettings(): Promise<StoreSettings> {
   const [row] = await sql`select value from settings where key = 'store'`;
   const saved = (row?.value ?? {}) as Partial<StoreSettings>;
-  // Solo los campos actuales: los datos de transferencia de antes pueden seguir guardados.
-  return { whatsapp: saved.whatsapp ?? emptySettings.whatsapp, shippingFee: saved.shippingFee ?? emptySettings.shippingFee };
+  // Solo los campos actuales: la llave, el titular y el banco de antes pueden seguir guardados.
+  return {
+    whatsapp: saved.whatsapp ?? emptySettings.whatsapp,
+    shippingFee: saved.shippingFee ?? emptySettings.shippingFee,
+    qrImage: saved.qrImage ?? emptySettings.qrImage,
+    legalName: saved.legalName ?? "",
+    legalId: saved.legalId ?? "",
+    address: saved.address ?? "",
+    email: saved.email ?? "",
+  };
 }

@@ -17,7 +17,7 @@ export default async function SettingsPage() {
       <div>
         <PageHeader
           title="Ajustes"
-          description="El estado de los pagos con Wompi, los datos de contacto y envío, y los valores que usan las cuentas del panel."
+          description="El estado de los pagos con Wompi, el QR para pagar por transferencia, los datos de contacto y envío, y los valores que usan las cuentas del panel."
         />
         <SettingsForm settings={settings} wompi={{ configured: wompiConfigured(), testMode: wompiTestMode() }} />
       </div>

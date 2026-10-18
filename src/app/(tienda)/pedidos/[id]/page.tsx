@@ -8,9 +8,11 @@ import { formatCOP, formatDate, whatsappLink } from "@/lib/format";
 import { OrderProgress, OrderStatusBadge } from "@/components/order-progress";
 import { getOrder, getOrderItems, getStoreSettings, isToShip, showsCode } from "@/lib/orders";
 import { ActionButton } from "@/components/action-button";
+import { QrImage } from "@/components/store/qr-image";
 import { deliveryEstimate } from "@/lib/site";
 import { applyTransaction, checkoutFields, fetchTransaction, wompiConfigured, wompiTestMode } from "@/lib/wompi";
 import { cancelOrder, confirmDelivery } from "../actions";
+import { ReportPaymentForm } from "../report-payment-form";
 
 export const metadata: Metadata = { title: "Tu pedido", robots: { index: false } };
 
@@ -36,6 +38,7 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/pe
       order = (await getOrder(id)) ?? order;
     }
   }
+  const byTransfer = order.payment_method === "Transferencia";
   const paymentProcessing = order.status === "pending" && order.wompi_status === "PENDING";
   const paymentFailed = order.status === "pending" && failedStatuses.includes(order.wompi_status ?? "");
 
@@ -66,7 +69,45 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/pe
 
       <div className="mt-12 grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="flex flex-col gap-10">
-          {order.status === "pending" && (
+          {order.status === "pending" && byTransfer && (
+            <section className="bg-brand p-6 text-on-brand sm:p-8">
+              <h2 className="font-display text-2xl">Paga por transferencia</h2>
+              <div className="mt-6 flex flex-col gap-8 sm:flex-row sm:items-start">
+                {store.qrImage && <QrImage src={store.qrImage} />}
+                <div>
+                  <p className="text-sm text-on-brand-soft">Valor exacto a transferir</p>
+                  <p className="mt-1 text-3xl font-medium tabular-nums select-all">{formatCOP(total)}</p>
+                  {order.transfer_percent && (
+                    <p className="mt-2 text-sm text-on-brand-soft">
+                      Ya incluye tu {order.transfer_percent}% de descuento por pagar con transferencia.
+                    </p>
+                  )}
+                  {!store.qrImage && (
+                    <p className="mt-4 leading-relaxed text-on-brand-soft">Escríbenos por WhatsApp y te enviamos los datos para pagar.</p>
+                  )}
+                </div>
+              </div>
+              {/* Recordatorio: sin el nombre y el aviso no se puede saber de quién es una transferencia. */}
+              <ol className="mt-8 flex list-decimal flex-col gap-3 border-t border-on-brand/20 pt-6 pl-5 leading-relaxed">
+                <li>
+                  {store.qrImage ? "Escanea el QR desde la app de tu banco o Nequi. " : ""}
+                  <strong className="font-medium">En el mensaje de la transferencia</strong> escribe tu nombre completo.
+                </li>
+                <li>
+                  <strong className="font-medium">Después de pagar</strong>, llena el campo de abajo y pulsa Ya pagué. Sin
+                  ese aviso no podemos identificar tu pago.
+                </li>
+              </ol>
+            </section>
+          )}
+
+          {order.status === "pending" && byTransfer && order.user_id === user.id && (
+            <section>
+              <ReportPaymentForm orderId={order.id} />
+            </section>
+          )}
+
+          {order.status === "pending" && !byTransfer && (
             <section className="bg-brand p-6 text-on-brand sm:p-8">
               <h2 className="font-display text-2xl">{paymentProcessing ? "Estamos esperando tu pago" : "Paga tu pedido"}</h2>
               {paymentFailed && (
@@ -122,11 +163,11 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/pe
 
           {order.status === "payment_reported" && (
             <section className="border border-line bg-surface p-6">
-              {/* Pedido de antes de Wompi: el cliente avisó una transferencia y falta que la confirmemos. */}
+              {/* El cliente avisó su transferencia y falta que la confirmemos en el banco. */}
               <h2 className="font-display text-2xl">Estamos verificando tu pago</h2>
               <p className="mt-2 text-sm leading-relaxed text-ink-soft">
                 Recibimos tu aviso de transferencia ({order.payment_reference}). No tienes que hacer nada más: en cuanto
-                la confirmemos, alistamos tu pedido.
+                la veamos en el banco, confirmamos el pago y empezamos a preparar tu pedido.
               </p>
             </section>
           )}
@@ -234,7 +275,13 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/pe
                 <dt>
                   Descuento {order.promo_code} ({order.promo_percent}%)
                 </dt>
-                <dd className="tabular-nums">−{formatCOP(order.items_discount)}</dd>
+                <dd className="tabular-nums">−{formatCOP(order.promo_discount)}</dd>
+              </div>
+            )}
+            {order.transfer_percent && (
+              <div className="flex justify-between gap-4 text-ok">
+                <dt>Descuento por transferencia ({order.transfer_percent}%)</dt>
+                <dd className="tabular-nums">−{formatCOP(order.transfer_discount)}</dd>
               </div>
             )}
             <div className="flex justify-between gap-4">

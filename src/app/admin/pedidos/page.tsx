@@ -71,7 +71,7 @@ export default async function OrdersPage({ searchParams }: PageProps<"/admin/ped
     <div className="motion-safe:animate-settle">
       <PageHeader
         title="Pedidos"
-        description="Los pedidos de la tienda aparecen aquí solos cuando Wompi aprueba el pago, ya en Preparando pedido: no tienes que confirmar nada. Abre uno y pulsa el botón de Qué sigue para marcarlo como enviado o como entregado."
+        description="Los pedidos pagados con Wompi aparecen aquí solos, ya en Preparando pedido: no tienes que confirmar nada. Los de transferencia aparecen en Pago en revisión cuando el cliente avisa que pagó: confírmalos al ver el dinero en el banco. Abre uno y pulsa el botón de Qué sigue."
       >
         <dl className="mt-4 flex flex-wrap gap-x-8 gap-y-2">
           <Fact label="Pedidos">{orders.length}</Fact>
@@ -96,11 +96,11 @@ export default async function OrdersPage({ searchParams }: PageProps<"/admin/ped
         title="¿Qué significa cada estado?"
         terms={[
           ["Preparando pedido", "Wompi aprobó el pago y el pedido llegó aquí solo, sin que tengas que confirmar nada. Ya cuenta como venta, descuenta stock y entra a caja. Te toca alistarlo y enviarlo."],
-          ["Pago en revisión", "Solo pedidos de antes de Wompi: el cliente avisó una transferencia. Te toca revisar el banco y confirmar el pago."],
+          ["Pago en revisión", "El cliente pagó por transferencia y avisó Ya pagué. Te toca revisar el banco y confirmar el pago."],
           ["Enviado", "Ya lo despachaste. Si registraste la guía, el cliente la ve. Tú o el cliente lo marcan como entregado."],
           ["Entregado", "El cliente lo recibió. Pedido cerrado."],
           ["Cancelado", "No se hizo. No cuenta en ventas, stock ni caja."],
-          ["¿Y los que no han pagado?", "Un pedido que aún no se paga en Wompi no aparece en esta lista. Si necesitas verlo, búscalo por su código o por el nombre del cliente."],
+          ["¿Y los que no han pagado?", "Un pedido sin pagar (ni aviso de transferencia) no aparece en esta lista. Si necesitas verlo, búscalo por su código o por el nombre del cliente."],
         ]}
       />
 

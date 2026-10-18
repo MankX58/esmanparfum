@@ -18,6 +18,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: siteUrl, changeFrequency: "weekly", priority: 1 },
     { url: `${siteUrl}/catalogo`, changeFrequency: "daily", priority: 0.9 },
     { url: `${siteUrl}/cotizar`, changeFrequency: "monthly", priority: 0.5 },
+    ...["/terminos", "/privacidad", "/cambios-y-devoluciones"].map((path) => ({
+      url: `${siteUrl}${path}`,
+      changeFrequency: "yearly" as const,
+      priority: 0.2,
+    })),
     // Una página por marca: el catálogo filtrado.
     ...(await listBrands()).map((brand) => ({
       url: `${siteUrl}${brandPath(brand)}`,

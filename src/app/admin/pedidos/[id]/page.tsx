@@ -33,6 +33,9 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/pedid
   const items = await getOrderItems(id);
   const total = order.items_total + order.shipping_fee;
   const awaitingPayment = order.status === "pending" || order.status === "payment_reported";
+  // Transferencia por confirmar: con aviso del cliente o sin él (si ya viste el dinero en el banco).
+  const awaitingTransfer =
+    order.status === "payment_reported" || (order.status === "pending" && order.payment_method === "Transferencia");
   const toShip = isToShip(order.status);
   const closed = order.status === "delivered" || order.status === "cancelled";
 
@@ -52,8 +55,8 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/pedid
           <h2 className="font-display text-2xl">Qué sigue</h2>
           <p className="mt-2 mb-6 max-w-[60ch] text-sm leading-relaxed text-ink-soft">
             {statusHints.admin[order.status]}
-            {order.status === "payment_reported" &&
-              ` Deben llegar ${formatCOP(total)}. Confirma solo si ves la transferencia en tu banco: una captura de pantalla no es prueba.`}
+            {awaitingTransfer &&
+              ` Paga por transferencia: deben llegar ${formatCOP(total)}. Confirma solo si ves el dinero en tu banco: una captura de pantalla no es prueba.`}
           </p>
           {order.payment_reference && awaitingPayment && (
             <p className="mb-6 text-sm">
@@ -61,9 +64,9 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/pedid
               {order.payment_reference}
             </p>
           )}
-          {order.status === "payment_reported" && <ConfirmPayment orderId={order.id} />}
+          {awaitingTransfer && <ConfirmPayment orderId={order.id} />}
           {/* Por si el aviso de Wompi no llegó: se le pregunta de nuevo a Wompi, nunca se confirma a mano. */}
-          {order.status === "pending" && order.wompi_transaction_id && (
+          {order.status === "pending" && !awaitingTransfer && order.wompi_transaction_id && (
             <ActionButton
               action={syncWompiPayment.bind(null, order.id)}
               label="Consultar el pago en Wompi"
@@ -99,7 +102,13 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/pedid
                   <dt>
                     Código promocional {order.promo_code} ({order.promo_percent}%)
                   </dt>
-                  <dd className="tabular-nums">−{formatCOP(order.items_discount)}</dd>
+                  <dd className="tabular-nums">−{formatCOP(order.promo_discount)}</dd>
+                </div>
+              )}
+              {order.transfer_percent && (
+                <div className="flex justify-between gap-4 text-ok">
+                  <dt>Descuento por transferencia ({order.transfer_percent}%)</dt>
+                  <dd className="tabular-nums">−{formatCOP(order.transfer_discount)}</dd>
                 </div>
               )}
               <div className="flex justify-between gap-4">

@@ -9,7 +9,7 @@ import { Field, fieldProps, inputStyles } from "@/components/field";
 import { useCart } from "@/lib/cart";
 import type { StoreProduct } from "@/lib/catalog";
 import { formatCOP } from "@/lib/format";
-import { lineDiscount, type PromoCode } from "@/lib/promo";
+import { lineDiscount, TRANSFER_DISCOUNT, type PromoCode } from "@/lib/promo";
 import { deliveryEstimate } from "@/lib/site";
 import { useServerForm } from "@/lib/use-server-form";
 import { getCartProducts } from "../carrito/actions";
@@ -42,8 +42,15 @@ export function CheckoutForm({ defaultName, shippingFee }: { defaultName: string
   const [promo, setPromo] = useState<PromoCode | null>(null);
   const [promoError, setPromoError] = useState("");
   const [checkingPromo, startPromoCheck] = useTransition();
-  // Mismo cálculo que el servidor: el descuento de cada línea, redondeado, y luego la suma.
-  const discount = promo ? lines.reduce((total, product) => total + lineDiscount(product.list_price * cart[product.id], promo.percent), 0) : 0;
+  // Cómo va a pagar. Con transferencia hay un descuento extra (TRANSFER_DISCOUNT).
+  const [method, setMethod] = useState<"Wompi" | "Transferencia">("Wompi");
+
+  // Mismo cálculo que el servidor: cada descuento por línea, redondeado, y luego la suma.
+  const discountOf = (percent: number) =>
+    lines.reduce((total, product) => total + lineDiscount(product.list_price * cart[product.id], percent), 0);
+  const promoDiscount = promo ? discountOf(promo.percent) : 0;
+  const transferDiscount = method === "Transferencia" ? discountOf(TRANSFER_DISCOUNT) : 0;
+  const discount = promoDiscount + transferDiscount;
 
   function applyPromo() {
     if (!promoInput.trim()) return;
@@ -104,7 +111,70 @@ export function CheckoutForm({ defaultName, shippingFee }: { defaultName: string
             <input {...fieldProps("notes", errors.notes)} className={input} />
           </Field>
         </div>
-        <div className="flex flex-wrap items-center gap-4 border-t border-line pt-8">
+
+        <fieldset className="mt-4 flex flex-col gap-3 border-t border-line pt-8">
+          <legend className="mb-4 font-display text-xl">¿Cómo quieres pagar?</legend>
+          {[
+            {
+              value: "Wompi" as const,
+              title: "Pago en línea con Wompi",
+              text: "Tarjeta de crédito o débito, PSE, Nequi o Bancolombia. Tu pedido se confirma apenas se aprueba el pago.",
+            },
+            {
+              value: "Transferencia" as const,
+              title: `Transferencia, con ${TRANSFER_DISCOUNT}% de descuento`,
+              text: "Te mostramos el QR para pagar el valor exacto. Después avisas que pagaste y confirmamos la transferencia en el banco.",
+            },
+          ].map((option) => (
+            <label
+              key={option.value}
+              className="flex cursor-pointer gap-3 border border-line bg-surface p-4 transition-colors duration-(--duration-quick) ease-smooth-out hover:border-ink-faint has-checked:border-brand"
+            >
+              <input
+                type="radio"
+                name="payment_method"
+                value={option.value}
+                checked={method === option.value}
+                onChange={() => setMethod(option.value)}
+                className="mt-0.5 size-5 shrink-0 accent-brand"
+              />
+              <span>
+                <span className="block font-medium">{option.title}</span>
+                <span className="mt-1 block text-sm leading-relaxed text-ink-soft">{option.text}</span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
+
+        <div className="flex flex-col gap-2 border-t border-line pt-8">
+          <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed">
+            <input
+              type="checkbox"
+              name="accept_terms"
+              aria-invalid={errors.accept_terms ? true : undefined}
+              aria-describedby={errors.accept_terms ? "accept_terms-error" : undefined}
+              className="mt-0.5 size-5 shrink-0 accent-brand"
+            />
+            <span>
+              Acepto los{" "}
+              <Link href="/terminos" target="_blank" className={linkStyles.default}>
+                Términos y condiciones
+              </Link>{" "}
+              y autorizo el tratamiento de mis datos según la{" "}
+              <Link href="/privacidad" target="_blank" className={linkStyles.default}>
+                Política de privacidad
+              </Link>
+              .
+            </span>
+          </label>
+          {errors.accept_terms && (
+            <p id="accept_terms-error" className="text-sm text-danger">
+              {errors.accept_terms}
+            </p>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-4">
           <button type="submit" disabled={busy || products === null} className={buttonStyles.primary}>
             {pending ? "Creando el pedido…" : "Hacer el pedido"}
           </button>
@@ -113,7 +183,7 @@ export function CheckoutForm({ defaultName, shippingFee }: { defaultName: string
           </Link>
         </div>
         <p className="text-xs leading-relaxed text-ink-faint">
-          Después de hacer el pedido pagas en Wompi, de forma segura, con tarjeta, PSE, Nequi o Bancolombia. No se cobra nada en esta página.
+          No se cobra nada en esta página: después de hacer el pedido te mostramos cómo pagarlo.
         </p>
       </div>
 
@@ -140,7 +210,13 @@ export function CheckoutForm({ defaultName, shippingFee }: { defaultName: string
                   <dt>
                     Descuento {promo.code} ({promo.percent}%)
                   </dt>
-                  <dd className="tabular-nums">−{formatCOP(discount)}</dd>
+                  <dd className="tabular-nums">−{formatCOP(promoDiscount)}</dd>
+                </div>
+              )}
+              {transferDiscount > 0 && (
+                <div className="flex justify-between gap-4 text-ok motion-safe:animate-swap">
+                  <dt>Descuento por transferencia ({TRANSFER_DISCOUNT}%)</dt>
+                  <dd className="tabular-nums">−{formatCOP(transferDiscount)}</dd>
                 </div>
               )}
               <div className="flex justify-between gap-4">

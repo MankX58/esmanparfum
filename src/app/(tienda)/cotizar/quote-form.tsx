@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { sileo } from "sileo";
-import { buttonStyles } from "@/components/button";
+import Link from "next/link";
+import { buttonStyles, linkStyles } from "@/components/button";
 import { Field, fieldProps, inputStyles } from "@/components/field";
 import { useServerForm } from "@/lib/use-server-form";
 import { requestQuote } from "./actions";
@@ -48,6 +49,29 @@ export function QuoteForm({ defaultPerfume, defaultPhone }: { defaultPerfume: st
       <Field label="Tu WhatsApp" name="phone" error={errors.phone} hint="Por si necesitamos escribirte sobre tu cotización.">
         <input {...fieldProps("phone", errors.phone)} type="tel" autoComplete="tel" defaultValue={defaultPhone} className={input} />
       </Field>
+      <div className="flex flex-col gap-2">
+        <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed">
+          <input
+            type="checkbox"
+            name="accept_privacy"
+            aria-invalid={errors.accept_privacy ? true : undefined}
+            aria-describedby={errors.accept_privacy ? "accept_privacy-error" : undefined}
+            className="mt-0.5 size-5 shrink-0 accent-brand"
+          />
+          <span>
+            Autorizo el uso de mis datos para responder esta cotización, según la{" "}
+            <Link href="/privacidad" target="_blank" className={linkStyles.default}>
+              Política de privacidad
+            </Link>
+            .
+          </span>
+        </label>
+        {errors.accept_privacy && (
+          <p id="accept_privacy-error" className="text-sm text-danger">
+            {errors.accept_privacy}
+          </p>
+        )}
+      </div>
       <button type="submit" disabled={busy} className={`self-start ${buttonStyles.primary}`}>
         {pending ? "Enviando…" : "Pedir cotización"}
       </button>

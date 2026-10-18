@@ -8,6 +8,7 @@ import { Gallery } from "@/components/store/gallery";
 import { ProductCard, ProductLabel, transitionName } from "@/components/store/product-tile";
 import { brandPath, getProduct, listProducts, listSizes } from "@/lib/catalog";
 import { formatCOP } from "@/lib/format";
+import { TRANSFER_DISCOUNT } from "@/lib/promo";
 import { absoluteUrl } from "@/lib/site";
 
 // Título y descripción para buscadores y para la vista previa al compartir el enlace.
@@ -181,7 +182,7 @@ export default async function ProductPage({ params }: PageProps<"/producto/[slug
           </dl>
 
           <p className="mt-8 border-t border-line pt-6 text-sm leading-relaxed text-ink-soft">
-            Pagos seguros con Wompi: tarjeta de crédito o débito, PSE, Nequi o Bancolombia.
+            Pagos seguros con Wompi (tarjeta, PSE, Nequi o Bancolombia) o por transferencia con {TRANSFER_DISCOUNT}% de descuento.
           </p>
         </div>
       </div>

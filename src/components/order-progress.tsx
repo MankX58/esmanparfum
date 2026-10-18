@@ -15,8 +15,8 @@ const adminLabels: Partial<Record<OrderStatus, string>> = { payment_confirmed: "
 // Qué está pasando en cada estado y a quién le toca actuar, dicho para el cliente y para el panel.
 export const statusHints: Record<"customer" | "admin", Record<OrderStatus, string>> = {
   customer: {
-    pending: "Te toca: paga con Wompi. Al aprobarse el pago, tu pedido se confirma solo.",
-    payment_reported: "Nos toca: estamos revisando tu transferencia.",
+    pending: "Te toca: paga tu pedido. Empezamos a prepararlo apenas se confirme el pago.",
+    payment_reported: "Nos toca: estamos revisando tu transferencia en el banco.",
     payment_confirmed: "Wompi confirmó tu pago. Estamos alistando tu pedido para enviarlo.",
     preparing: "Wompi confirmó tu pago. Estamos alistando tu pedido para enviarlo.",
     shipped: "Tu pedido va en camino. Avísanos cuando lo recibas.",
@@ -24,8 +24,8 @@ export const statusHints: Record<"customer" | "admin", Record<OrderStatus, strin
     cancelled: "Este pedido se canceló.",
   },
   admin: {
-    pending: "El cliente aún no ha pagado en Wompi. No tienes que hacer nada: cuando Wompi apruebe el pago, el pedido pasa solo a Preparando pedido.",
-    payment_reported: "Pedido de antes de Wompi: revisa tu banco y confirma la transferencia.",
+    pending: "El cliente aún no ha pagado. Con Wompi no tienes que hacer nada: al aprobarse el pago, el pedido pasa solo a Preparando pedido. Con transferencia, el cliente avisará Ya pagué.",
+    payment_reported: "Te toca: el cliente avisó su transferencia. Revisa tu banco y confirma el pago.",
     payment_confirmed: "Wompi aprobó el pago. Te toca: alista el pedido y márcalo como enviado.",
     preparing: "Wompi aprobó el pago. Te toca: alista el pedido y márcalo como enviado.",
     shipped: "En camino. Márcalo como entregado cuando el cliente lo reciba.",

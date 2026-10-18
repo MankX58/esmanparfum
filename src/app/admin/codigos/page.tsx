@@ -31,7 +31,8 @@ export default async function PromoCodesPage() {
            ((p.expires_at at time zone 'America/Bogota') - interval '1 second')::date::text as last_day,
            coalesce(p.expires_at <= now(), false) as expired,
            count(distinct o.id)::int as uses,
-           coalesce(sum(oi.discount), 0)::int as discounted
+           -- Solo la parte del código: el descuento por transferencia va aparte.
+           coalesce(sum(round(oi.quantity * oi.unit_price * o.promo_percent / 100.0)), 0)::int as discounted
     from promo_codes p
     left join orders o on o.promo_code = p.code and o.status not in ('pending', 'payment_reported', 'cancelled')
     left join order_items oi on oi.order_id = o.id

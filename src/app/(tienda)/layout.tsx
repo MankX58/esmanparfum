@@ -73,6 +73,26 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
             )}
           </nav>
         </div>
+        {/* Lo legal: segunda franja, más discreta. */}
+        <div className="border-t border-line">
+          <nav
+            aria-label="Información legal"
+            className="mx-auto flex max-w-7xl flex-wrap gap-x-6 gap-y-1 px-4 py-4 text-xs text-ink-faint sm:px-8"
+          >
+            <Link href="/terminos" className={linkStyles.default}>
+              Términos y condiciones
+            </Link>
+            <Link href="/privacidad" className={linkStyles.default}>
+              Política de privacidad
+            </Link>
+            <Link href="/cambios-y-devoluciones" className={linkStyles.default}>
+              Cambios, devoluciones y garantía
+            </Link>
+            <a href="https://www.sic.gov.co" target="_blank" rel="noreferrer" className={linkStyles.default}>
+              Superintendencia de Industria y Comercio
+            </a>
+          </nav>
+        </div>
       </footer>
     </>
   );

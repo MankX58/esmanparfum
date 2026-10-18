@@ -10,14 +10,16 @@ import { applyTransaction, fetchTransaction } from "@/lib/wompi";
 // Cada acción mueve el pedido un solo paso. El "where" de cada una comprueba el estado
 // actual, así un pedido nunca salta pasos ni retrocede aunque se pulse dos veces.
 
-// Paso 1, a mano: solo para pedidos de antes de Wompi (el cliente avisaba una transferencia).
+// Paso 1, a mano: solo para transferencias (el cliente avisa "Ya pagué" y el admin la ve en el banco).
 // Los pagos de Wompi se confirman solos. Queda registrado quién lo confirmó y cuándo.
 export async function confirmPayment(orderId: number): Promise<FormState> {
   const admin = await requireAdmin();
   if (!Number.isInteger(orderId)) return { message: "Pedido no válido." };
 
-  const [order] = await sql`select status from orders where id = ${orderId}`;
-  if (order?.status !== "payment_reported") return { message: "Los pagos con Wompi se confirman solos." };
+  // Una transferencia se puede confirmar aunque el cliente no haya pulsado Ya pagué.
+  const [order] = await sql`select status, payment_method from orders where id = ${orderId}`;
+  const transfer = order?.status === "payment_reported" || (order?.status === "pending" && order.payment_method === "Transferencia");
+  if (!transfer) return { message: "Los pagos con Wompi se confirman solos." };
   const confirmed = await markOrderPaid(orderId, admin.id);
   if (!confirmed) return { message: "Este pedido ya no está esperando confirmación de pago." };
 

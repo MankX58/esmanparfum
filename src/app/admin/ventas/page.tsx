@@ -24,6 +24,7 @@ type SaleRow = {
   discount: number; // descuento del código promocional en esta línea
   promo_code: string | null;
   promo_percent: number | null;
+  transfer_percent: number | null;
   total: number; // ya con el descuento
   cost: number;
   profit: number;
@@ -44,7 +45,7 @@ export default async function SalesPage({ searchParams }: PageProps<"/admin/vent
   // no los actuales del producto.
   const sales = (await sql`
     select oi.id, o.ordered_on::text as ordered_on, o.paid_on is not null as paid, o.channel, o.payment_method,
-           c.name as customer, oi.product_name, oi.quantity, oi.unit_price, oi.discount, o.promo_code, o.promo_percent, oi.total,
+           c.name as customer, oi.product_name, oi.quantity, oi.unit_price, oi.discount, o.promo_code, o.promo_percent, o.transfer_percent, oi.total,
            oi.quantity * oi.unit_cost as cost,
            oi.total - oi.quantity * oi.unit_cost as profit
     from order_items oi
@@ -101,7 +102,7 @@ export default async function SalesPage({ searchParams }: PageProps<"/admin/vent
         <Glossary
           title="¿Qué significa cada columna?"
           terms={[
-            ["Total", "Lo que cobraste por esa línea: cantidad por precio, menos el descuento del código promocional si se usó uno."],
+            ["Total", "Lo que cobraste por esa línea: cantidad por precio, menos los descuentos (código promocional o pago por transferencia)."],
             ["Costo", "Lo que te costaron esas unidades: cantidad por el costo promedio del día en que confirmaste el pago."],
             ["Ganancia", "Total menos costo."],
             ["Margen", "Ganancia dividida entre el total: qué parte de lo cobrado te quedó."],
@@ -144,9 +145,15 @@ export default async function SalesPage({ searchParams }: PageProps<"/admin/vent
                   <td className={`${cell} py-4`}>
                     <p className="font-medium">{sale.product_name}</p>
                     <p className="mt-1 text-xs text-ink-faint">{sale.customer ?? "Sin cliente"}</p>
-                    {sale.promo_code && (
+                    {sale.discount > 0 && (
                       <p className="mt-1 text-xs text-ok">
-                        Código {sale.promo_code} ({sale.promo_percent}%): −{formatCOP(sale.discount)}
+                        Descuento −{formatCOP(sale.discount)}:{" "}
+                        {[
+                          sale.promo_code && `código ${sale.promo_code} (${sale.promo_percent}%)`,
+                          sale.transfer_percent && `transferencia (${sale.transfer_percent}%)`,
+                        ]
+                          .filter(Boolean)
+                          .join(" + ")}
                       </p>
                     )}
                   </td>
