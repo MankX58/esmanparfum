@@ -8,6 +8,7 @@ import {
   Package,
   Receipt,
   Tag,
+  Ticket,
   Truck,
   Users,
   Wallet,
@@ -23,6 +24,7 @@ const groups = [
     sections: [
       { href: "/admin/pedidos", label: "Pedidos", icon: Package },
       { href: "/admin/cotizaciones", label: "Cotizaciones", icon: ChatCircleText },
+      { href: "/admin/codigos", label: "Códigos", icon: Ticket },
       { href: "/admin/clientes", label: "Clientes", icon: Users },
     ],
   },

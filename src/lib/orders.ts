@@ -52,10 +52,14 @@ export type Order = {
   admin_notes: string | null;
   wompi_transaction_id: string | null;
   wompi_status: string | null;
-  items_total: number;
+  promo_code: string | null; // código promocional usado, tal como estaba al hacer el pedido
+  promo_percent: number | null;
+  items_total: number; // productos ya con el descuento del código
+  items_discount: number; // descuento total del código en pesos
 };
 
-export type OrderItem = { product_name: string; quantity: number; unit_price: number; total: number };
+// total ya trae restado el descuento del código (discount).
+export type OrderItem = { product_name: string; quantity: number; unit_price: number; discount: number; total: number };
 
 // Un pedido con el total de sus líneas. Devuelve undefined si no existe.
 export async function getOrder(id: number) {
@@ -65,8 +69,9 @@ export async function getOrder(id: number) {
            o.shipping_fee, o.tracking, o.payment_reference,
            o.payment_reported_at::text as payment_reported_at,
            o.payment_confirmed_at::text as payment_confirmed_at,
-           u.email as confirmed_by, o.admin_notes, o.wompi_transaction_id, o.wompi_status,
-           (select coalesce(sum(total), 0) from order_items where order_id = o.id)::int as items_total
+           u.email as confirmed_by, o.admin_notes, o.wompi_transaction_id, o.wompi_status, o.promo_code, o.promo_percent,
+           (select coalesce(sum(total), 0) from order_items where order_id = o.id)::int as items_total,
+           (select coalesce(sum(discount), 0) from order_items where order_id = o.id)::int as items_discount
     from orders o
     left join customers c on c.id = o.customer_id
     left join users u on u.id = o.payment_confirmed_by
@@ -76,7 +81,7 @@ export async function getOrder(id: number) {
 
 export async function getOrderItems(orderId: number) {
   return (await sql`
-    select product_name, quantity, unit_price, total
+    select product_name, quantity, unit_price, discount, total
     from order_items where order_id = ${orderId} order by id`) as OrderItem[];
 }
 

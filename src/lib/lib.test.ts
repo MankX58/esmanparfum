@@ -7,6 +7,7 @@ import { whatsappLink } from "./format.ts";
 import { purchaseEffect } from "./inventory.ts";
 import { monthLabel, parsePeriod } from "./period.ts";
 import { suggestPrice } from "./pricing.ts";
+import { lineDiscount, normalizeCode, validCode } from "./promo.ts";
 import { integritySignature, orderIdFromReference, paymentReference, verifyEventSignature } from "./wompi-signature.ts";
 
 test("parseMoney acepta pesos con o sin puntos de miles", () => {
@@ -130,4 +131,13 @@ test("la referencia de pago dice de qué pedido es", () => {
   assert.equal(orderIdFromReference(paymentReference(42)), 42);
   assert.equal(orderIdFromReference("VEL42"), null);
   assert.equal(orderIdFromReference("otra-cosa"), null);
+});
+
+test("el descuento de un código se calcula por línea y se redondea al peso", () => {
+  assert.equal(lineDiscount(2 * 215000, 10), 43000);
+  assert.equal(lineDiscount(175005, 10), 17501); // ,5 sube, igual que round() en la base de datos
+  assert.equal(normalizeCode("  verano10 "), "VERANO10");
+  assert.equal(validCode("VERANO10"), true);
+  assert.equal(validCode("AB"), false);
+  assert.equal(validCode("CON ESPACIO"), false);
 });

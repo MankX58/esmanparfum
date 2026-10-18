@@ -79,11 +79,19 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/pedid
                     {item.quantity} × {item.product_name}
                     <span className="ml-2 text-ink-faint tabular-nums">{formatCOP(item.unit_price)} c/u</span>
                   </span>
-                  <span className="shrink-0 tabular-nums">{formatCOP(item.total)}</span>
+                  <span className="shrink-0 tabular-nums">{formatCOP(item.quantity * item.unit_price)}</span>
                 </li>
               ))}
             </ul>
             <dl className="mt-4 flex flex-col gap-2 text-sm">
+              {order.promo_code && (
+                <div className="flex justify-between gap-4 text-ok">
+                  <dt>
+                    Código promocional {order.promo_code} ({order.promo_percent}%)
+                  </dt>
+                  <dd className="tabular-nums">−{formatCOP(order.items_discount)}</dd>
+                </div>
+              )}
               <div className="flex justify-between gap-4">
                 <dt className="text-ink-soft">Envío</dt>
                 <dd className="tabular-nums">{formatCOP(order.shipping_fee)}</dd>

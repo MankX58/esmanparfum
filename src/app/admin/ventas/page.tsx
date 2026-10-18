@@ -19,7 +19,10 @@ type SaleRow = {
   product_name: string;
   quantity: number;
   unit_price: number;
-  total: number;
+  discount: number; // descuento del código promocional en esta línea
+  promo_code: string | null;
+  promo_percent: number | null;
+  total: number; // ya con el descuento
   cost: number;
   profit: number;
 };
@@ -39,14 +42,14 @@ export default async function SalesPage({ searchParams }: PageProps<"/admin/vent
   // no los actuales del producto.
   const sales = (await sql`
     select oi.id, o.ordered_on::text as ordered_on, o.paid_on is not null as paid, o.channel, o.payment_method,
-           c.name as customer, oi.product_name, oi.quantity, oi.unit_price, oi.total,
+           c.name as customer, oi.product_name, oi.quantity, oi.unit_price, oi.discount, o.promo_code, o.promo_percent, oi.total,
            oi.quantity * oi.unit_cost as cost,
            oi.total - oi.quantity * oi.unit_cost as profit
     from order_items oi
     join orders o on o.id = oi.order_id
     left join customers c on c.id = o.customer_id
     where o.status not in ('pending', 'payment_reported', 'cancelled')
-      and (${q} = '' or oi.product_name ilike ${like} or c.name ilike ${like})
+      and (${q} = '' or oi.product_name ilike ${like} or c.name ilike ${like} or o.promo_code ilike ${like})
       and (${cobro} = '' or (o.paid_on is not null) = (${cobro} = 'cobrado'))
       and (${cliente} = 0 or o.customer_id = ${cliente})
     order by o.ordered_on desc, oi.id desc`) as SaleRow[];
@@ -73,7 +76,7 @@ export default async function SalesPage({ searchParams }: PageProps<"/admin/vent
       </PageHeader>
 
       <FilterBar
-        placeholder="Buscar por producto o cliente"
+        placeholder="Buscar por producto, cliente o código"
         values={{ q, cobro, cliente: cliente ? String(cliente) : "" }}
         filters={[
           {
@@ -91,7 +94,7 @@ export default async function SalesPage({ searchParams }: PageProps<"/admin/vent
         <Glossary
           title="¿Qué significa cada columna?"
           terms={[
-            ["Total", "Lo que cobraste por esa línea: cantidad por precio, menos el descuento si hubo."],
+            ["Total", "Lo que cobraste por esa línea: cantidad por precio, menos el descuento del código promocional si se usó uno."],
             ["Costo", "Lo que te costaron esas unidades: cantidad por el costo promedio del día en que confirmaste el pago."],
             ["Ganancia", "Total menos costo."],
             ["Margen", "Ganancia dividida entre el total: qué parte de lo cobrado te quedó."],
@@ -134,6 +137,11 @@ export default async function SalesPage({ searchParams }: PageProps<"/admin/vent
                   <td className={`${cell} py-4`}>
                     <p className="font-medium">{sale.product_name}</p>
                     <p className="mt-1 text-xs text-ink-faint">{sale.customer ?? "Sin cliente"}</p>
+                    {sale.promo_code && (
+                      <p className="mt-1 text-xs text-ok">
+                        Código {sale.promo_code} ({sale.promo_percent}%): −{formatCOP(sale.discount)}
+                      </p>
+                    )}
                   </td>
                   <td className={`${cell} ${fromLg} py-4 text-ink-soft`}>
                     {[sale.channel, sale.payment_method].filter(Boolean).join(", ") || "Sin datos"}

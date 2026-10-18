@@ -8,6 +8,7 @@ import { formatCOP, formatDate, whatsappLink } from "@/lib/format";
 import { OrderProgress, OrderStatusBadge } from "@/components/order-progress";
 import { getOrder, getOrderItems, getStoreSettings, isToShip, showsCode } from "@/lib/orders";
 import { ActionButton } from "@/components/action-button";
+import { deliveryEstimate } from "@/lib/site";
 import { applyTransaction, checkoutFields, fetchTransaction, wompiConfigured, wompiTestMode } from "@/lib/wompi";
 import { cancelOrder, confirmDelivery } from "../actions";
 
@@ -134,7 +135,7 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/pe
             <section className="border border-line bg-surface p-6">
               <h2 className="font-display text-2xl">Pago confirmado</h2>
               <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-                Recibimos tu pago. Estamos alistando tu pedido; cuando salga, aquí verás la guía de envío.
+                Recibimos tu pago. Estamos alistando tu pedido; cuando salga, aquí verás la guía de envío. La entrega tarda {deliveryEstimate} aproximadamente.
               </p>
             </section>
           )}
@@ -182,6 +183,12 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/pe
                 </>
               )}
             </p>
+            {order.status !== "delivered" && order.status !== "cancelled" && (
+              <p className="mt-3 text-sm leading-relaxed">
+                <span className="font-medium">Tiempo de entrega:</span> {deliveryEstimate} aproximadamente, contados desde que se
+                confirma tu pago.
+              </p>
+            )}
           </section>
 
           <div className="flex flex-wrap items-center gap-6">
@@ -216,11 +223,20 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/pe
                 <span className="text-ink-soft">
                   {item.quantity} × {item.product_name}
                 </span>
-                <span className="shrink-0 tabular-nums">{formatCOP(item.total)}</span>
+                {/* Precio de lista de la línea; el descuento del código va aparte, abajo. */}
+                <span className="shrink-0 tabular-nums">{formatCOP(item.quantity * item.unit_price)}</span>
               </li>
             ))}
           </ul>
           <dl className="mt-6 flex flex-col gap-3 border-t border-line pt-6 text-sm">
+            {order.promo_code && (
+              <div className="flex justify-between gap-4 text-ok">
+                <dt>
+                  Descuento {order.promo_code} ({order.promo_percent}%)
+                </dt>
+                <dd className="tabular-nums">−{formatCOP(order.items_discount)}</dd>
+              </div>
+            )}
             <div className="flex justify-between gap-4">
               <dt className="text-ink-soft">Envío</dt>
               <dd className="tabular-nums">{order.shipping_fee > 0 ? formatCOP(order.shipping_fee) : "Se coordina contigo"}</dd>
