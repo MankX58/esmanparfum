@@ -259,6 +259,46 @@ body {
   }
 }
 
+/* ---------- Anillo del botón "Volver arriba" ----------
+   Se llena a medida que se baja por la página: la animación avanza con el scroll, no con el
+   tiempo. Sin soporte, el anillo se ve completo. */
+@keyframes scroll-progress {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@supports (animation-timeline: scroll()) {
+  .scroll-progress {
+    animation: scroll-progress linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+/* ---------- Filas que se despliegan (<details class="accordion">) ----------
+   Al abrir, el contenido crece desde altura 0 hasta su alto real y aparece (250 ms). Al cerrar
+   se recoge al instante: cerrar debe quitarse del medio. Usa ::details-content e interpolate-size;
+   en navegadores que no los soportan, o si la persona pidió menos movimiento, se abre al instante. */
+@media (prefers-reduced-motion: no-preference) {
+  .accordion {
+    interpolate-size: allow-keywords;
+  }
+  .accordion::details-content {
+    block-size: 0;
+    opacity: 0;
+    overflow: hidden;
+  }
+  .accordion[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+    transition:
+      block-size var(--duration-fast) var(--ease-smooth-out),
+      opacity var(--duration-fast) var(--ease-smooth-out);
+  }
+}
+
 /* ---------- Animaciones ligadas al scroll ----------
    Son solo CSS y avanzan con la posición de la página, no con el tiempo. En navegadores
    que no lo soportan, o si la persona pidió menos movimiento, todo queda quieto y visible.

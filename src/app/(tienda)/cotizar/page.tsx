@@ -1,3 +1,4 @@
+import { CaretDown } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import { buttonStyles } from "@/components/button";
 import { QuoteBadge } from "@/components/quote-badge";
@@ -103,41 +104,60 @@ export default async function QuotePage({ searchParams }: PageProps<"/cotizar">)
               Tus cotizaciones
             </h2>
             <SpamNotice email={user?.email} className="mt-4" />
-            {/* key: la lista vuelve a entrar cuando se agrega una cotización. */}
+            {/* Una fila por cotización: perfume, fecha, estado y precio a la vista; al abrirla, el detalle.
+                Con <details class="accordion"> el navegador la abre y la cierra (y funciona con teclado);
+                la animación de apertura está en globals.css. La más reciente aparece abierta.
+                key: la lista vuelve a entrar cuando se agrega una cotización. */}
             <ul key={quotes.length} className="mt-6 border-b border-line motion-safe:animate-settle">
-              {quotes.map((quote) => (
-                <li key={quote.id} className="border-t border-line py-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <h3 className="font-display text-2xl leading-tight break-words">{quote.perfume}</h3>
-                      <p className="mt-1 text-xs text-ink-faint">Pedida el {formatDate(quote.created_on)}</p>
-                    </div>
-                    <QuoteBadge answered={quote.answered} price={quote.price} />
-                  </div>
-                  {quote.details && <p className="mt-3 text-sm leading-relaxed break-words whitespace-pre-line text-ink-soft">{quote.details}</p>}
+              {quotes.map((quote, index) => (
+                <li key={quote.id} className="border-t border-line">
+                  <details open={index === 0} className="accordion group">
+                    <summary className="flex cursor-pointer list-none items-center gap-4 py-4 transition-colors duration-(--duration-quick) ease-smooth-out hover:text-ink [&::-webkit-details-marker]:hidden">
+                      <span className="min-w-0 flex-1">
+                        <span className="line-clamp-2 font-display text-xl leading-tight break-words">{quote.perfume}</span>
+                        <span className="mt-1 block text-xs text-ink-faint">Pedida el {formatDate(quote.created_on)}</span>
+                      </span>
+                      {quote.price !== null && <span className="shrink-0 font-medium tabular-nums">{formatCOP(quote.price)}</span>}
+                      <QuoteBadge answered={quote.answered} price={quote.price} />
+                      <CaretDown
+                        size={16}
+                        aria-hidden
+                        className="shrink-0 text-ink-faint transition-transform duration-(--duration-fast) ease-smooth-out group-open:rotate-180"
+                      />
+                    </summary>
 
-                  {!quote.answered ? (
-                    <p className="mt-3 text-sm text-ink-soft">Estamos averiguando el precio.</p>
-                  ) : (
-                    <div className="mt-4 border border-line bg-surface p-5">
-                      {quote.price !== null ? (
-                        <p className="font-display text-3xl tabular-nums">{formatCOP(quote.price)}</p>
-                      ) : (
-                        <p className="font-medium">No pudimos conseguir este perfume.</p>
+                    <div className="pb-6">
+                      {quote.details && (
+                        <p className="text-sm leading-relaxed break-words whitespace-pre-line text-ink-soft">{quote.details}</p>
                       )}
-                      {quote.answer && <p className="mt-2 text-sm leading-relaxed break-words whitespace-pre-line text-ink-soft">{quote.answer}</p>}
-                      {quote.price !== null && store.whatsapp && (
-                        <a
-                          href={whatsappLink(store.whatsapp, `Hola, quiero el ${quote.perfume} que me cotizaron en ${formatCOP(quote.price)}.`)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className={`mt-5 ${buttonStyles.secondary}`}
-                        >
-                          Pedirlo por WhatsApp
-                        </a>
+                      {!quote.answered ? (
+                        <p className={`text-sm text-ink-soft ${quote.details ? "mt-3" : ""}`}>
+                          Estamos averiguando el precio. Te avisaremos por correo cuando lo tengamos.
+                        </p>
+                      ) : (
+                        <div className={`border border-line bg-surface p-5 ${quote.details ? "mt-4" : ""}`}>
+                          {quote.price !== null ? (
+                            <p className="font-display text-3xl tabular-nums">{formatCOP(quote.price)}</p>
+                          ) : (
+                            <p className="font-medium">No pudimos conseguir este perfume.</p>
+                          )}
+                          {quote.answer && (
+                            <p className="mt-2 text-sm leading-relaxed break-words whitespace-pre-line text-ink-soft">{quote.answer}</p>
+                          )}
+                          {quote.price !== null && store.whatsapp && (
+                            <a
+                              href={whatsappLink(store.whatsapp, `Hola, quiero el ${quote.perfume} que me cotizaron en ${formatCOP(quote.price)}.`)}
+                              target="_blank"
+                              rel="noreferrer"
+                              className={`mt-5 ${buttonStyles.secondary}`}
+                            >
+                              Pedirlo por WhatsApp
+                            </a>
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
+                  </details>
                 </li>
               ))}
             </ul>

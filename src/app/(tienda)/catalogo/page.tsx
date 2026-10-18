@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { buttonStyles } from "@/components/button";
 import { FilterBar } from "@/components/filter-bar";
+import { BackToTop } from "@/components/store/back-to-top";
 import { ProductCard } from "@/components/store/product-tile";
 import { brandPath, listBrands, listProducts, sortOptions } from "@/lib/catalog";
 import { queryText } from "@/lib/form";
@@ -100,6 +101,7 @@ export default async function CatalogPage({ searchParams }: PageProps<"/catalogo
           Cotizar un perfume
         </Link>
       </aside>
+      <BackToTop />
     </main>
   );
 }

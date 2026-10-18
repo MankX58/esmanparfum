@@ -33,3 +33,27 @@ export async function answerQuote(quoteId: number, formData: FormData): Promise<
   revalidatePath("/", "layout");
   return { ok: true };
 }
+
+// Oculta o vuelve a mostrar una cotización en el panel. No la borra: el cliente la sigue viendo.
+export async function toggleQuoteHidden(quoteId: number): Promise<FormState> {
+  await requireAdmin();
+  if (!Number.isInteger(quoteId)) return { message: "Cotización no válida." };
+
+  const updated = await sql`
+    update quotes set hidden_at = case when hidden_at is null then now() end
+    where id = ${quoteId}
+    returning id`;
+  if (updated.length === 0) return { message: "Esta cotización ya no existe." };
+
+  revalidatePath("/admin/cotizaciones");
+  return { ok: true };
+}
+
+// Oculta de una vez todas las que ya tienen respuesta. Las pendientes no se tocan.
+export async function hideAnsweredQuotes(): Promise<FormState> {
+  await requireAdmin();
+  await sql`update quotes set hidden_at = now() where hidden_at is null and answered_at is not null`;
+
+  revalidatePath("/admin/cotizaciones");
+  return { ok: true };
+}
