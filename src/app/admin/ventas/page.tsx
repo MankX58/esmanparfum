@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { buttonStyles } from "@/components/button";
 import { FilterBar } from "@/components/filter-bar";
 import { Glossary } from "@/components/glossary";
 import { Fact, NoMatches, PageHeader } from "@/components/page-header";
@@ -62,8 +64,13 @@ export default async function SalesPage({ searchParams }: PageProps<"/admin/vent
     <div className="motion-safe:animate-settle">
       <PageHeader
         title={cliente && sales[0]?.customer ? `Compras de ${sales[0].customer}` : "Ventas"}
-        description="Cada perfume vendido, con lo que cobraste, lo que te costó y lo que ganaste. Un pedido aparece aquí cuando confirmas su pago."
+        description="Cada perfume vendido, con lo que cobraste, lo que te costó y lo que ganaste. Los pedidos de la tienda aparecen aquí cuando se confirma su pago; las ventas en persona se registran con el botón."
         back={cliente ? { href: "/admin/clientes", label: "Volver a clientes" } : undefined}
+        action={
+          <Link href="/admin/ventas/nueva" className={buttonStyles.primary}>
+            Registrar venta presencial
+          </Link>
+        }
       >
         {sales.length > 0 && (
           <dl className="mt-4 flex flex-wrap gap-x-8 gap-y-2">
