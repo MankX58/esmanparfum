@@ -69,6 +69,21 @@ Los clientes pagan en Wompi (tarjeta, PSE, Nequi o Bancolombia). Con el pago apr
 
 En tu computador Wompi no puede enviar avisos a `localhost`, pero no hace falta: al volver de Wompi, la página del pedido le pregunta el resultado a Wompi y lo confirma. Si un pago aprobado no se confirmó solo, en Panel → Pedidos se puede confirmar a mano.
 
+## Correos
+
+La tienda envía correos automáticos:
+
+- Al cliente: cuando se confirma su pago (y el pedido pasa a preparación), cuando sale, cuando se entrega y si se cancela un pedido ya pagado. También cuando le respondes una cotización.
+- A los administradores: cada vez que alguien pide una cotización.
+
+Se envían por SMTP con un correo que ya tengas. Con Gmail:
+
+1. En tu cuenta de Google activa la verificación en dos pasos.
+2. Ve a Cuenta de Google → Seguridad → Contraseñas de aplicaciones y crea una para "Velare".
+3. En `.env.local` (y en Vercel) pon `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=465`, `SMTP_USER` con tu correo, `SMTP_PASSWORD` con la contraseña de aplicación y `EMAIL_FROM=Velare <tu-correo@gmail.com>`.
+
+Panel → Ajustes dice si los correos están activos. Sin esas variables la tienda funciona igual, pero no salen correos. Gmail permite unos 500 correos al día.
+
 ## Costos de envío
 
 El cliente elige su municipio en el checkout y paga el envío de su zona (Medellín, Valle de Aburrá, resto de Antioquia, resto de Colombia y zonas de difícil acceso). Los precios se editan en Panel → Ajustes.

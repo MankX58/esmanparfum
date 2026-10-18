@@ -2,6 +2,7 @@ import { PageHeader } from "@/components/page-header";
 import { requireAdmin } from "@/lib/auth";
 import { getFinanceSettings } from "@/lib/finance";
 import { getStoreSettings } from "@/lib/orders";
+import { emailConfigured } from "@/lib/email";
 import { wompiConfigured, wompiTestMode } from "@/lib/wompi";
 import { FinanceForm } from "./finance-form";
 import { SettingsForm } from "./settings-form";
@@ -19,7 +20,7 @@ export default async function SettingsPage() {
           title="Ajustes"
           description="El estado de los pagos con Wompi, el QR para pagar por transferencia, los datos de contacto y envío, y los valores que usan las cuentas del panel."
         />
-        <SettingsForm settings={settings} wompi={{ configured: wompiConfigured(), testMode: wompiTestMode() }} />
+        <SettingsForm settings={settings} wompi={{ configured: wompiConfigured(), testMode: wompiTestMode() }} emailReady={emailConfigured()} />
       </div>
       <FinanceForm settings={finance} />
     </div>

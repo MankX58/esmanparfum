@@ -13,6 +13,8 @@ export const metadata = { title: "Ventas" };
 
 type SaleRow = {
   id: number;
+  order_id: number;
+  code: string;
   ordered_on: string;
   paid: boolean;
   channel: string | null;
@@ -44,7 +46,7 @@ export default async function SalesPage({ searchParams }: PageProps<"/admin/vent
   // Precio y costo salen de la línea del pedido: son los del día de la venta,
   // no los actuales del producto.
   const sales = (await sql`
-    select oi.id, o.ordered_on::text as ordered_on, o.paid_on is not null as paid, o.channel, o.payment_method,
+    select oi.id, o.id as order_id, o.code, o.ordered_on::text as ordered_on, o.paid_on is not null as paid, o.channel, o.payment_method,
            c.name as customer, oi.product_name, oi.quantity, oi.unit_price, oi.discount, o.promo_code, o.promo_percent, o.transfer_percent, oi.total,
            oi.quantity * oi.unit_cost as cost,
            oi.total - oi.quantity * oi.unit_cost as profit
@@ -138,12 +140,19 @@ export default async function SalesPage({ searchParams }: PageProps<"/admin/vent
             </thead>
             <tbody className="divide-y divide-line">
               {sales.map((sale) => (
-                <tr key={sale.id} className={row}>
+                <tr key={sale.id} className={`${row} relative cursor-pointer`}>
                   <td className={`${cell} py-4 whitespace-nowrap text-ink-soft tabular-nums`}>
                     {formatDate(sale.ordered_on)}
                   </td>
                   <td className={`${cell} py-4`}>
-                    <p className="font-medium">{sale.product_name}</p>
+                    {/* La fila entera es clicable (ver el enlace "after:" de abajo): abre el detalle de la venta. */}
+                    <Link
+                      href={`/admin/pedidos/${sale.order_id}`}
+                      className="font-medium underline decoration-transparent underline-offset-4 transition-colors duration-(--duration-quick) after:absolute after:inset-0 hover:decoration-ink"
+                    >
+                      {sale.product_name}
+                    </Link>
+                    <span className="ml-2 text-xs text-ink-faint tabular-nums">{sale.code}</span>
                     <p className="mt-1 text-xs text-ink-faint">{sale.customer ?? "Sin cliente"}</p>
                     {sale.discount > 0 && (
                       <p className="mt-1 text-xs text-ok">

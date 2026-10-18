@@ -11,7 +11,15 @@ import { saveStoreSettings } from "./actions";
 
 const input = `${inputStyles} h-11`;
 
-export function SettingsForm({ settings, wompi }: { settings: StoreSettings; wompi: { configured: boolean; testMode: boolean } }) {
+export function SettingsForm({
+  settings,
+  wompi,
+  emailReady,
+}: {
+  settings: StoreSettings;
+  wompi: { configured: boolean; testMode: boolean };
+  emailReady: boolean;
+}) {
   const { state, pending, busy, handleSubmit } = useServerForm(saveStoreSettings, () => {
     sileo.success({ title: "Ajustes guardados" });
   });
@@ -35,6 +43,23 @@ export function SettingsForm({ settings, wompi }: { settings: StoreSettings; wom
           <p role="alert" className="border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
             Falta conectar Wompi: los clientes no pueden pagar. Agrega las llaves WOMPI_* en las variables de entorno (los pasos
             están en el README).
+          </p>
+        )}
+      </section>
+
+      {/* Como Wompi, el correo se configura con variables de entorno (SMTP_*), no aquí. */}
+      <section className="flex flex-col gap-3 border-t border-line pt-10">
+        <h2 className="font-display text-xl">Correos</h2>
+        {emailReady ? (
+          <p className="max-w-[60ch] text-sm leading-relaxed text-ink-soft">
+            <span className="mr-2 bg-ok-soft px-2 py-1 text-[11px] font-medium tracking-[0.08em] text-ok uppercase">Activo</span>
+            El cliente recibe un correo cuando se confirma su pago y cada vez que su pedido avanza, y cuando respondes su
+            cotización. Los administradores reciben un correo por cada cotización nueva.
+          </p>
+        ) : (
+          <p role="alert" className="border border-warn/30 bg-warn-soft px-4 py-3 text-sm text-warn">
+            Los correos están apagados: faltan las variables SMTP_* (los pasos están en el README). La tienda funciona igual,
+            pero no se envían avisos.
           </p>
         )}
       </section>

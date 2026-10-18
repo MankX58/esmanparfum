@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { readForm, type FormState } from "@/lib/form";
+import { notifyQuoteRequested } from "@/lib/notifications";
 
 const MAX_PENDING_QUOTES = 5; // evita que una cuenta llene el panel de solicitudes
 
@@ -24,9 +25,11 @@ export async function requestQuote(formData: FormData): Promise<FormState> {
     return { message: "Ya tienes varias cotizaciones esperando respuesta. En cuanto respondamos podrás pedir más." };
   }
 
-  await sql`
+  const [quote] = await sql`
     insert into quotes (user_id, perfume, details, phone, privacy_accepted_at)
-    values (${user.id}, ${perfume}, ${details}, ${phone}, now())`;
+    values (${user.id}, ${perfume}, ${details}, ${phone}, now())
+    returning id`;
+  notifyQuoteRequested(quote.id); // correo a los administradores
 
   revalidatePath("/", "layout");
   return { ok: true };

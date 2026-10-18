@@ -1,5 +1,6 @@
 import { sql } from "./db";
 import { todayInBogota } from "./format";
+import { notifyOrder } from "./notifications";
 
 // Marca un pedido como pagado. Lo usan Wompi (al aprobar un pago) y el panel (confirmación
 // a mano, por si un aviso de Wompi se perdió). Desde aquí la venta cuenta en stock, ventas
@@ -21,5 +22,7 @@ export async function markOrderPaid(orderId: number, confirmedBy: number | null)
       where id = ${orderId} and status in ('pending', 'payment_reported')
       returning id`,
   ]);
-  return confirmed.length > 0;
+  if (confirmed.length === 0) return false;
+  notifyOrder(orderId, "paid"); // "Recibimos tu pago", por correo
+  return true;
 }

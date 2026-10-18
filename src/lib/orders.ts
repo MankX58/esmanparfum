@@ -39,6 +39,10 @@ export type Order = {
   ordered_on: string;
   user_id: number | null;
   customer: string | null;
+  customer_id: number | null;
+  customer_phone: string | null;
+  customer_email: string | null; // el de su cuenta; si no tiene cuenta, el de su ficha de cliente
+  channel: string | null;
   shipping_name: string | null;
   shipping_phone: string | null;
   shipping_address: string | null;
@@ -70,6 +74,7 @@ export type OrderItem = { product_name: string; quantity: number; unit_price: nu
 export async function getOrder(id: number) {
   const rows = (await sql`
     select o.id, o.code, o.status, o.ordered_on::text as ordered_on, o.user_id, c.name as customer,
+           o.customer_id, c.phone as customer_phone, coalesce(buyer.email, c.email) as customer_email, o.channel,
            o.shipping_name, o.shipping_phone, o.shipping_address, o.shipping_city, o.shipping_notes,
            o.shipping_fee, o.payment_method, o.tracking, o.payment_reference,
            o.payment_reported_at::text as payment_reported_at,
@@ -85,6 +90,7 @@ export async function getOrder(id: number) {
     from orders o
     left join customers c on c.id = o.customer_id
     left join users u on u.id = o.payment_confirmed_by
+    left join users buyer on buyer.id = o.user_id
     where o.id = ${id}`) as Order[];
   return rows[0];
 }

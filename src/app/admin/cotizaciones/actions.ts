@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { readForm, type FormState } from "@/lib/form";
+import { notifyQuoteAnswered } from "@/lib/notifications";
 
 // Responde una cotización. Con precio queda "cotizada"; sin precio y con nota, "no disponible".
 // Se puede guardar otra vez para corregir la respuesta. Queda registrado quién respondió.
@@ -20,12 +21,14 @@ export async function answerQuote(quoteId: number, formData: FormData): Promise<
   }
   if (form.hasErrors()) return { errors: form.errors };
 
+  const [before] = await sql`select answered_at is not null as answered from quotes where id = ${quoteId}`;
   const updated = await sql`
     update quotes
     set price = ${price}, answer = ${answer}, answered_at = now(), answered_by = ${admin.id}
     where id = ${quoteId}
     returning id`;
   if (updated.length === 0) return { message: "Esta cotización ya no existe." };
+  notifyQuoteAnswered(quoteId, Boolean(before?.answered)); // correo al cliente
 
   revalidatePath("/", "layout");
   return { ok: true };

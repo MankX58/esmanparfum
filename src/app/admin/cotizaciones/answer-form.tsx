@@ -20,7 +20,7 @@ export function AnswerForm({
   answered: boolean;
 }) {
   const { state, pending, busy, handleSubmit } = useServerForm(answerQuote.bind(null, quoteId), () => {
-    sileo.success({ title: "Respuesta guardada", description: "El cliente ya la puede ver." });
+    sileo.success({ title: "Respuesta enviada", description: "El cliente la ve en la tienda y le llega por correo." });
   });
   const errors = state.errors ?? {};
   const priceId = `price-${quoteId}`;

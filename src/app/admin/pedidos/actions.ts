@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { readForm, type FormState } from "@/lib/form";
+import { notifyOrder } from "@/lib/notifications";
 import { markOrderPaid } from "@/lib/payments";
 import { applyTransaction, fetchTransaction } from "@/lib/wompi";
 
@@ -57,6 +58,7 @@ export async function shipOrder(orderId: number, formData: FormData): Promise<Fo
     where id = ${orderId} and status in ('payment_confirmed', 'preparing')
     returning id`;
   if (updated.length === 0) return { message: "Este pedido no está listo para enviarse: primero confirma el pago." };
+  notifyOrder(orderId, "shipped");
 
   revalidatePath("/", "layout");
   return { ok: true };
@@ -70,6 +72,7 @@ export async function deliverOrder(orderId: number): Promise<FormState> {
   const updated = await sql`
     update orders set status = 'delivered' where id = ${orderId} and status = 'shipped' returning id`;
   if (updated.length === 0) return { message: "Este pedido no está en camino." };
+  notifyOrder(orderId, "delivered");
 
   revalidatePath("/", "layout");
   return { ok: true };
@@ -80,11 +83,14 @@ export async function cancelOrder(orderId: number): Promise<FormState> {
   await requireAdmin();
   if (!Number.isInteger(orderId)) return { message: "Pedido no válido." };
 
+  // Si ya estaba pagado, el cliente recibe un correo: hay que devolverle el dinero.
+  const [before] = await sql`select status from orders where id = ${orderId}`;
   const updated = await sql`
     update orders set status = 'cancelled'
     where id = ${orderId} and status in ('pending', 'payment_reported', 'payment_confirmed', 'preparing')
     returning id`;
   if (updated.length === 0) return { message: "Un pedido enviado o entregado ya no se puede cancelar." };
+  if (before.status === "payment_confirmed" || before.status === "preparing") notifyOrder(orderId, "cancelled");
 
   revalidatePath("/", "layout");
   return { ok: true };

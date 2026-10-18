@@ -1,4 +1,5 @@
-import { buttonStyles } from "@/components/button";
+import Link from "next/link";
+import { buttonStyles, linkStyles } from "@/components/button";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
 import { requireAdmin } from "@/lib/auth";
@@ -123,9 +124,44 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/pedid
           </section>
 
           <section>
-            <h2 className="font-display text-xl">Cliente y envío</h2>
+            <h2 className="font-display text-xl">Cliente</h2>
+            <dl className="mt-3 grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
+              <div>
+                <dt className="text-ink-faint">Nombre</dt>
+                <dd className="mt-0.5">{order.customer ?? order.shipping_name ?? "Sin nombre"}</dd>
+              </div>
+              <div>
+                <dt className="text-ink-faint">Canal</dt>
+                <dd className="mt-0.5">{order.channel ?? "Sin datos"}</dd>
+              </div>
+              {order.customer_email && (
+                <div>
+                  <dt className="text-ink-faint">Correo</dt>
+                  <dd className="mt-0.5 break-all">
+                    <a href={`mailto:${order.customer_email}`} className={linkStyles.default}>
+                      {order.customer_email}
+                    </a>
+                  </dd>
+                </div>
+              )}
+              {(order.customer_phone ?? order.shipping_phone) && (
+                <div>
+                  <dt className="text-ink-faint">Teléfono</dt>
+                  <dd className="mt-0.5">{order.customer_phone ?? order.shipping_phone}</dd>
+                </div>
+              )}
+            </dl>
+            {order.customer_id && (
+              <Link href={`/admin/ventas?cliente=${order.customer_id}`} className={`mt-3 inline-block text-sm ${linkStyles.default}`}>
+                Ver todo lo que ha comprado
+              </Link>
+            )}
+          </section>
+
+          <section>
+            <h2 className="font-display text-xl">Envío</h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-              {order.shipping_name ?? order.customer ?? "Sin nombre"}
+              {order.shipping_address ? (order.shipping_name ?? "Sin nombre") : "Sin envío: venta entregada en persona."}
               {order.shipping_phone && `, ${order.shipping_phone}`}
               {order.shipping_address && (
                 <>
