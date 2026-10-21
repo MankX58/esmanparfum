@@ -1,0 +1,155 @@
+[
+  {
+    "sku": "P034",
+    "brand": "Valentino",
+    "name": "Born in Roma Green Stravaganza EDT",
+    "audience": "Hombre",
+    "size_ml": 100,
+    "unit_cost": 340000,
+    "list_price": 380000
+  },
+  {
+    "sku": "P035",
+    "brand": "Valentino",
+    "name": "Uomo Born In Roma Coral Fantasy EDT",
+    "audience": "Hombre",
+    "size_ml": 100,
+    "unit_cost": 333000,
+    "list_price": 390000
+  },
+  {
+    "sku": "P036",
+    "brand": "French Avenue",
+    "name": "Cocoa Morado EDP",
+    "audience": "Unisex",
+    "size_ml": 100,
+    "unit_cost": 115051,
+    "list_price": 170000
+  },
+  {
+    "sku": "P037",
+    "brand": "Armaf",
+    "name": "Odyssey Mega Limited Edition EDP",
+    "audience": "Hombre",
+    "size_ml": 100,
+    "unit_cost": 100000,
+    "list_price": 175000
+  },
+  {
+    "sku": "P038",
+    "brand": "Versace",
+    "name": "Eros Energy EDP",
+    "audience": "Hombre",
+    "size_ml": 100,
+    "unit_cost": 235000,
+    "list_price": 300000
+  },
+  {
+    "sku": "P039",
+    "brand": "Lattafa",
+    "name": "Khamrah Waha EDP",
+    "audience": "Unisex",
+    "size_ml": 100,
+    "unit_cost": 169168,
+    "list_price": 210000
+  },
+  {
+    "sku": "P040",
+    "brand": "Carolina  Herrera",
+    "name": "212 Men NYC EDT",
+    "audience": "Hombre",
+    "size_ml": 100,
+    "unit_cost": 255955,
+    "list_price": 320000
+  },
+  {
+    "sku": "P041",
+    "brand": "Rasasi",
+    "name": "Hawas Elixir EDP",
+    "audience": "Hombre",
+    "size_ml": 100,
+    "unit_cost": 147742,
+    "list_price": 200000
+  },
+  {
+    "sku": "P042",
+    "brand": "French Avenue",
+    "name": "Azzure Aoud",
+    "audience": "Unisex",
+    "size_ml": 100,
+    "unit_cost": 123540,
+    "list_price": 180000
+  },
+  {
+    "sku": "P043",
+    "brand": "Paco Rabbane",
+    "name": "Black Xs Pour Homme",
+    "audience": "Hombre",
+    "size_ml": 100,
+    "unit_cost": 157592,
+    "list_price": 220000
+  },
+  {
+    "sku": "P044",
+    "brand": "Lacoste",
+    "name": "Lacoste L'Homme",
+    "audience": "Hombre",
+    "size_ml": 100,
+    "unit_cost": 132286,
+    "list_price": 190000
+  },
+  {
+    "sku": "P045",
+    "brand": "Carolina  Herrera",
+    "name": "Bad Boy Cobalt Elixir",
+    "audience": "Hombre",
+    "size_ml": 150,
+    "unit_cost": 395926,
+    "list_price": 470000
+  },
+  {
+    "sku": "P046",
+    "brand": "Paco Rabbane",
+    "name": "Phantom Elixir",
+    "audience": "Hombre",
+    "size_ml": 150,
+    "unit_cost": 338432,
+    "list_price": 450000
+  },
+  {
+    "sku": "P047",
+    "brand": "Rasasi",
+    "name": "Hawas Chrome EDP",
+    "audience": "Hombre",
+    "size_ml": 100,
+    "unit_cost": 167046,
+    "list_price": 210000
+  },
+  {
+    "sku": "P048",
+    "brand": "Rasasi",
+    "name": "Hawas For Him London EDP",
+    "audience": "Hombre",
+    "size_ml": 100,
+    "unit_cost": 128460,
+    "list_price": 180000
+  },
+  {
+    "sku": "P049",
+    "brand": "Rasasi",
+    "name": "Hawas Eclat EDP",
+    "audience": "Hombre",
+    "size_ml": 100,
+    "unit_cost": 119009,
+    "list_price": 180000
+  },
+  {
+    "sku": "P050",
+    "brand": "Rayhaan",
+    "name": "Terra EDP",
+    "audience": "Unisex",
+    "size_ml": 100,
+    "unit_cost": 144859,
+    "list_price": 210000
+  }
+]

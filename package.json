@@ -14,6 +14,7 @@
     "test": "node --test \"src/**/*.test.ts\"",
     "db:descriptions": "node --env-file=.env.local scripts/set-descriptions.mjs",
     "db:fotos": "node --env-file=.env.local scripts/link-photos.mjs",
+    "db:productos": "node --env-file=.env.local scripts/add-products.mjs",
     "db:envios": "node --env-file=.env.local scripts/shipping-rates.mjs"
   },
   "dependencies": {
