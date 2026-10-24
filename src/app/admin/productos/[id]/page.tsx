@@ -37,7 +37,7 @@ export default async function EditProductPage({ params }: PageProps<"/admin/prod
   if (!Number.isInteger(id)) notFound();
 
   const [product] = (await sql`
-    select p.id, p.sku, p.name, p.brand, p.audience, p.size_ml, p.category, p.description,
+    select p.id, p.sku, p.name, p.brand, p.audience, p.size_ml, p.category, p.description, p.notes,
            p.list_price, p.initial_stock, p.initial_unit_cost, p.reorder_point, p.is_active, p.images,
            s.units_purchased, s.units_sold, s.stock, s.avg_cost, s.unit_profit, s.margin, s.markup,
            s.inventory_value, s.alert, s.total_sales, s.gross_profit

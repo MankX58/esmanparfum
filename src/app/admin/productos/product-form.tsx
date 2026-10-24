@@ -8,6 +8,7 @@ import { buttonStyles } from "@/components/button";
 import { Field, fieldProps, inputStyles } from "@/components/field";
 import { parseMoney } from "@/lib/form";
 import { formatPercent } from "@/lib/format";
+import { noteLevels, type Notes } from "@/lib/notes";
 import { useServerForm } from "@/lib/use-server-form";
 import { saveProduct } from "./actions";
 
@@ -20,6 +21,7 @@ export type Product = {
   size_ml: number | null;
   category: string | null;
   description: string | null;
+  notes: Notes | null;
   list_price: number;
   initial_stock: number;
   initial_unit_cost: number;
@@ -179,6 +181,26 @@ export function ProductForm({
             className={`${inputStyles} py-2.5 leading-relaxed`}
           />
         </Field>
+        <fieldset className="flex flex-col gap-4">
+          <legend className="mb-1 text-sm font-medium">Notas olfativas</legend>
+          <p className="-mt-2 max-w-[60ch] text-xs leading-relaxed text-ink-faint">
+            Separadas por comas, como en Fragrantica. Se muestran en la tienda como una foto más del perfume y se comparten
+            entre sus tamaños. Déjalas vacías si no las conoces.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {noteLevels.map((level) => (
+              <Field key={level.key} label={level.label} name={`notes_${level.key}`} hint={level.hint}>
+                <input
+                  {...fieldProps(`notes_${level.key}`)}
+                  defaultValue={product?.notes?.[level.key]?.join(", ") ?? ""}
+                  placeholder="Ejemplo: bergamota, limón, menta"
+                  className={input}
+                />
+              </Field>
+            ))}
+          </div>
+          <input type="hidden" name="notes_source" value={product?.notes?.source ?? ""} />
+        </fieldset>
         <label className="flex min-h-11 items-center gap-3 text-sm">
           <input type="checkbox" name="is_active" defaultChecked={product?.is_active ?? true} className="size-5 accent-brand" />
           Activo: el producto se muestra en la tienda

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { readForm, type FormState } from "@/lib/form";
+import { noteLevels, parseNoteList, type Notes } from "@/lib/notes";
 import { slugify } from "@/lib/slug";
 
 const AUDIENCES = ["Hombre", "Mujer", "Unisex"];
@@ -24,6 +25,15 @@ export async function saveProduct(id: number | null, formData: FormData): Promis
   const sizeMl = form.integer("size_ml", { min: 1, max: 5000 });
   const category = form.text("category", { max: 60 });
   const description = form.text("description", { max: 2000 });
+  // Notas olfativas: una lista separada por comas por nivel. Vacías todas = sin notas.
+  const notes: Notes = {};
+  for (const level of noteLevels) {
+    const list = parseNoteList(form.text(`notes_${level.key}`, { max: 800 }) ?? "");
+    if (list.length > 0) notes[level.key] = list;
+  }
+  const notesSource = form.text("notes_source", { max: 300 });
+  if (notesSource?.startsWith("https://") && Object.keys(notes).length > 0) notes.source = notesSource;
+  const notesJson = Object.keys(notes).length > 0 ? JSON.stringify(notes) : null;
   const listPrice = form.money("list_price", { required: true }) ?? 0;
   const initialStock = form.integer("initial_stock") ?? 0;
   const initialUnitCost = form.money("initial_unit_cost") ?? 0;
@@ -41,10 +51,10 @@ export async function saveProduct(id: number | null, formData: FormData): Promis
 
       const rows = await sql`
         insert into products
-          (sku, slug, name, brand, audience, size_ml, category, description,
+          (sku, slug, name, brand, audience, size_ml, category, description, notes,
            list_price, initial_stock, initial_unit_cost, reorder_point, is_active)
         values
-          (${sku}, ${slug}, ${name}, ${brand}, ${audience}, ${sizeMl}, ${category}, ${description},
+          (${sku}, ${slug}, ${name}, ${brand}, ${audience}, ${sizeMl}, ${category}, ${description}, ${notesJson}::jsonb,
            ${listPrice}, ${initialStock}, ${initialUnitCost}, ${reorderPoint}, ${isActive})
         returning id`;
       id = rows[0].id as number;
@@ -52,7 +62,7 @@ export async function saveProduct(id: number | null, formData: FormData): Promis
       await sql`
         update products set
           sku = ${sku}, name = ${name}, brand = ${brand}, audience = ${audience},
-          size_ml = ${sizeMl}, category = ${category}, description = ${description},
+          size_ml = ${sizeMl}, category = ${category}, description = ${description}, notes = ${notesJson}::jsonb,
           list_price = ${listPrice}, initial_stock = ${initialStock}, initial_unit_cost = ${initialUnitCost},
           reorder_point = ${reorderPoint}, is_active = ${isActive}, updated_at = now()
         where id = ${id}`;
@@ -61,7 +71,7 @@ export async function saveProduct(id: number | null, formData: FormData): Promis
       await sql`
         update products set
           name = ${name}, brand = ${brand}, audience = ${audience},
-          category = ${category}, description = ${description}, updated_at = now()
+          category = ${category}, description = ${description}, notes = ${notesJson}::jsonb, updated_at = now()
         where id <> ${id}
           and coalesce(parent_id, id) = (select coalesce(parent_id, id) from products where id = ${id})`;
     }
@@ -117,9 +127,9 @@ export async function addSize(productId: number, formData: FormData): Promise<Fo
     // parent_id apunta siempre al producto original, nunca a otro tamaño.
     await sql`
       insert into products
-        (sku, slug, name, brand, audience, size_ml, category, description, images,
+        (sku, slug, name, brand, audience, size_ml, category, description, notes, images,
          list_price, reorder_point, is_active, parent_id)
-      select ${sku}, ${slug}, name, brand, audience, ${sizeMl}, category, description, images,
+      select ${sku}, ${slug}, name, brand, audience, ${sizeMl}, category, description, notes, images,
              ${listPrice}, reorder_point, is_active, ${source.group_id}
       from products where id = ${productId}`;
   } catch (error) {
@@ -283,8 +293,12 @@ export async function joinSizes(productId: number, otherId: number): Promise<For
           select d.description from products d
           where coalesce(d.parent_id, d.id) = ${base.root} and d.description is not null
           order by d.id limit 1)),
+        notes = coalesce(r.notes, (
+          select d.notes from products d
+          where coalesce(d.parent_id, d.id) = ${base.root} and d.notes is not null
+          order by d.id limit 1)),
         updated_at = now()
-      from (select name, brand, audience, category, description from products where id = ${base.root}) r
+      from (select name, brand, audience, category, description, notes from products where id = ${base.root}) r
       where coalesce(products.parent_id, products.id) = ${base.root}`,
   ]);
 

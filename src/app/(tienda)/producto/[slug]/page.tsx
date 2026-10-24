@@ -8,6 +8,7 @@ import { Gallery } from "@/components/store/gallery";
 import { ProductCard, ProductLabel, transitionName } from "@/components/store/product-tile";
 import { brandPath, getProduct, listProducts, listSizes } from "@/lib/catalog";
 import { formatCOP } from "@/lib/format";
+import { hasNotes } from "@/lib/notes";
 import { absoluteUrl } from "@/lib/site";
 
 // Título y descripción para buscadores y para la vista previa al compartir el enlace.
@@ -121,8 +122,15 @@ export default async function ProductPage({ params }: PageProps<"/producto/[slug
           {/* Con fotos, la galería; sin fotos, la etiqueta con el nombre del perfume. */}
           {/* Mismo nombre que la tarjeta del catálogo: la caja llega hasta aquí creciendo desde donde estaba. */}
           <ViewTransition name={transitionName(product.id)} share="morph" default="none">
-            {product.images.length > 0 ? (
-              <Gallery images={product.images} alt={title} />
+            {/* Sin fotos ni notas, solo la etiqueta. Con alguna de las dos, la galería (la etiqueta
+                va de primera si no hay fotos, y las notas al final). */}
+            {product.images.length > 0 || hasNotes(product.notes) ? (
+              <Gallery
+                images={product.images}
+                alt={title}
+                notes={product.notes}
+                fallback={<ProductLabel product={product} className="text-base sm:text-2xl" />}
+              />
             ) : (
               <ProductLabel product={product} className="text-base sm:text-2xl" />
             )}

@@ -16,7 +16,8 @@
     "db:fotos": "node --env-file=.env.local scripts/link-photos.mjs",
     "db:productos": "node --env-file=.env.local scripts/add-products.mjs",
     "db:envios": "node --env-file=.env.local scripts/shipping-rates.mjs",
-    "db:calculadora": "node --env-file=.env.local scripts/import-calculator.mjs"
+    "db:calculadora": "node --env-file=.env.local scripts/import-calculator.mjs",
+    "db:notas": "node --env-file=.env.local scripts/set-notes.mjs"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^4.31.0",
@@ -25,7 +26,7 @@
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^2.8.0",
     "motion": "^14.0.0",
-    "next": "16.3.8",
+    "next": "^16.4.3",
     "nodemailer": "^10.1.2",
     "react": "19.2.8",
     "react-dom": "19.2.8",

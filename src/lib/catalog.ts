@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { sql } from "./db";
+import type { Notes } from "./notes";
 
 // Consultas de la tienda pública. Solo devuelven productos activos y solo los datos
 // que un cliente puede ver: nunca costos ni márgenes.
@@ -18,6 +19,7 @@ export type StoreProduct = {
   in_stock: boolean; // false = se vende bajo pedido
   group_id: number; // igual en todos los tamaños de un mismo perfume
   sizes?: number; // solo en las listas: cuántos tamaños tiene el perfume
+  notes?: Notes | null; // solo en la página del producto: notas olfativas
 };
 
 // Un tamaño de un perfume, para el selector de la página del producto.
@@ -66,7 +68,7 @@ export async function listProducts({ q = "", marca = "", publico = "", orden = "
 // cache(): si se pide el mismo producto dos veces en una visita (título y página), se consulta una sola.
 export const getProduct = cache(async (slug: string) => {
   const rows = (await sql`
-    select p.id, p.slug, p.name, p.brand, p.audience, p.size_ml, p.category, p.description, p.list_price, p.images,
+    select p.id, p.slug, p.name, p.brand, p.audience, p.size_ml, p.category, p.description, p.list_price, p.images, p.notes,
            s.stock > 0 as in_stock, coalesce(p.parent_id, p.id) as group_id
     from products p
     join product_stats s on s.product_id = p.id
