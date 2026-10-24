@@ -48,7 +48,7 @@ export function Gallery({
             onLoad={current === 0 && tone === null ? (event) => setTone(edgeTone(event.currentTarget)) : undefined}
           />
         ) : slide.type === "notes" ? (
-          <NotesSlide key="notes" notes={notes!} tone={tone} />
+          <NotesSlide key="notes" notes={notes!} />
         ) : (
           <div key="fallback" className="absolute inset-0 motion-safe:animate-settle">
             {fallback}
@@ -102,19 +102,18 @@ const levelTime: Record<string, { label: string; width: string; strength: number
 
 // La diapositiva de notas: cada nivel (salida → corazón → fondo) con una línea fina que se alarga
 // según cuánto dura, y sus notas como pastillas de contorno. Sin iconos: solo tipografía y líneas.
-function NotesSlide({ notes, tone }: { notes: Notes; tone: string | null }) {
+function NotesSlide({ notes }: { notes: Notes }) {
   const levels = filledLevels(notes);
   const count = levels.reduce((total, level) => total + notes[level.key]!.length, 0);
   const dense = count > 14; // con muchas notas las pastillas se achican para que quepan en la "foto" (4:5)
   return (
     <div
       style={{
-        ...(tone ? { backgroundColor: tone } : null),
-        // Un velo blanco encima aclara el tono sin cambiar su color.
+        backgroundColor: "#f7f4f0",
         backgroundImage: "linear-gradient(rgb(255 255 255 / 0.22), rgb(255 255 255 / 0.22))",
-        "--accent": accentOn(tone),
+        "--accent": "#8a6232",
       } as React.CSSProperties}
-      className={`absolute inset-0 flex flex-col justify-center bg-mist px-6 py-8 motion-safe:animate-settle sm:px-10 ${textOn(tone)}`}
+      className="absolute inset-0 flex flex-col justify-center bg-[#f7f4f0] px-6 py-8 text-ink motion-safe:animate-settle sm:px-10"
     >
       <p className="font-display text-xs tracking-[0.24em] uppercase opacity-70">Notas olfativas</p>
       <ol className="mt-6 flex flex-col gap-6">
@@ -198,11 +197,6 @@ function edgeTone(img: HTMLImageElement): string | null {
   } catch {
     return null; // si el navegador no deja leer la imagen, queda el tono neutro de la tienda
   }
-}
-
-// Un solo acento, bronce sobre fondos claros y champán sobre oscuros: sobrio y legible en ambos.
-function accentOn(tone: string | null) {
-  return textOn(tone) === "text-ink" ? "#8a6232" : "#ecd3a0";
 }
 
 // Texto oscuro sobre fondos claros y claro sobre fondos oscuros.
