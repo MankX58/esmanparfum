@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { buttonStyles } from "@/components/button";
-import { FilterBar } from "@/components/filter-bar";
+import { CatalogFilters } from "@/components/store/catalog-filters";
 import { BackToTop } from "@/components/store/back-to-top";
 import { ProductCard } from "@/components/store/product-tile";
 import { brandPath, listBrands, listProducts, listSizeOptions, sortOptions } from "@/lib/catalog";
@@ -67,15 +67,12 @@ export default async function CatalogPage({ searchParams }: PageProps<"/catalogo
         </p>
       </div>
 
-      <FilterBar
-        placeholder="Buscar por nombre o marca"
+      <CatalogFilters
         values={{ q, marca, publico, tamano: tamano ? String(tamano) : "", orden }}
-        filters={[
-          { name: "marca", label: "Todas las marcas", options: brands.map((brand) => ({ value: brand, label: brand })) },
-          { name: "publico", label: "Para todos", options: audiences.map((audience) => ({ value: audience, label: audience })) },
-          { name: "tamano", label: "Todos los tamaños", options: sizes.map((ml) => ({ value: String(ml), label: `${ml} ml` })) },
-          { name: "orden", label: "Más vendidos primero", options: sortOptions },
-        ]}
+        audiences={audiences.map((audience) => ({ value: audience, label: audience }))}
+        brands={brands.map((brand) => ({ value: brand, label: brand }))}
+        sizes={sizes.map((ml) => ({ value: String(ml), label: `${ml} ml` }))}
+        sorts={sortOptions}
       />
 
       {products.length === 0 ? (
@@ -83,7 +80,7 @@ export default async function CatalogPage({ searchParams }: PageProps<"/catalogo
           <h2 className="font-display text-2xl">{filtering ? "Ningún perfume coincide" : "Pronto habrá perfumes aquí"}</h2>
           <p className="mt-2 text-sm leading-relaxed text-ink-soft">
             {filtering
-              ? "Prueba con otra palabra o quita algún filtro con el botón Limpiar."
+              ? "Prueba con otra palabra o quita algún filtro con Limpiar todo."
               : "Estamos preparando el catálogo. Vuelve en unos días."}
           </p>
         </div>

@@ -178,7 +178,7 @@ export default async function HomePage() {
           <div className="mx-auto max-w-7xl px-4 py-24 sm:px-8">
             <h2 className="reveal text-sm text-on-brand-soft">¿Para quién es el perfume?</h2>
             <ul className="group/list mt-8 flex flex-col">
-              {audiences.map(({ audience, count }) => (
+              {audiences.map(({ audience }) => (
                 <li key={audience} className="reveal border-t border-on-brand/20 last:border-b">
                   <Link
                     href={`/catalogo?publico=${encodeURIComponent(audience)}`}
@@ -186,9 +186,6 @@ export default async function HomePage() {
                   >
                     <span className="font-display text-5xl font-light tracking-tight transition-transform duration-(--duration-fast) ease-smooth-out group-hover:translate-x-4 sm:text-7xl">
                       {audienceNames[audience] ?? audience}
-                    </span>
-                    <span className="shrink-0 text-sm text-on-brand-soft tabular-nums">
-                      {count} {count === 1 ? "perfume" : "perfumes"}
                     </span>
                   </Link>
                 </li>
