@@ -9,7 +9,7 @@ import { AddToCart } from "./add-to-cart";
 // solo cambian el precio (con una transición corta), el tamaño marcado y el producto que se agrega
 // al carrito. El título, la foto y la descripción se quedan quietos. La dirección se actualiza
 // (history.replaceState) para que al compartirla o recargarla se abra el tamaño elegido.
-export function SizePurchase({ sizes, initialId, productName }: { sizes: ProductSize[]; initialId: number; productName: string }) {
+export function SizePurchase({ sizes, initialId }: { sizes: ProductSize[]; initialId: number }) {
   const [selectedId, setSelectedId] = useState(initialId);
   // Hasta el primer cambio, el precio entra con la animación de la página; después, con "swap".
   const [changed, setChanged] = useState(false);
@@ -80,7 +80,7 @@ export function SizePurchase({ sizes, initialId, productName }: { sizes: Product
       </p>
 
       <div className="mt-8">
-        <AddToCart productId={size.id} productName={sizes.length > 1 ? `${productName}, ${sizeText(size)}` : productName} />
+        <AddToCart productId={size.id} />
       </div>
     </>
   );

@@ -43,7 +43,7 @@ export function QuantityStepper({
 }
 
 // Botón de agregar al carrito, con selector de cantidad. Avisa con un toast que lleva al carrito.
-export function AddToCart({ productId, productName }: { productId: number; productName: string }) {
+export function AddToCart({ productId }: { productId: number }) {
   const { add } = useCart();
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
@@ -52,7 +52,9 @@ export function AddToCart({ productId, productName }: { productId: number; produ
     add(productId, quantity);
     sileo.success({
       title: quantity === 1 ? "Agregado al carrito" : `${quantity} unidades agregadas`,
-      description: productName,
+      duration: 2000,
+      fill: "#596357",
+      roundness: 6,
       button: { title: "Ver carrito", onClick: () => router.push("/carrito") },
     });
     setQuantity(1);

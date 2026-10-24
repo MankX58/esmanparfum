@@ -149,7 +149,7 @@ export default async function ProductPage({ params }: PageProps<"/producto/[slug
             {product.name}
           </h1>
           {/* Precio, tamaños, stock y compra: al elegir otro tamaño solo cambia esto (ver size-purchase.tsx). */}
-          <SizePurchase sizes={purchaseSizes} initialId={product.id} productName={product.name} />
+          <SizePurchase sizes={purchaseSizes} initialId={product.id} />
 
           {product.description && <p className="mt-10 max-w-[60ch] leading-relaxed whitespace-pre-line">{product.description}</p>}
 
