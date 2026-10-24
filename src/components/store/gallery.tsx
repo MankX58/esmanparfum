@@ -108,7 +108,12 @@ function NotesSlide({ notes, tone }: { notes: Notes; tone: string | null }) {
   const dense = count > 14; // con muchas notas las pastillas se achican para que quepan en la "foto" (4:5)
   return (
     <div
-      style={{ ...(tone ? { background: tone } : null), "--accent": accentOn(tone) } as React.CSSProperties}
+      style={{
+        ...(tone ? { backgroundColor: tone } : null),
+        // Un velo blanco encima aclara el tono sin cambiar su color.
+        backgroundImage: "linear-gradient(rgb(255 255 255 / 0.22), rgb(255 255 255 / 0.22))",
+        "--accent": accentOn(tone),
+      } as React.CSSProperties}
       className={`absolute inset-0 flex flex-col justify-center bg-mist px-6 py-8 motion-safe:animate-settle sm:px-10 ${textOn(tone)}`}
     >
       <p className="font-display text-xs tracking-[0.24em] uppercase opacity-70">Notas olfativas</p>
