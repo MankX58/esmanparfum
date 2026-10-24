@@ -2,7 +2,7 @@ import { after } from "next/server";
 import { sql } from "./db";
 import { sendEmail } from "./email";
 import { formatCOP } from "./format";
-import { deliveryEstimate } from "./site";
+import { deliveryWindow } from "./site";
 
 // Avisos por correo. Se envían con after(): primero responde la página o la acción y luego,
 // sin hacer esperar a nadie, sale el correo. Cada aviso lee de la base lo que necesita.
@@ -38,7 +38,7 @@ async function sendOrderEmail(orderId: number, event: OrderEvent) {
       paragraphs: [
         greeting,
         `Tu pago de ${total} quedó confirmado y ya estamos preparando tu pedido ${order.code}.`,
-        `La entrega tarda ${deliveryEstimate} aproximadamente. Te escribiremos cuando salga, con la guía de envío.`,
+        `Tu pedido llegaría ${deliveryWindow()}. Te escribiremos cuando salga, con la guía de envío.`,
       ],
       rows: [...products, ["Envío a", `${order.shipping_address}, ${order.shipping_city}`], ["Total pagado", total]],
       button,

@@ -12,7 +12,7 @@ import { formatCOP } from "@/lib/format";
 import { lineDiscount, type PromoCode } from "@/lib/promo";
 import { SearchSelect } from "@/components/search-select";
 import { cityOptions, shippingFor, shippingZones, zoneOf, type ShippingRates } from "@/lib/shipping";
-import { deliveryEstimate } from "@/lib/site";
+import { deliveryWindow } from "@/lib/site";
 import { useServerForm } from "@/lib/use-server-form";
 import { getCartProducts } from "../carrito/actions";
 import { checkPromo, createOrder } from "./actions";
@@ -306,7 +306,7 @@ export function CheckoutForm({ defaultName, shippingRates }: { defaultName: stri
         </div>
 
         <p className="mt-6 text-xs leading-relaxed text-ink-soft">
-          La entrega tarda {deliveryEstimate} aproximadamente desde que se confirma tu pago.
+          Si pagas hoy, tu pedido llegaría {deliveryWindow()}.
         </p>
       </aside>
     </form>
