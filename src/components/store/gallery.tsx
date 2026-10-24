@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { noteInfo } from "@/lib/note-info";
 import { filledLevels, hasNotes, noteLabel, type Notes } from "@/lib/notes";
 
 // Fotos de un producto en su página: una grande y, si hay más, miniaturas para cambiarla.
@@ -106,6 +107,15 @@ function NotesSlide({ notes }: { notes: Notes }) {
   const levels = filledLevels(notes);
   const count = levels.reduce((total, level) => total + notes[level.key]!.length, 0);
   const dense = count > 14; // con muchas notas las pastillas se achican para que quepan en la "foto" (4:5)
+  // La nota abierta: su explicación sale en una tarjeta sobre la parte baja de la diapositiva.
+  const [open, setOpen] = useState<{ note: string; level: string } | null>(null);
+  const openInfo = open ? noteInfo(open.note) : null;
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setOpen(null);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
   return (
     <div
       style={{
@@ -114,6 +124,7 @@ function NotesSlide({ notes }: { notes: Notes }) {
         "--accent": "#8a6232",
       } as React.CSSProperties}
       className="absolute inset-0 flex flex-col justify-center bg-[#f7f4f0] px-6 py-8 text-ink motion-safe:animate-settle sm:px-10"
+      onClick={() => setOpen(null)}
     >
       <p className="font-display text-xs tracking-[0.24em] uppercase opacity-70">Notas olfativas</p>
       <ol className="mt-6 flex flex-col gap-6">
@@ -143,16 +154,26 @@ function NotesSlide({ notes }: { notes: Notes }) {
                   <li
                     key={note}
                     style={{ animationDelay: `calc(var(--duration-stagger) * ${index * 4 + position + 3})` }}
-                    className={`group/pill relative cursor-default overflow-hidden rounded-full border border-(--accent)/35 bg-(--accent)/10 font-light motion-safe:animate-unveil transition-[translate,background-color,border-color] duration-(--duration-quick) ease-smooth-out hover:-translate-y-0.5 hover:border-(--accent)/80 hover:bg-(--accent)/25 ${
-                      dense ? "px-2.5 py-0.5 text-xs" : "px-3.5 py-1 text-sm sm:text-base"
-                    }`}
+                    className="motion-safe:animate-unveil"
                   >
-                    {/* Destello que cruza la pastilla al pasar el cursor. */}
-                    <span
-                      aria-hidden
-                      className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-linear-to-r from-transparent via-white/40 to-transparent group-hover/pill:animate-sheen"
-                    />
-                    {noteLabel(note)}
+                    <button
+                      type="button"
+                      aria-expanded={open?.note === note}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setOpen(open?.note === note ? null : { note, level: level.label });
+                      }}
+                      className={`group/pill relative cursor-pointer overflow-hidden rounded-full border border-(--accent)/35 bg-(--accent)/10 font-light transition-[translate,background-color,border-color] duration-(--duration-quick) ease-smooth-out hover:-translate-y-0.5 hover:border-(--accent)/80 hover:bg-(--accent)/25 aria-expanded:border-(--accent) aria-expanded:bg-(--accent)/30 ${
+                        dense ? "px-2.5 py-0.5 text-xs" : "px-3.5 py-1 text-sm sm:text-base"
+                      }`}
+                    >
+                      {/* Destello que cruza la pastilla al pasar el cursor. */}
+                      <span
+                        aria-hidden
+                        className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-linear-to-r from-transparent via-white/40 to-transparent group-hover/pill:animate-sheen"
+                      />
+                      {noteLabel(note)}
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -160,7 +181,28 @@ function NotesSlide({ notes }: { notes: Notes }) {
           );
         })}
       </ol>
-      {notes.source && <p className="absolute right-6 bottom-4 text-[11px] opacity-50 sm:right-10">Notas según Fragrantica</p>}
+      {open && (
+        <div
+          key={open.note}
+          role="dialog"
+          aria-label={noteLabel(open.note)}
+          onClick={(event) => event.stopPropagation()}
+          className="absolute inset-x-3 bottom-3 rounded-sm bg-ink p-4 text-paper shadow-xl motion-safe:animate-rise sm:inset-x-5 sm:bottom-5 sm:p-5"
+        >
+          <button
+            type="button"
+            onClick={() => setOpen(null)}
+            aria-label="Cerrar"
+            className="absolute top-2 right-2 grid size-8 place-items-center text-lg leading-none opacity-60 transition-opacity duration-(--duration-quick) hover:opacity-100"
+          >
+            ×
+          </button>
+          <p className="text-[10px] tracking-[0.2em] uppercase opacity-60">{open.level}</p>
+          <p className="mt-0.5 pr-8 font-display text-lg font-light">{noteLabel(open.note)}</p>
+          <p className="mt-1.5 text-sm leading-relaxed opacity-85">{openInfo ?? "Aún no tenemos una descripción de esta nota."}</p>
+        </div>
+      )}
+      {notes.source && !open && <p className="absolute right-6 bottom-4 text-[11px] opacity-50 sm:right-10">Notas según Fragrantica</p>}
     </div>
   );
 }

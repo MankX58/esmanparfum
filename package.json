@@ -17,7 +17,8 @@
     "db:productos": "node --env-file=.env.local scripts/add-products.mjs",
     "db:envios": "node --env-file=.env.local scripts/shipping-rates.mjs",
     "db:calculadora": "node --env-file=.env.local scripts/import-calculator.mjs",
-    "db:notas": "node --env-file=.env.local scripts/set-notes.mjs"
+    "db:notas": "node --env-file=.env.local scripts/set-notes.mjs",
+    "db:publico": "node --env-file=.env.local scripts/set-audience.mjs"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^4.31.0",
