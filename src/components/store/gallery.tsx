@@ -92,25 +92,15 @@ export function Gallery({
   );
 }
 
-// Un icono por nota, según palabras clave (la primera que coincida). Sin coincidencia: un destello.
-const noteIcons: [RegExp, string][] = [
-  [/bergamota|lim[oó]n|naranja|mandarina|toronja|pomelo|c[ií]trico|lima|yuzu/, "🍋"],
-  [/manzana|pera|durazno|melocot|ciruela|cereza|frambuesa|fresa|mora|grosella|frut|pi[ñn]a|mango|coco|higo|uva/, "🍑"],
-  [/rosa|jazm|azahar|lavanda|peon|iris|violeta|lirio|tuberosa|geranio|flor|magnolia|ylang|orqu/, "🌸"],
-  [/menta|albahaca|salvia|romero|t[eé]|hierba|verde|hoja|musgo|helecho|eucalipto|tomillo/, "🌿"],
-  [/vainilla|tonka|caramelo|miel|az[uú]car|chocolate|cacao|caf[eé]|praline|dulce|almendra|haba/, "🍯"],
-  [/sándalo|sandalo|cedro|vetiver|pachul|madera|roble|ciprés|cipres|gaiac|oud|agar/, "🪵"],
-  [/pimienta|canela|clavo|jengibre|cardamomo|azafr|nuez moscada|especia|comino|curry/, "🌶️"],
-  [/[aá]mbar|almizcle|musk|incienso|mirra|benju[ií]|resina|cuero|tabaco|animal|civeta|casto/, "🔥"],
-  [/mar|marin|sal|oc[eé]ano|agua|ozon|acu[aá]tic|lluvia|hielo|fresco/, "🌊"],
-];
-const noteIcon = (note: string) => noteIcons.find(([pattern]) => pattern.test(note.toLowerCase()))?.[1] ?? "✦";
+// Cuánto dura cada nivel sobre la piel y qué tanto de la barra ocupa (la pirámide, de lado).
+const levelTime: Record<string, { label: string; width: string }> = {
+  top: { label: "Primeros minutos", width: "28%" },
+  heart: { label: "Primeras horas", width: "62%" },
+  base: { label: "Todo el día", width: "100%" },
+};
 
-// Cuánto dura cada nivel sobre la piel: la pirámide como una línea de tiempo.
-const levelTime: Record<string, string> = { top: "Primeros minutos", heart: "Primeras horas", base: "Todo el día" };
-
-// La diapositiva de notas: una línea de tiempo (salida → corazón → fondo) con cada nota como una
-// pastilla con su icono. Los puntos de la línea crecen con el nivel, como la pirámide.
+// La diapositiva de notas: cada nivel (salida → corazón → fondo) con una línea fina que se alarga
+// según cuánto dura, y sus notas como pastillas de contorno. Sin iconos: solo tipografía y líneas.
 function NotesSlide({ notes, tone }: { notes: Notes; tone: string | null }) {
   const levels = filledLevels(notes);
   const count = levels.reduce((total, level) => total + notes[level.key]!.length, 0);
@@ -121,39 +111,39 @@ function NotesSlide({ notes, tone }: { notes: Notes; tone: string | null }) {
       className={`absolute inset-0 flex flex-col justify-center bg-mist px-6 py-8 motion-safe:animate-settle sm:px-10 ${textOn(tone)}`}
     >
       <p className="font-display text-xs tracking-[0.24em] uppercase opacity-70">Notas olfativas</p>
-      <ol className="mt-5 flex flex-col">
-        {levels.map((level, index) => (
-          <li
-            key={level.key}
-            style={{ animationDelay: `calc(var(--duration-micro) * ${index + 1})` }}
-            className="relative pb-5 pl-7 motion-safe:animate-unveil last:pb-0"
-          >
-            {/* Riel: punto (más grande en el fondo) y línea hasta el siguiente nivel. */}
-            <span
-              aria-hidden
-              className="absolute top-1 left-0 rounded-full bg-current"
-              style={{ width: 8 + index * 3, height: 8 + index * 3, marginLeft: -index * 1.5 }}
-            />
-            {index < levels.length - 1 && <span aria-hidden className="absolute top-4 bottom-0 left-[3.5px] w-px bg-current opacity-25" />}
-            <div className="flex items-baseline justify-between gap-3">
-              <p className="font-display text-base tracking-wide sm:text-lg">{level.label}</p>
-              {levelTime[level.key] && <p className="text-[10px] tracking-[0.16em] uppercase opacity-55">{levelTime[level.key]}</p>}
-            </div>
-            <ul className="mt-2 flex flex-wrap gap-1.5">
-              {notes[level.key]!.map((note) => (
-                <li
-                  key={note}
-                  className={`inline-flex items-center gap-1.5 rounded-full border border-current/20 bg-current/[0.07] ${
-                    dense ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm sm:text-base"
-                  }`}
-                >
-                  <span aria-hidden>{noteIcon(note)}</span>
-                  {noteLabel(note)}
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
+      <ol className="mt-6 flex flex-col gap-6">
+        {levels.map((level, index) => {
+          const time = levelTime[level.key];
+          return (
+            <li
+              key={level.key}
+              style={{ animationDelay: `calc(var(--duration-micro) * ${index + 1})` }}
+              className="motion-safe:animate-unveil"
+            >
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="font-display text-xl font-light sm:text-2xl">{level.label}</p>
+                {time && <p className="text-[10px] tracking-[0.18em] uppercase opacity-55">{time.label}</p>}
+              </div>
+              {time && (
+                <div aria-hidden className="mt-2 h-px w-full bg-current/15">
+                  <div className="h-px bg-current" style={{ width: time.width }} />
+                </div>
+              )}
+              <ul className="mt-3 flex flex-wrap gap-1.5">
+                {notes[level.key]!.map((note) => (
+                  <li
+                    key={note}
+                    className={`rounded-full border border-current/25 font-light ${
+                      dense ? "px-2.5 py-0.5 text-xs" : "px-3.5 py-1 text-sm sm:text-base"
+                    }`}
+                  >
+                    {noteLabel(note)}
+                  </li>
+                ))}
+              </ul>
+            </li>
+          );
+        })}
       </ol>
       {notes.source && <p className="absolute right-6 bottom-4 text-[11px] opacity-50 sm:right-10">Notas según Fragrantica</p>}
     </div>
