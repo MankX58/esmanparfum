@@ -37,7 +37,7 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
 // `returnTo` es a dónde vuelve después de iniciar sesión.
 export async function requireUser(returnTo: string): Promise<User> {
   const user = await getCurrentUser();
-  if (!user) redirect(`/auth/login?returnTo=${encodeURIComponent(returnTo)}`);
+  if (!user) redirect(`/entrar?returnTo=${encodeURIComponent(returnTo)}`);
   return user;
 }
 
@@ -45,7 +45,7 @@ export async function requireUser(returnTo: string): Promise<User> {
 // base de datos en el servidor: ocultar un botón en el navegador no protege nada.
 export async function requireAdmin(): Promise<User> {
   const user = await getCurrentUser();
-  if (!user) redirect("/auth/login?returnTo=/admin");
+  if (!user) redirect("/entrar?returnTo=/admin");
   if (user.role !== "admin") redirect("/sin-acceso");
   return user;
 }

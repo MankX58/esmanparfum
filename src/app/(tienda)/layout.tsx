@@ -35,8 +35,8 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
               // Auth0 pone el correo como nombre cuando la persona no dio uno: no se repite.
               <AccountMenu name={user.name === user.email ? null : user.name} email={user.email} picture={user.picture} isAdmin={isAdmin} />
             ) : (
-              // /auth/login lo atiende Auth0: por eso es <a> y no <Link>.
-              <a href="/auth/login" className={`${navText} ${navLink}`}>
+              // /entrar: la página de acceso de la tienda (Google o correo).
+              <a href="/entrar" className={`${navText} ${navLink}`}>
                 Entrar
               </a>
             )}

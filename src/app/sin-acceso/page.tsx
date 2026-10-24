@@ -7,7 +7,7 @@ export const metadata = { title: "Sin acceso" };
 
 export default async function NoAccessPage() {
   const user = await getCurrentUser();
-  if (!user) redirect("/auth/login?returnTo=/admin");
+  if (!user) redirect("/entrar?returnTo=/admin");
   if (user.role === "admin") redirect("/admin");
 
   return (

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<!--
+Plantilla del Universal Login de Auth0 para Ésman Parfum.
+  Se pega en: Auth0 Dashboard → Branding → Universal Login → Advanced Options → Page Templates.
+  Necesita un dominio personalizado en el tenant (Branding → Custom Domains). Los colores son los
+  de la tienda (globals.css): verde salvia #596357, papel #f6f7f4, tinta #1c211b.
+-->
+<html lang="es">
+  <head>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --brand: #596357;
+        --brand-deep: #434b41;
+        --paper: #f6f7f4;
+        --ink: #1c211b;
+        --ink-soft: #5d6459;
+        --line: #dde1da;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; min-height: 100%; }
+      body {
+        font-family: "Jost", system-ui, sans-serif;
+        color: var(--ink);
+        background: var(--paper);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Dos mitades: la marca a la izquierda (solo en pantallas grandes) y el acceso a la derecha. */
+      .split { display: grid; min-height: 100vh; }
+      @media (min-width: 960px) { .split { grid-template-columns: 1.05fr 1fr; } }
+
+      .brand {
+        display: none;
+        position: relative;
+        overflow: hidden;
+        padding: 56px;
+        color: #f6f7f4;
+        background: var(--brand);
+      }
+      @media (min-width: 960px) { .brand { display: flex; flex-direction: column; justify-content: space-between; } }
+      /* Dos manchas de luz muy suaves, como la bruma de la portada. */
+      .brand::before, .brand::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.35;
+        animation: drift 18s ease-in-out infinite alternate;
+      }
+      .brand::before { width: 420px; height: 420px; top: -120px; right: -100px; background: #9fb09a; }
+      .brand::after { width: 360px; height: 360px; bottom: -140px; left: -80px; background: #c9d4c5; animation-delay: -9s; }
+      @keyframes drift { to { transform: translate(40px, 30px) scale(1.15); } }
+      @media (prefers-reduced-motion: reduce) { .brand::before, .brand::after { animation: none; } }
+
+      .wordmark {
+        position: relative;
+        z-index: 1;
+        font-size: 15px;
+        font-weight: 400;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+      }
+      .brand-copy { position: relative; z-index: 1; max-width: 22ch; }
+      .brand-copy h2 { margin: 0; font-size: 52px; font-weight: 300; line-height: 1.05; letter-spacing: -0.01em; }
+      .brand-copy p { margin: 20px 0 0; font-size: 15px; line-height: 1.6; color: #dfe5dc; }
+      .brand-foot { position: relative; z-index: 1; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #c3ccbf; }
+
+      .access { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 20px; }
+      .access .mobile-mark {
+        margin-bottom: 28px;
+        font-size: 14px;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+      }
+      @media (min-width: 960px) { .access .mobile-mark { display: none; } }
+      .card { width: 100%; max-width: 400px; animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+      @keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+      @media (prefers-reduced-motion: reduce) { .card { animation: none; } }
+
+      /* ---- El formulario de Auth0, con el aspecto de la tienda ---- */
+      .card main, .card section { background: transparent !important; box-shadow: none !important; border: 0 !important; padding: 0 !important; }
+      .card h1 { font-family: "Jost", sans-serif; font-size: 34px; font-weight: 300; letter-spacing: -0.01em; color: var(--ink); text-align: left; }
+      .card h1 + div, .card p { color: var(--ink-soft); text-align: left; }
+      .card img[alt]:not([data-provider]) { display: none; } /* el logo de Auth0 sobra: la marca ya está en la página */
+
+      .card input[type="text"], .card input[type="email"], .card input[type="password"] {
+        height: 48px;
+        border-radius: 0 !important;
+        border: 1px solid var(--line) !important;
+        background: #fff !important;
+        font-family: inherit;
+        font-size: 16px;
+        color: var(--ink);
+        transition: border-color 0.15s ease;
+      }
+      .card input:hover { border-color: #aeb5aa !important; }
+      .card input:focus { border-color: var(--ink) !important; box-shadow: none !important; outline: none; }
+
+      /* Botón principal (continuar con correo): verde de la marca, esquinas rectas. */
+      .card button[type="submit"]:not([data-provider]) {
+        height: 48px;
+        border-radius: 0 !important;
+        border: 1px solid var(--brand) !important;
+        background: var(--brand) !important;
+        color: #f6f7f4 !important;
+        font-family: inherit;
+        font-size: 15px;
+        letter-spacing: 0.04em;
+        transition: background-color 0.15s ease;
+      }
+      .card button[type="submit"]:not([data-provider]):hover { background: var(--brand-deep) !important; }
+
+      /* Google: el acceso principal. Grande, blanco, con sombra suave, arriba de todo. */
+      .card [data-provider="google"] {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+        height: 56px;
+        border-radius: 0 !important;
+        border: 1px solid var(--ink) !important;
+        background: #fff !important;
+        color: var(--ink) !important;
+        font-family: inherit;
+        font-size: 16px;
+        font-weight: 500;
+        box-shadow: 0 1px 0 rgba(28, 33, 27, 0.06), 0 10px 24px -14px rgba(28, 33, 27, 0.35);
+        transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+      }
+      .card [data-provider="google"]:hover {
+        transform: translateY(-1px);
+        background: #fbfcfa !important;
+        box-shadow: 0 1px 0 rgba(28, 33, 27, 0.06), 0 16px 30px -14px rgba(28, 33, 27, 0.45);
+      }
+      .card [data-provider="google"]:active { transform: none; }
+
+      /* "o con tu correo": separador que pone el script de abajo. */
+      .or {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin: 22px 0;
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+      }
+      .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+      .card a { color: var(--ink); text-underline-offset: 4px; }
+      .card a:hover { color: var(--brand); }
+
+      /* "¿Olvidaste tu contraseña?" y "¿No tienes cuenta? Regístrate": a la vista, no escondidos. */
+      .card a[href*="reset"], .card a[href*="password"] { display: inline-block; margin-top: 4px; font-size: 14px; color: var(--ink-soft); }
+      .card .ulp-alternate-action, .card [class*="alternate-action"] {
+        margin-top: 26px;
+        padding-top: 22px;
+        border-top: 1px solid var(--line);
+        text-align: center;
+        font-size: 15px;
+        color: var(--ink-soft);
+      }
+      .card .ulp-alternate-action a, .card [class*="alternate-action"] a { margin-left: 4px; font-weight: 500; color: var(--ink); }
+
+      .legal { margin-top: 28px; text-align: center; font-size: 12px; line-height: 1.6; color: var(--ink-soft); }
+    </style>
+  </head>
+  <body>
+    <div class="split">
+      <aside class="brand">
+        <div class="wordmark">Ésman Parfum</div>
+        <div class="brand-copy">
+          <h2>Perfumes para ser recordado</h2>
+          <p>Entra para seguir tus pedidos y comprar en segundos, con envío a toda Colombia.</p>
+        </div>
+        <div class="brand-foot">Perfumes originales · Colombia</div>
+      </aside>
+
+      <div class="access">
+        <div class="mobile-mark">Ésman Parfum</div>
+        <div class="card" id="card">
+          <h1>Te damos la bienvenida</h1>
+<p>Entra para seguir tus pedidos.</p>
+<form method="post"><input name="username" type="text" placeholder="Correo electrónico" style="width:100%;padding:0 12px;margin:12px 0 0"/>
+<input name="password" type="password" placeholder="Contraseña" style="width:100%;padding:0 12px;margin:12px 0"/>
+<a href="#reset">¿Olvidaste tu contraseña?</a>
+<button type="submit" style="width:100%;margin-top:14px">Continuar</button></form>
+<div class="ulp-divider">OR</div>
+<form method="post"><button type="submit" data-provider="google"><svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 7l7.2 5.6c4.3-3.9 7.1-9.7 7.1-17.1z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.2-5.6c-2 1.4-4.6 2.2-8.7 2.2-6.3 0-11.600-4.100-13.500-9.800l-7.900 6.100C6.500 42.600 14.600 48 24 48z"/></svg>Continuar con Google</button></form>
+<p class="ulp-alternate-action">¿No tienes cuenta?<a href="#signup">Regístrate</a></p>
+          <p class="legal">Al continuar aceptas los términos y la política de privacidad de Ésman Parfum.</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Pone el botón de Google arriba del formulario de correo y un "o con tu correo" en medio.
+      // El widget se dibuja después de cargar la página, por eso se espera con un observador.
+      (function () {
+        var done = false;
+        function arrange() {
+          if (done) return;
+          var google = document.querySelector('[data-provider="google"]');
+          var email = document.querySelector('input[name="username"], input[name="email"]');
+          if (!google || !email) return;
+          var googleBlock = google.closest("form") || google.parentElement;
+          var emailBlock = email.closest("form");
+          if (!emailBlock || googleBlock === emailBlock || !emailBlock.parentElement) return;
+          done = true;
+          var divider = document.createElement("div");
+          divider.className = "or";
+          divider.textContent = "o con tu correo";
+          emailBlock.parentElement.insertBefore(googleBlock, emailBlock);
+          emailBlock.parentElement.insertBefore(divider, emailBlock);
+          // La caja del correo ya trae su propio separador "OR" de Auth0: se oculta.
+          document.querySelectorAll(".ulp-divider, [class*='divider']").forEach(function (node) {
+            if (!node.classList.contains("or")) node.style.display = "none";
+          });
+        }
+        new MutationObserver(arrange).observe(document.body, { childList: true, subtree: true });
+        document.addEventListener("DOMContentLoaded", arrange);
+      })();
+    </script>
+  </body>
+</html>

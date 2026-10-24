@@ -69,8 +69,8 @@ export default async function QuotePage({ searchParams }: PageProps<"/cotizar">)
               <QuoteForm defaultPerfume={perfume} defaultPhone={quotes[0]?.phone ?? ""} />
             ) : (
               <>
-                {/* /auth/login lo atiende Auth0: por eso es <a> y no <Link>. */}
-                <a href={`/auth/login?returnTo=${encodeURIComponent(here)}`} className={buttonStyles.primary}>
+                {/* /entrar lleva al acceso (Google o correo). */}
+                <a href={`/entrar?returnTo=${encodeURIComponent(here)}`} className={buttonStyles.primary}>
                   Entrar para cotizar
                 </a>
                 <p className="mt-4 max-w-[46ch] text-sm leading-relaxed text-ink-soft">
