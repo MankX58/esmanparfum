@@ -98,7 +98,12 @@ export async function getProductsById(ids: number[]) {
 
 // Los tamaños (en ml) en que hay perfumes activos, para el filtro del catálogo.
 export async function listSizeOptions() {
-  const rows = await sql`select distinct size_ml from products where is_active and size_ml is not null order by size_ml`;
+  const rows = await sql`
+    select distinct p.size_ml
+    from products p
+    join product_stats s on s.product_id = p.id
+    where p.is_active and p.size_ml is not null
+    order by p.size_ml`;
   return rows.map((row) => row.size_ml as number);
 }
 
