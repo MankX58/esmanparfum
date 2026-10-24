@@ -17,11 +17,13 @@ export async function generateMetadata({ params }: PageProps<"/producto/[slug]">
   if (!product) return {};
 
   const title = [product.brand, product.name].filter(Boolean).join(" ");
+  const forWhom = product.audience === "Hombre" ? " para hombre" : product.audience === "Mujer" ? " para mujer" : product.audience === "Unisex" ? " unisex" : "";
   const description =
     product.description ??
-    `${title}${product.size_ml ? `, ${product.size_ml} ml` : ""}. ${formatCOP(product.list_price)} en Ésman Parfum.`;
+    `Perfume ${title}${forWhom}${product.size_ml ? `, ${product.size_ml} ml` : ""}. ${formatCOP(product.list_price)} en Ésman Parfum, con envío a toda Colombia.`;
   return {
-    title,
+    // "Perfume Armaf Club de Nuit 105 ml": así lo escribe quien lo busca.
+    title: `Perfume ${title}${product.size_ml ? ` ${product.size_ml} ml` : ""}`,
     description,
     // canonical: la dirección oficial de esta página, para que los buscadores no la cuenten dos veces.
     alternates: { canonical: `/producto/${product.slug}` },
@@ -53,14 +55,19 @@ export default async function ProductPage({ params }: PageProps<"/producto/[slug
         "@type": "Product",
         name: title,
         description: product.description ?? undefined,
+        category: "Perfumes",
         brand: product.brand ? { "@type": "Brand", name: product.brand } : undefined,
+        audience: product.audience ? { "@type": "PeopleAudience", suggestedGender: { Hombre: "male", Mujer: "female", Unisex: "unisex" }[product.audience] } : undefined,
+        size: product.size_ml ? `${product.size_ml} ml` : undefined,
         image: product.images.length > 0 ? product.images.map(absoluteUrl) : undefined,
         offers: {
           "@type": "Offer",
           url: absoluteUrl(`/producto/${product.slug}`),
           priceCurrency: "COP",
           price: product.list_price,
-          availability: product.in_stock ? "https://schema.org/InStock" : undefined,
+          itemCondition: "https://schema.org/NewCondition",
+          availability: product.in_stock ? "https://schema.org/InStock" : "https://schema.org/PreOrder",
+          seller: { "@type": "Organization", name: "Ésman Parfum" },
         },
       },
       {

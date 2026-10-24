@@ -26,14 +26,22 @@ const headline = "Cada aroma, en su versión original.";
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
-    { "@type": "WebSite", name: "Ésman Parfum", alternateName: ["Ésman", "Esman Parfum", "Esman", "Ésman Parfum Colombia"], url: siteUrl },
+    {
+      "@type": "WebSite",
+      name: "Ésman Parfum",
+      alternateName: ["Ésman", "Esman Parfum", "Esman", "Ésman Parfum Colombia"],
+      url: siteUrl,
+      inLanguage: "es-CO",
+      // Permite que Google muestre un buscador de la tienda dentro de su resultado.
+      potentialAction: { "@type": "SearchAction", target: `${siteUrl}/catalogo?q={search_term_string}`, "query-input": "required name=search_term_string" },
+    },
     {
       "@type": "OnlineStore",
       name: "Ésman Parfum",
       alternateName: ["Ésman", "Esman Parfum"],
       url: siteUrl,
       logo: absoluteUrl("/icon"),
-      description: "Tienda de perfumes originales con envío en Colombia.",
+      description: "Ésman Parfum es una tienda en línea de perfumes originales para hombre, mujer y unisex, con envío a toda Colombia.",
       areaServed: "CO",
     },
   ],
@@ -60,6 +68,7 @@ export default async function HomePage() {
       {/* overflow-x-clip: el abanico de las cajas nunca ensancha la página en pantallas angostas. */}
       <section className="mx-auto grid max-w-7xl items-center gap-12 overflow-x-clip px-4 pt-14 pb-20 sm:px-8 lg:grid-cols-[1.1fr_1fr] lg:pt-20 lg:pb-28">
         <div>
+          <p className="mb-5 text-xs tracking-[0.2em] text-ink-soft uppercase">Ésman Parfum · Perfumes originales en Colombia</p>
           <h1 className="font-display text-5xl leading-[1.02] font-light tracking-tight text-balance sm:text-6xl xl:text-7xl">
             {/* Cada palabra sube desde detrás de su propia máscara, una tras otra. El relleno de la
                 máscara deja sitio a las tildes y a las letras que bajan de la línea (p, í). */}

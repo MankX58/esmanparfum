@@ -13,12 +13,20 @@ const jost = Jost({ variable: "--font-jost", subsets: ["latin"] });
 // Cada página puede poner su propio título y descripción.
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl), // con esto, las direcciones relativas (fotos, canonical) salen completas
-  title: { default: "Ésman Parfum · Perfumes para ser recordado", template: "%s · Ésman Parfum" },
+  title: { default: "Ésman Parfum · Perfumes originales para hombre y mujer en Colombia", template: "%s · Ésman Parfum" },
   description:
-    "Ésman Parfum: perfumes originales para hombre y mujer con envío en Colombia. Elige tu fragancia, paga seguro con Wompi y recíbela en casa.",
+    "Ésman Parfum (Esman): perfumes originales para hombre, mujer y unisex con envío a toda Colombia. Elige tu fragancia, paga seguro con Wompi y recíbela en casa.",
   applicationName: "Ésman Parfum",
-  openGraph: { siteName: "Ésman Parfum", locale: "es_CO", type: "website" },
-  twitter: { card: "summary_large_image" },
+  keywords: ["Ésman Parfum", "Esman Parfum", "Ésman", "Esman", "perfumes originales", "perfumes Colombia", "perfumes para hombre", "perfumes para mujer", "comprar perfumes en línea"],
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+  openGraph: {
+    siteName: "Ésman Parfum",
+    locale: "es_CO",
+    type: "website",
+    title: "Ésman Parfum · Perfumes para ser recordado",
+    description: "Perfumes originales para hombre, mujer y unisex con envío a toda Colombia.",
+  },
+  twitter: { card: "summary_large_image", title: "Ésman Parfum · Perfumes para ser recordado" },
 };
 
 // Código que da Google Search Console para comprobar que el sitio es tuyo (ver README).

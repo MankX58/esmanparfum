@@ -112,6 +112,14 @@ export async function listBrands() {
   return rows.map((row) => row.brand as string);
 }
 
+// Páginas por público: "Perfumes para hombre", etc. Para los buscadores son páginas propias.
+export const audienceTitles: Record<string, string> = {
+  Hombre: "Perfumes para hombre",
+  Mujer: "Perfumes para mujer",
+  Unisex: "Perfumes unisex",
+};
+export const audiencePath = (audience: string) => `/catalogo?publico=${encodeURIComponent(audience)}`;
+
 // Dirección del catálogo filtrado por una marca. Para los buscadores es la página de esa marca.
 export const brandPath = (brand: string) => `/catalogo?marca=${encodeURIComponent(brand)}`;
 

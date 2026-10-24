@@ -5,6 +5,7 @@ import { CartLink } from "@/components/store/header-links";
 import { navLink, navText, navUnderline } from "@/components/store/nav-styles";
 import { Wordmark } from "@/components/wordmark";
 import { getCurrentUser } from "@/lib/auth";
+import { audiencePath, audienceTitles, brandPath, listBrands } from "@/lib/catalog";
 
 // ponytail: las páginas de la tienda consultan la base de datos en cada visita, así
 // un cambio de precio en el panel se ve al instante. Si el tráfico crece, pasar a
@@ -13,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 // Marco de la tienda pública: cabecera fija, contenido y pie.
 export default async function StoreLayout({ children }: LayoutProps<"/">) {
-  const user = await getCurrentUser();
+  const [user, brands] = await Promise.all([getCurrentUser(), listBrands()]);
   const isAdmin = user?.role === "admin";
 
   return (
@@ -49,8 +50,38 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
         {children}
       </div>
 
-      {/* Pie de una sola franja: marca, una frase y los enlaces. */}
+      {/* Pie: un directorio de la tienda (público y marcas), que además ayuda a los buscadores a
+          encontrar todas las páginas; después marca, una frase y los enlaces. */}
       <footer className="border-t border-line">
+        <nav aria-label="Perfumes por público y marca" className="mx-auto grid max-w-7xl gap-8 px-4 py-10 text-sm sm:grid-cols-[1fr_3fr] sm:px-8">
+          <div>
+            <h2 className="text-[11px] tracking-[0.18em] text-ink-soft uppercase">Perfumes originales</h2>
+            <ul className="mt-3 flex flex-col [&_a]:inline-flex [&_a]:min-h-9 [&_a]:items-center">
+              {Object.entries(audienceTitles).map(([audience, title]) => (
+                <li key={audience}>
+                  <Link href={audiencePath(audience)} className={linkStyles.default}>
+                    {title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          {brands.length > 0 && (
+            <div>
+              <h2 className="text-[11px] tracking-[0.18em] text-ink-soft uppercase">Perfumes por marca</h2>
+              <ul className="mt-3 grid grid-cols-2 gap-x-6 sm:grid-cols-3 lg:grid-cols-4 [&_a]:inline-flex [&_a]:min-h-9 [&_a]:items-center">
+                {brands.map((brand) => (
+                  <li key={brand}>
+                    <Link href={brandPath(brand)} className={linkStyles.default}>
+                      Perfumes {brand}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </nav>
+        <div className="border-t border-line" />
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-8 gap-y-2 px-4 py-5 text-sm text-ink-soft sm:px-8">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
             <Wordmark className="text-xs text-ink" />

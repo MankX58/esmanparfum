@@ -4,7 +4,7 @@ import { buttonStyles } from "@/components/button";
 import { CatalogFilters } from "@/components/store/catalog-filters";
 import { BackToTop } from "@/components/store/back-to-top";
 import { ProductCard } from "@/components/store/product-tile";
-import { brandPath, listBrands, listProducts, listSizeOptions, sortOptions } from "@/lib/catalog";
+import { audiencePath, audienceTitles, brandPath, listBrands, listProducts, listSizeOptions, sortOptions } from "@/lib/catalog";
 import { queryText } from "@/lib/form";
 
 type CatalogParams = Awaited<PageProps<"/catalogo">["searchParams"]>;
@@ -16,20 +16,36 @@ function brandPage(params: CatalogParams, brands: string[]) {
   return !queryText(params.q) && !queryText(params.publico) && brands.includes(marca) ? marca : "";
 }
 
+// Igual para el público: solo ?publico=Hombre, sin otro filtro, es la página "Perfumes para hombre".
+function audiencePage(params: CatalogParams) {
+  const publico = queryText(params.publico);
+  const clean = !queryText(params.q) && !queryText(params.marca) && !queryText(params.tamano);
+  return clean && publico in audienceTitles ? publico : "";
+}
+
 export async function generateMetadata({ searchParams }: PageProps<"/catalogo">): Promise<Metadata> {
   // ponytail: la lista de marcas se consulta aquí y otra vez en la página. Es una consulta
   // corta; si llegara a pesar, envolver listBrands con cache() de React.
-  const brand = brandPage(await searchParams, await listBrands());
+  const params = await searchParams;
+  const brand = brandPage(params, await listBrands());
   if (brand) {
     return {
-      title: `Perfumes ${brand}`,
-      description: `Perfumes ${brand} originales en Ésman Parfum, con precio y envío en Colombia. Elige el tuyo y paga seguro con Wompi.`,
+      title: `Perfumes ${brand} originales`,
+      description: `Perfumes ${brand} originales en Ésman Parfum, con precio y envío a toda Colombia. Elige el tuyo y paga seguro con Wompi.`,
       alternates: { canonical: brandPath(brand) },
     };
   }
+  const audience = audiencePage(params);
+  if (audience) {
+    return {
+      title: `${audienceTitles[audience]} originales`,
+      description: `${audienceTitles[audience]} originales en Ésman Parfum: todas las marcas, con precio y envío a toda Colombia. Paga seguro con Wompi.`,
+      alternates: { canonical: audiencePath(audience) },
+    };
+  }
   return {
-    title: "Catálogo de perfumes",
-    description: "Todos los perfumes de Ésman Parfum, para hombre, mujer y unisex. Busca por nombre o marca y pide el tuyo con envío en Colombia.",
+    title: "Catálogo de perfumes originales",
+    description: "Catálogo de perfumes originales de Ésman Parfum, para hombre, mujer y unisex. Busca por nombre o marca y pide el tuyo con envío a toda Colombia.",
     // Con búsqueda u otros filtros la página sigue siendo el catálogo para los buscadores.
     alternates: { canonical: "/catalogo" },
   };
@@ -60,7 +76,7 @@ export default async function CatalogPage({ searchParams }: PageProps<"/catalogo
     <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-12 pb-24 sm:px-8">
       <div className="mb-8 flex flex-wrap items-baseline justify-between gap-4 motion-safe:animate-unveil">
         <h1 className="font-display text-5xl font-light tracking-tight text-balance sm:text-6xl">
-          {brand ? `Perfumes ${brand}` : "Catálogo"}
+          {brand ? `Perfumes ${brand}` : audiencePage(params) ? audienceTitles[audiencePage(params)] : "Catálogo"}
         </h1>
         <p className="text-sm text-ink-soft tabular-nums">
           {products.length} {products.length === 1 ? "perfume" : "perfumes"}

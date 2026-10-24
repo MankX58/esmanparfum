@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { brandPath, listBrands } from "@/lib/catalog";
+import { audiencePath, audienceTitles, brandPath, listBrands } from "@/lib/catalog";
 import { sql } from "@/lib/db";
 import { siteUrl } from "@/lib/site";
 
@@ -22,6 +22,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${siteUrl}${path}`,
       changeFrequency: "yearly" as const,
       priority: 0.2,
+    })),
+    // Una página por público: "Perfumes para hombre", "para mujer" y "unisex".
+    ...Object.keys(audienceTitles).map((audience) => ({
+      url: `${siteUrl}${audiencePath(audience)}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
     })),
     // Una página por marca: el catálogo filtrado.
     ...(await listBrands()).map((brand) => ({
