@@ -93,11 +93,11 @@ export function Gallery({
 }
 
 // Cuánto dura cada nivel sobre la piel y qué tanto de la barra ocupa (la pirámide, de lado).
-// Cada nivel tiene su acento: dorado la salida, rosa el corazón, ámbar oscuro el fondo.
-const levelTime: Record<string, { label: string; width: string; accent: string }> = {
-  top: { label: "Primeros minutos", width: "28%", accent: "#e0b04a" },
-  heart: { label: "Primeras horas", width: "62%", accent: "#d96b8a" },
-  base: { label: "Todo el día", width: "100%", accent: "#a8643a" },
+// "strength": la barra se hace más intensa hacia el fondo, como el perfume se asienta en la piel.
+const levelTime: Record<string, { label: string; width: string; strength: number }> = {
+  top: { label: "Primeros minutos", width: "28%", strength: 0.5 },
+  heart: { label: "Primeras horas", width: "62%", strength: 0.75 },
+  base: { label: "Todo el día", width: "100%", strength: 1 },
 };
 
 // La diapositiva de notas: cada nivel (salida → corazón → fondo) con una línea fina que se alarga
@@ -108,7 +108,7 @@ function NotesSlide({ notes, tone }: { notes: Notes; tone: string | null }) {
   const dense = count > 14; // con muchas notas las pastillas se achican para que quepan en la "foto" (4:5)
   return (
     <div
-      style={tone ? { background: tone } : undefined}
+      style={{ ...(tone ? { background: tone } : null), "--accent": accentOn(tone) } as React.CSSProperties}
       className={`absolute inset-0 flex flex-col justify-center bg-mist px-6 py-8 motion-safe:animate-settle sm:px-10 ${textOn(tone)}`}
     >
       <p className="font-display text-xs tracking-[0.24em] uppercase opacity-70">Notas olfativas</p>
@@ -118,7 +118,7 @@ function NotesSlide({ notes, tone }: { notes: Notes; tone: string | null }) {
           return (
             <li
               key={level.key}
-              style={{ animationDelay: `calc(var(--duration-micro) * ${index + 1})`, "--accent": time?.accent } as React.CSSProperties}
+              style={{ animationDelay: `calc(var(--duration-micro) * ${index + 1})` }}
               className="group motion-safe:animate-unveil"
             >
               <div className="flex items-baseline justify-between gap-3">
@@ -126,21 +126,28 @@ function NotesSlide({ notes, tone }: { notes: Notes; tone: string | null }) {
                 {time && <p className="text-[10px] tracking-[0.18em] uppercase opacity-55">{time.label}</p>}
               </div>
               {time && (
-                <div aria-hidden className="mt-2 h-0.5 w-full bg-current/10">
+                <div aria-hidden className="mt-2 h-px w-full bg-current/10">
+                  {/* La línea se dibuja de izquierda a derecha, un nivel tras otro. */}
                   <div
-                    className="h-0.5 origin-left bg-(--accent) transition-transform duration-(--duration-quick) ease-smooth-out group-hover:scale-y-150"
-                    style={{ width: time.width }}
+                    className="h-px origin-left bg-(--accent) motion-safe:animate-grow transition-[height] duration-(--duration-quick) ease-smooth-out group-hover:h-0.5"
+                    style={{ width: time.width, opacity: time.strength, animationDelay: `calc(var(--duration-micro) * ${index + 2})` }}
                   />
                 </div>
               )}
               <ul className="mt-3 flex flex-wrap gap-1.5">
-                {notes[level.key]!.map((note) => (
+                {notes[level.key]!.map((note, position) => (
                   <li
                     key={note}
-                    className={`cursor-default rounded-full border border-(--accent)/50 bg-(--accent)/15 font-light transition-[transform,background-color,border-color] duration-(--duration-quick) ease-smooth-out hover:-translate-y-0.5 hover:border-(--accent) hover:bg-(--accent)/40 ${
+                    style={{ animationDelay: `calc(var(--duration-stagger) * ${index * 4 + position + 3})` }}
+                    className={`group/pill relative cursor-default overflow-hidden rounded-full border border-(--accent)/35 bg-(--accent)/10 font-light motion-safe:animate-unveil transition-[translate,background-color,border-color] duration-(--duration-quick) ease-smooth-out hover:-translate-y-0.5 hover:border-(--accent)/80 hover:bg-(--accent)/25 ${
                       dense ? "px-2.5 py-0.5 text-xs" : "px-3.5 py-1 text-sm sm:text-base"
                     }`}
                   >
+                    {/* Destello que cruza la pastilla al pasar el cursor. */}
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-linear-to-r from-transparent via-white/40 to-transparent group-hover/pill:animate-sheen"
+                    />
                     {noteLabel(note)}
                   </li>
                 ))}
@@ -186,6 +193,11 @@ function edgeTone(img: HTMLImageElement): string | null {
   } catch {
     return null; // si el navegador no deja leer la imagen, queda el tono neutro de la tienda
   }
+}
+
+// Un solo acento, bronce sobre fondos claros y champán sobre oscuros: sobrio y legible en ambos.
+function accentOn(tone: string | null) {
+  return textOn(tone) === "text-ink" ? "#8a6232" : "#ecd3a0";
 }
 
 // Texto oscuro sobre fondos claros y claro sobre fondos oscuros.
