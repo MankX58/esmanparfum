@@ -35,7 +35,7 @@ Solo existen los colores definidos en `globals.css`; la paleta por defecto de Ta
 - **Jost** (`font-display`): títulos, la marca y la marca del perfume en las etiquetas.
 - **Geist** (`font-sans`): todo lo demás. Los números de tablas llevan `tabular-nums`.
 - La marca se escribe siempre con el componente `Wordmark`.
-- El símbolo (icono de la pestaña, del teléfono y de la imagen al compartir) es una É clara de trazo fino sobre el verde de la marca: `LogoMark` de [logo-mark.tsx](src/components/logo-mark.tsx). El lema es "Perfumes para ser recordado".
+- El símbolo (icono de la pestaña, del teléfono y de la imagen al compartir) es el monograma caligráfico de los archivos de `public/esman-parfum-logos/` (iconos `icono-app-*`); el logotipo completo sale del componente [logo.tsx](src/components/logo.tsx). El lema es "Perfumes para ser recordado".
 - Títulos grandes en peso ligero (`font-light`) y `tracking-tight`. Máximo `text-7xl`.
 - Sin rótulos pequeños en mayúsculas encima de los títulos. Las mayúsculas espaciadas se reservan para la marca del perfume y las etiquetas de estado.
 

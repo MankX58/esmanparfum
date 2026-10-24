@@ -40,7 +40,7 @@ const jsonLd = {
       name: "Ésman Parfum",
       alternateName: ["Ésman", "Esman Parfum"],
       url: siteUrl,
-      logo: absoluteUrl("/icon"),
+      logo: absoluteUrl("/esman-parfum-logos/icono-app-512.png"),
       description: "Ésman Parfum es una tienda en línea de perfumes originales para hombre, mujer y unisex, con envío a toda Colombia.",
       areaServed: "CO",
     },

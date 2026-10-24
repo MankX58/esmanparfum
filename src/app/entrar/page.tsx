@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { linkStyles } from "@/components/button";
-import { Wordmark } from "@/components/wordmark";
+import { Logo } from "@/components/logo";
 import { getCurrentUser } from "@/lib/auth";
 import { queryText } from "@/lib/form";
 
@@ -33,8 +33,8 @@ export default async function SignInPage({ searchParams }: PageProps<"/entrar">)
             className="absolute -bottom-1/3 -left-1/4 size-[90%] bg-[radial-gradient(closest-side,var(--color-brand-strong),transparent)] motion-safe:animate-mist"
           />
         </div>
-        <Link href="/" className="relative w-fit text-sm">
-          <Wordmark />
+        <Link href="/" aria-label="Ésman Parfum, inicio" className="relative w-fit">
+          <Logo tone="light" className="h-12" />
         </Link>
         <div className="relative max-w-[16ch] motion-safe:animate-unveil">
           <h2 className="font-display text-6xl leading-[1.02] font-light tracking-tight text-balance">Perfumes para ser recordado</h2>
@@ -46,8 +46,8 @@ export default async function SignInPage({ searchParams }: PageProps<"/entrar">)
       </aside>
 
       <section className="flex flex-col items-center justify-center px-4 py-12 sm:px-8">
-        <Link href="/" className="mb-10 text-sm lg:hidden">
-          <Wordmark />
+        <Link href="/" aria-label="Ésman Parfum, inicio" className="mb-10 lg:hidden">
+          <Logo className="h-10" />
         </Link>
         <div className="w-full max-w-sm motion-safe:animate-unveil">
           <h1 className="font-display text-4xl font-light tracking-tight text-balance">Te damos la bienvenida</h1>

@@ -3,7 +3,7 @@ import { linkStyles } from "@/components/button";
 import { AccountMenu } from "@/components/store/account-menu";
 import { CartLink } from "@/components/store/header-links";
 import { navLink, navText, navUnderline } from "@/components/store/nav-styles";
-import { Wordmark } from "@/components/wordmark";
+import { Logo } from "@/components/logo";
 import { getCurrentUser } from "@/lib/auth";
 import { audiencePath, audienceTitles, brandPath, listBrands } from "@/lib/catalog";
 
@@ -22,7 +22,7 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
       <header className="sticky top-0 z-20 border-b border-line bg-paper/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-4 sm:px-8">
           <Link href="/" aria-label="Ésman Parfum, inicio" className="inline-flex min-h-11 items-center">
-            <Wordmark className="text-xs sm:text-sm" />
+            <Logo className="h-9 sm:h-10" />
           </Link>
           <nav aria-label="Principal" className="group/nav flex items-center gap-3 text-sm sm:gap-8">
             <Link href="/catalogo" className={`${navText} ${navLink}`}>
@@ -85,7 +85,7 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
         <div className="border-t border-line" />
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-8 gap-y-2 px-4 py-5 text-sm text-ink-soft sm:px-8">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
-            <Wordmark className="text-xs text-ink" />
+            <Logo className="h-6" />
             <p>Perfumes para ser recordado. Envíos a toda Colombia.</p>
           </div>
           <nav aria-label="Pie de página" className="flex flex-wrap gap-x-6 [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center">

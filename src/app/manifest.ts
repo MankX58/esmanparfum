@@ -11,6 +11,9 @@ export default function manifest(): MetadataRoute.Manifest {
     display: "standalone",
     background_color: "#f6f8f5",
     theme_color: "#596357",
-    icons: [{ src: "/icon", sizes: "192x192", type: "image/png" }],
+    icons: [
+      { src: "/esman-parfum-logos/icono-app-192.png", sizes: "192x192", type: "image/png" },
+      { src: "/esman-parfum-logos/icono-app-512.png", sizes: "512x512", type: "image/png" },
+    ],
   };
 }
