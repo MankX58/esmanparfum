@@ -93,10 +93,11 @@ export function Gallery({
 }
 
 // Cuánto dura cada nivel sobre la piel y qué tanto de la barra ocupa (la pirámide, de lado).
-const levelTime: Record<string, { label: string; width: string }> = {
-  top: { label: "Primeros minutos", width: "28%" },
-  heart: { label: "Primeras horas", width: "62%" },
-  base: { label: "Todo el día", width: "100%" },
+// Cada nivel tiene su acento: dorado la salida, rosa el corazón, ámbar oscuro el fondo.
+const levelTime: Record<string, { label: string; width: string; accent: string }> = {
+  top: { label: "Primeros minutos", width: "28%", accent: "#e0b04a" },
+  heart: { label: "Primeras horas", width: "62%", accent: "#d96b8a" },
+  base: { label: "Todo el día", width: "100%", accent: "#a8643a" },
 };
 
 // La diapositiva de notas: cada nivel (salida → corazón → fondo) con una línea fina que se alarga
@@ -117,23 +118,26 @@ function NotesSlide({ notes, tone }: { notes: Notes; tone: string | null }) {
           return (
             <li
               key={level.key}
-              style={{ animationDelay: `calc(var(--duration-micro) * ${index + 1})` }}
-              className="motion-safe:animate-unveil"
+              style={{ animationDelay: `calc(var(--duration-micro) * ${index + 1})`, "--accent": time?.accent } as React.CSSProperties}
+              className="group motion-safe:animate-unveil"
             >
               <div className="flex items-baseline justify-between gap-3">
                 <p className="font-display text-xl font-light sm:text-2xl">{level.label}</p>
                 {time && <p className="text-[10px] tracking-[0.18em] uppercase opacity-55">{time.label}</p>}
               </div>
               {time && (
-                <div aria-hidden className="mt-2 h-px w-full bg-current/15">
-                  <div className="h-px bg-current" style={{ width: time.width }} />
+                <div aria-hidden className="mt-2 h-0.5 w-full bg-current/10">
+                  <div
+                    className="h-0.5 origin-left bg-(--accent) transition-transform duration-(--duration-quick) ease-smooth-out group-hover:scale-y-150"
+                    style={{ width: time.width }}
+                  />
                 </div>
               )}
               <ul className="mt-3 flex flex-wrap gap-1.5">
                 {notes[level.key]!.map((note) => (
                   <li
                     key={note}
-                    className={`rounded-full border border-current/25 font-light ${
+                    className={`cursor-default rounded-full border border-(--accent)/50 bg-(--accent)/15 font-light transition-[transform,background-color,border-color] duration-(--duration-quick) ease-smooth-out hover:-translate-y-0.5 hover:border-(--accent) hover:bg-(--accent)/40 ${
                       dense ? "px-2.5 py-0.5 text-xs" : "px-3.5 py-1 text-sm sm:text-base"
                     }`}
                   >
