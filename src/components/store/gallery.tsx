@@ -92,34 +92,70 @@ export function Gallery({
   );
 }
 
-// La diapositiva de notas: salida, corazón y fondo, una debajo de otra, en la tipografía de la marca.
+// Un icono por nota, según palabras clave (la primera que coincida). Sin coincidencia: un destello.
+const noteIcons: [RegExp, string][] = [
+  [/bergamota|lim[oó]n|naranja|mandarina|toronja|pomelo|c[ií]trico|lima|yuzu/, "🍋"],
+  [/manzana|pera|durazno|melocot|ciruela|cereza|frambuesa|fresa|mora|grosella|frut|pi[ñn]a|mango|coco|higo|uva/, "🍑"],
+  [/rosa|jazm|azahar|lavanda|peon|iris|violeta|lirio|tuberosa|geranio|flor|magnolia|ylang|orqu/, "🌸"],
+  [/menta|albahaca|salvia|romero|t[eé]|hierba|verde|hoja|musgo|helecho|eucalipto|tomillo/, "🌿"],
+  [/vainilla|tonka|caramelo|miel|az[uú]car|chocolate|cacao|caf[eé]|praline|dulce|almendra|haba/, "🍯"],
+  [/sándalo|sandalo|cedro|vetiver|pachul|madera|roble|ciprés|cipres|gaiac|oud|agar/, "🪵"],
+  [/pimienta|canela|clavo|jengibre|cardamomo|azafr|nuez moscada|especia|comino|curry/, "🌶️"],
+  [/[aá]mbar|almizcle|musk|incienso|mirra|benju[ií]|resina|cuero|tabaco|animal|civeta|casto/, "🔥"],
+  [/mar|marin|sal|oc[eé]ano|agua|ozon|acu[aá]tic|lluvia|hielo|fresco/, "🌊"],
+];
+const noteIcon = (note: string) => noteIcons.find(([pattern]) => pattern.test(note.toLowerCase()))?.[1] ?? "✦";
+
+// Cuánto dura cada nivel sobre la piel: la pirámide como una línea de tiempo.
+const levelTime: Record<string, string> = { top: "Primeros minutos", heart: "Primeras horas", base: "Todo el día" };
+
+// La diapositiva de notas: una línea de tiempo (salida → corazón → fondo) con cada nota como una
+// pastilla con su icono. Los puntos de la línea crecen con el nivel, como la pirámide.
 function NotesSlide({ notes, tone }: { notes: Notes; tone: string | null }) {
   const levels = filledLevels(notes);
-  // Con muchas notas la letra baja un poco para que todo quepa en la "foto" (siempre 4:5).
   const count = levels.reduce((total, level) => total + notes[level.key]!.length, 0);
-  const noteSize = count > 18 ? "text-sm sm:text-base" : count > 11 ? "text-base sm:text-xl" : "text-lg sm:text-2xl";
-  const gap = count > 18 ? "py-2.5 sm:py-3" : "py-4 sm:py-5";
+  const dense = count > 14; // con muchas notas las pastillas se achican para que quepan en la "foto" (4:5)
   return (
     <div
       style={tone ? { background: tone } : undefined}
-      className={`absolute inset-0 flex flex-col justify-center bg-mist px-7 py-10 motion-safe:animate-settle sm:px-12 ${textOn(tone)}`}
+      className={`absolute inset-0 flex flex-col justify-center bg-mist px-6 py-8 motion-safe:animate-settle sm:px-10 ${textOn(tone)}`}
     >
       <p className="font-display text-xs tracking-[0.24em] uppercase opacity-70">Notas olfativas</p>
-      <dl className="mt-4 flex flex-col">
+      <ol className="mt-5 flex flex-col">
         {levels.map((level, index) => (
-          <div
+          <li
             key={level.key}
             style={{ animationDelay: `calc(var(--duration-micro) * ${index + 1})` }}
-            className={`border-t border-current/15 motion-safe:animate-unveil ${gap}`}
+            className="relative pb-5 pl-7 motion-safe:animate-unveil last:pb-0"
           >
-            <dt className="text-[11px] tracking-[0.2em] uppercase opacity-60">{level.label}</dt>
-            <dd className={`mt-1.5 font-display leading-snug font-light text-balance ${noteSize}`}>
-              {notes[level.key]!.map(noteLabel).join(" · ")}
-            </dd>
-          </div>
+            {/* Riel: punto (más grande en el fondo) y línea hasta el siguiente nivel. */}
+            <span
+              aria-hidden
+              className="absolute top-1 left-0 rounded-full bg-current"
+              style={{ width: 8 + index * 3, height: 8 + index * 3, marginLeft: -index * 1.5 }}
+            />
+            {index < levels.length - 1 && <span aria-hidden className="absolute top-4 bottom-0 left-[3.5px] w-px bg-current opacity-25" />}
+            <div className="flex items-baseline justify-between gap-3">
+              <p className="font-display text-base tracking-wide sm:text-lg">{level.label}</p>
+              {levelTime[level.key] && <p className="text-[10px] tracking-[0.16em] uppercase opacity-55">{levelTime[level.key]}</p>}
+            </div>
+            <ul className="mt-2 flex flex-wrap gap-1.5">
+              {notes[level.key]!.map((note) => (
+                <li
+                  key={note}
+                  className={`inline-flex items-center gap-1.5 rounded-full border border-current/20 bg-current/[0.07] ${
+                    dense ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm sm:text-base"
+                  }`}
+                >
+                  <span aria-hidden>{noteIcon(note)}</span>
+                  {noteLabel(note)}
+                </li>
+              ))}
+            </ul>
+          </li>
         ))}
-      </dl>
-      {notes.source && <p className="absolute right-7 bottom-5 text-[11px] opacity-50 sm:right-12">Notas según Fragrantica</p>}
+      </ol>
+      {notes.source && <p className="absolute right-6 bottom-4 text-[11px] opacity-50 sm:right-10">Notas según Fragrantica</p>}
     </div>
   );
 }
