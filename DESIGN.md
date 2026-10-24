@@ -1,4 +1,4 @@
-# Diseño de Velare
+# Diseño de Ésman Parfum
 
 Reglas visuales del proyecto. Los valores viven en [src/app/globals.css](src/app/globals.css); este archivo explica cómo usarlos. Si cambias un valor allí, actualiza esto.
 
@@ -35,7 +35,7 @@ Solo existen los colores definidos en `globals.css`; la paleta por defecto de Ta
 - **Jost** (`font-display`): títulos, la marca y la marca del perfume en las etiquetas.
 - **Geist** (`font-sans`): todo lo demás. Los números de tablas llevan `tabular-nums`.
 - La marca se escribe siempre con el componente `Wordmark`.
-- El símbolo (icono de la pestaña, del teléfono y de la imagen al compartir) es una V clara de trazo fino sobre el verde de la marca: `LogoMark` de [logo-mark.tsx](src/components/logo-mark.tsx). El lema es "Fragancias que dejan huella".
+- El símbolo (icono de la pestaña, del teléfono y de la imagen al compartir) es una É clara de trazo fino sobre el verde de la marca: `LogoMark` de [logo-mark.tsx](src/components/logo-mark.tsx). El lema es "Perfumes para ser recordado".
 - Títulos grandes en peso ligero (`font-light`) y `tracking-tight`. Máximo `text-7xl`.
 - Sin rótulos pequeños en mayúsculas encima de los títulos. Las mayúsculas espaciadas se reservan para la marca del perfume y las etiquetas de estado.
 
@@ -92,7 +92,7 @@ Escala de transitions.dev, definida en `globals.css`. Cada valor se elige por lo
 - **Eliminar:** `ConfirmButton` pregunta antes de ejecutar; nunca un borrado de un solo clic.
 - **Valores que cambian en vivo:** el número vuelve a entrar con `motion-safe:animate-swap`.
 - **Gráficas:** `MoneyBars` de [money-bars.tsx](src/components/money-bars.tsx). Barras delgadas en una misma escala, 2px entre segmentos, leyenda con valores y detalle al pasar el cursor. Los colores `chart-cost`, `chart-inventory` y `chart-profit` están comprobados para daltonismo y solo se usan en marcas de gráficas. La cifra principal de un resumen va en Geist, no en Jost.
-- **Gráficas y cifras animadas del Resumen:** componentes de [Arc UI](https://uiarc.dev) copiados en `src/components/arc/` (contador, barras, rosca y medidor; dependen del paquete `motion`). Se usan siempre a través de [arc-charts.tsx](src/components/arc-charts.tsx), que les pone el tema de Velare ([theme.css](src/components/arc/theme.css): colores de la marca, esquinas rectas, Geist), los textos en español y el formato de pesos. Los cuatro colores de las partes de una rosca están comprobados para daltonismo. Para añadir otro componente de Arc: copiar su código a esa carpeta sin su `foundation.css` (quita el foco del teclado en toda la página) y envolverlo en `arc-charts.tsx`.
+- **Gráficas y cifras animadas del Resumen:** componentes de [Arc UI](https://uiarc.dev) copiados en `src/components/arc/` (contador, barras, rosca y medidor; dependen del paquete `motion`). Se usan siempre a través de [arc-charts.tsx](src/components/arc-charts.tsx), que les pone el tema de Ésman Parfum ([theme.css](src/components/arc/theme.css): colores de la marca, esquinas rectas, Geist), los textos en español y el formato de pesos. Los cuatro colores de las partes de una rosca están comprobados para daltonismo. Para añadir otro componente de Arc: copiar su código a esa carpeta sin su `foundation.css` (quita el foco del teclado en toda la página) y envolverlo en `arc-charts.tsx`.
 - **Avance de un pedido:** [order-progress.tsx](src/components/order-progress.tsx). `OrderProgress` es el recorrido completo (vertical en el teléfono, horizontal desde pantallas medianas) con una frase de qué pasa ahora, distinta para cliente y para panel. `OrderStatusBadge` es la versión corta para listas: nombre del estado y barrita de cinco tramos. Un pedido avanza con un solo botón por paso (caja "Qué sigue" en el panel; "Ya pagué" y "Ya lo recibí" en la tienda); no hay selector de estado. Cada frase dice a quién le toca actuar.
 - **Estados:** cada pantalla con datos tiene carga (`loading.tsx`), vacío y error (`error.tsx`).
 

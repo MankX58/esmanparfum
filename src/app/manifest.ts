@@ -4,8 +4,8 @@ import type { MetadataRoute } from "next";
 // (al guardarla en la pantalla de inicio) y para los buscadores.
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Velare Perfumes",
-    short_name: "Velare",
+    name: "Ésman Parfum",
+    short_name: "Ésman",
     description: "Perfumes originales con envío en Colombia.",
     start_url: "/",
     display: "standalone",

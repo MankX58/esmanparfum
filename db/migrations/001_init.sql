@@ -1,4 +1,4 @@
--- Velare · esquema inicial
+-- Ésman Parfum · esquema inicial
 --
 -- Lo que se GUARDA son hechos: productos, compras, pedidos, gastos, movimientos.
 -- Lo que se CALCULA (stock, costo promedio, margen, alerta...) sale de la vista

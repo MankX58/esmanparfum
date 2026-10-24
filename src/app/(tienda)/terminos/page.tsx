@@ -5,7 +5,7 @@ import { deliveryEstimate } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Términos y condiciones",
-  description: "Condiciones de compra en Velare: productos, precios, pagos con Wompi o transferencia, envíos y garantías.",
+  description: "Condiciones de compra en Ésman Parfum: productos, precios, pagos con Wompi o transferencia, envíos y garantías.",
   alternates: { canonical: "/terminos" },
 };
 
@@ -20,7 +20,7 @@ export default async function TermsPage() {
       title: "Quiénes somos",
       body: (
         <>
-          <p>Velare es una tienda en línea de perfumes y lociones que vende en Colombia. Estos son los datos de quien responde por ella:</p>
+          <p>Ésman Parfum es una tienda en línea de perfumes y lociones que vende en Colombia. Estos son los datos de quien responde por ella:</p>
           <ResponsibleParty store={store} />
         </>
       ),
@@ -58,7 +58,7 @@ export default async function TermsPage() {
             prefieres.
           </p>
           <p>
-            Velare no es distribuidor oficial ni está afiliada a las marcas que vende. Los nombres y logos de las marcas pertenecen a
+            Ésman Parfum no es distribuidor oficial ni está afiliada a las marcas que vende. Los nombres y logos de las marcas pertenecen a
             sus dueños y se usan solo para identificar cada producto.
           </p>
         </>
@@ -106,7 +106,7 @@ export default async function TermsPage() {
           <ul>
             <li>
               <strong>En línea con Wompi</strong>, la pasarela de pagos de Bancolombia: tarjeta de crédito o débito, PSE, Nequi o
-              cuenta Bancolombia. Pagas en la página segura de Wompi; Velare no ve ni guarda los datos de tu tarjeta. El pedido se
+              cuenta Bancolombia. Pagas en la página segura de Wompi; Ésman Parfum no ve ni guarda los datos de tu tarjeta. El pedido se
               confirma cuando Wompi aprueba el pago.
             </li>
             <li>
@@ -218,7 +218,7 @@ export default async function TermsPage() {
   return (
     <LegalPage
       title="Términos y condiciones"
-      intro={<p>Estas son las reglas de compra en Velare. Las escribimos en lenguaje sencillo; si algo no queda claro, escríbenos.</p>}
+      intro={<p>Estas son las reglas de compra en Ésman Parfum. Las escribimos en lenguaje sencillo; si algo no queda claro, escríbenos.</p>}
       sections={sections}
     />
   );

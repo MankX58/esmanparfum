@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps<"/producto/[slug]">
   const title = [product.brand, product.name].filter(Boolean).join(" ");
   const description =
     product.description ??
-    `${title}${product.size_ml ? `, ${product.size_ml} ml` : ""}. ${formatCOP(product.list_price)} en Velare.`;
+    `${title}${product.size_ml ? `, ${product.size_ml} ml` : ""}. ${formatCOP(product.list_price)} en Ésman Parfum.`;
   return {
     title,
     description,
@@ -38,10 +38,10 @@ export default async function ProductPage({ params }: PageProps<"/producto/[slug
 
   // Datos del producto en el formato que leen los buscadores (schema.org), para que puedan
   // mostrar el precio en los resultados. La disponibilidad solo se declara si hay stock.
-  // El segundo bloque es el camino hasta el perfume (Velare › Catálogo › Marca › Perfume), que
+  // El segundo bloque es el camino hasta el perfume (Ésman Parfum › Catálogo › Marca › Perfume), que
   // los buscadores muestran en el resultado en lugar de la dirección.
   const trail = [
-    { name: "Velare", path: "/" },
+    { name: "Ésman Parfum", path: "/" },
     { name: "Catálogo", path: "/catalogo" },
     ...(product.brand ? [{ name: product.brand, path: brandPath(product.brand) }] : []),
     { name: product.name, path: `/producto/${product.slug}` },

@@ -1,7 +1,7 @@
-/* Tema de Arc UI (uiarc.dev) para Velare.
+/* Tema de Arc UI (uiarc.dev) para Ésman Parfum.
    Los componentes de esta carpeta leen sus colores, tipografías y tiempos de estas variables.
    Reemplaza al foundation.css original de Arc por tres razones:
-   - los colores salen de la paleta de Velare (globals.css), no de la de Arc;
+   - los colores salen de la paleta de Ésman Parfum (globals.css), no de la de Arc;
    - va limitado a la clase "arc", porque Arc usa nombres que Tailwind ya ocupa
      (--font-display, --duration-fast, --text-sm) con otros valores;
    - no trae la regla de Arc que quita el foco del teclado en toda la página.
@@ -34,7 +34,7 @@
   --series-3: #1b9e6b;
   --series-4: #8e2f6f;
 
-  /* Velare es de esquinas rectas y sin sombras (DESIGN.md). */
+  /* Ésman Parfum es de esquinas rectas y sin sombras (DESIGN.md). */
   --radius-control: 0;
   --radius-panel: 0;
   --radius-surface: 0;

@@ -9,8 +9,8 @@ import { useSyncExternalStore } from "react";
 export type Cart = Record<string, number>;
 
 export const MAX_PER_PRODUCT = 10;
-const KEY = "velare-cart";
-const CHANGE = "velare-cart-change";
+const KEY = "esman-cart";
+const CHANGE = "esman-cart-change";
 const EMPTY: Cart = {};
 
 // Lo guardado puede venir alterado: se queda solo con ids numéricos y cantidades válidas.

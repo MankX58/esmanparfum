@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Página no encontrada", robots: { in
 export default function NotFound() {
   return (
     <main id="contenido" className="mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-4 py-24 sm:px-8">
-      <Link href="/" aria-label="Velare, inicio">
+      <Link href="/" aria-label="Ésman Parfum, inicio">
         <Wordmark className="text-sm" />
       </Link>
       <h1 className="mt-10 font-display text-5xl font-light tracking-tight text-balance motion-safe:animate-unveil sm:text-6xl">

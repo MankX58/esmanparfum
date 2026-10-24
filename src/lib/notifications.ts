@@ -60,7 +60,7 @@ async function sendOrderEmail(orderId: number, event: OrderEvent) {
       to: order.email,
       subject: `Tu pedido ${order.code} fue entregado`,
       title: "Pedido entregado",
-      paragraphs: [greeting, `Tu pedido ${order.code} figura como entregado. Gracias por comprar en Velare: esperamos que lo disfrutes.`],
+      paragraphs: [greeting, `Tu pedido ${order.code} figura como entregado. Gracias por comprar en Ésman Parfum: esperamos que lo disfrutes.`],
       button,
     },
     cancelled: {

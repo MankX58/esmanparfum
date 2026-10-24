@@ -20,7 +20,7 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
     <>
       <header className="sticky top-0 z-20 border-b border-line bg-paper/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-4 sm:px-8">
-          <Link href="/" aria-label="Velare, inicio" className="inline-flex min-h-11 items-center">
+          <Link href="/" aria-label="Ésman Parfum, inicio" className="inline-flex min-h-11 items-center">
             <Wordmark className="text-sm" />
           </Link>
           <nav aria-label="Principal" className="group/nav flex items-center gap-3 text-sm sm:gap-8">
@@ -54,7 +54,7 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-8 gap-y-2 px-4 py-5 text-sm text-ink-soft sm:px-8">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
             <Wordmark className="text-xs text-ink" />
-            <p>Fragancias que dejan huella. Perfumes con envío en Colombia.</p>
+            <p>Perfumes para ser recordado. Envíos a toda Colombia.</p>
           </div>
           <nav aria-label="Pie de página" className="flex flex-wrap gap-x-6 [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center">
             <Link href="/catalogo" className={linkStyles.default}>

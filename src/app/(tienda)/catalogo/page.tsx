@@ -23,13 +23,13 @@ export async function generateMetadata({ searchParams }: PageProps<"/catalogo">)
   if (brand) {
     return {
       title: `Perfumes ${brand}`,
-      description: `Perfumes ${brand} originales en Velare, con precio y envío en Colombia. Elige el tuyo y paga seguro con Wompi.`,
+      description: `Perfumes ${brand} originales en Ésman Parfum, con precio y envío en Colombia. Elige el tuyo y paga seguro con Wompi.`,
       alternates: { canonical: brandPath(brand) },
     };
   }
   return {
     title: "Catálogo de perfumes",
-    description: "Todos los perfumes de Velare, para hombre, mujer y unisex. Busca por nombre o marca y pide el tuyo con envío en Colombia.",
+    description: "Todos los perfumes de Ésman Parfum, para hombre, mujer y unisex. Busca por nombre o marca y pide el tuyo con envío en Colombia.",
     // Con búsqueda u otros filtros la página sigue siendo el catálogo para los buscadores.
     alternates: { canonical: "/catalogo" },
   };

@@ -37,7 +37,7 @@ Boutique de perfumería internacional: premium, elegante, moderna, limpia y mini
 
 ## Brand Commitments
 
-- Nombre: Velare.
+- Nombre: Ésman Parfum.
 - Estética pedida: premium, refinada, con microinteracciones sutiles y sin saturar de animaciones.
 
 ## Evidence on Hand

@@ -1,10 +1,10 @@
-# Velare
+# Ésman Parfum
 
-Proyecto web de Velare.
+Proyecto web de Ésman Parfum.
 
 ## Descripción
 
-Velare es una tienda online orientada a ofrecer una experiencia de compra clara, rápida y fácil de usar.
+Ésman Parfum es una tienda online orientada a ofrecer una experiencia de compra clara, rápida y fácil de usar.
 
 ## Estado
 
@@ -80,8 +80,8 @@ La tienda envía correos automáticos:
 Se envían por SMTP con un correo que ya tengas. Con Gmail:
 
 1. En tu cuenta de Google activa la verificación en dos pasos.
-2. Ve a Cuenta de Google → Seguridad → Contraseñas de aplicaciones y crea una para "Velare".
-3. En `.env.local` (y en Vercel) pon `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=465`, `SMTP_USER` con tu correo, `SMTP_PASSWORD` con la contraseña de aplicación y `EMAIL_FROM=Velare <tu-correo@gmail.com>`.
+2. Ve a Cuenta de Google → Seguridad → Contraseñas de aplicaciones y crea una para "Ésman Parfum".
+3. En `.env.local` (y en Vercel) pon `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=465`, `SMTP_USER` con tu correo, `SMTP_PASSWORD` con la contraseña de aplicación y `EMAIL_FROM=Ésman Parfum <tu-correo@gmail.com>`.
 
 Panel → Ajustes dice si los correos están activos. Sin esas variables la tienda funciona igual, pero no salen correos. Gmail permite unos 500 correos al día.
 

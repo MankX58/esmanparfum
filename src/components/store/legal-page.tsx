@@ -83,7 +83,7 @@ export function ResponsibleParty({ store }: { store: StoreSettings }) {
     <ul>
       <li>
         <strong>Responsable:</strong> {legalValue(store.legalName, "nombre o razón social")}, identificado con cédula o NIT{" "}
-        {legalValue(store.legalId, "número")}, que vende bajo la marca Velare.
+        {legalValue(store.legalId, "número")}, que vende bajo la marca Ésman Parfum.
       </li>
       <li>
         <strong>Domicilio:</strong> {legalValue(store.address, "dirección")}, Colombia.

@@ -13,11 +13,11 @@ const jost = Jost({ variable: "--font-jost", subsets: ["latin"] });
 // Cada página puede poner su propio título y descripción.
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl), // con esto, las direcciones relativas (fotos, canonical) salen completas
-  title: { default: "Velare Perfumes · Fragancias que dejan huella", template: "%s · Velare" },
+  title: { default: "Ésman Parfum · Perfumes para ser recordado", template: "%s · Ésman Parfum" },
   description:
-    "Velare: perfumes originales para hombre y mujer con envío en Colombia. Elige tu fragancia, paga seguro con Wompi y recíbela en casa.",
-  applicationName: "Velare",
-  openGraph: { siteName: "Velare", locale: "es_CO", type: "website" },
+    "Ésman Parfum: perfumes originales para hombre y mujer con envío en Colombia. Elige tu fragancia, paga seguro con Wompi y recíbela en casa.",
+  applicationName: "Ésman Parfum",
+  openGraph: { siteName: "Ésman Parfum", locale: "es_CO", type: "website" },
   twitter: { card: "summary_large_image" },
 };
 

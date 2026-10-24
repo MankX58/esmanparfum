@@ -145,7 +145,7 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/pe
                     <button type="submit" className={buttonStyles.onBrand}>
                       Pagar {formatCOP(total)} con Wompi
                     </button>
-                    <span className="text-sm text-on-brand-soft">Pago seguro. Velare no ve ni guarda los datos de tu tarjeta.</span>
+                    <span className="text-sm text-on-brand-soft">Pago seguro. Ésman Parfum no ve ni guarda los datos de tu tarjeta.</span>
                   </form>
                   {wompiTestMode() && (
                     <p className="mt-6 text-xs text-on-brand-soft">

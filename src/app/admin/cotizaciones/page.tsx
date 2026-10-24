@@ -120,7 +120,7 @@ export default async function QuotesPage({ searchParams }: PageProps<"/admin/cot
         // Una fila por cotización. Con <details> el navegador la abre y la cierra sin código y funciona con teclado.
         <ul className="divide-y divide-line border border-line bg-surface">
           {quotes.map((quote) => {
-            const greeting = `Hola, te escribimos de Velare por tu cotización de ${quote.perfume}.`;
+            const greeting = `Hola, te escribimos de Ésman Parfum por tu cotización de ${quote.perfume}.`;
             const message = quote.price === null ? greeting : `${greeting} El precio es ${formatCOP(quote.price)}.`;
             return (
               <li key={quote.id} id={`cotizacion-${quote.id}`}>

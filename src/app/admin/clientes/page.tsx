@@ -145,7 +145,7 @@ export default async function CustomersPage({ searchParams }: PageProps<"/admin/
                     <td className={`${cell} ${fromLg} py-4`}>
                       {customer.phone ? (
                         <a
-                          href={whatsappLink(customer.phone, `Hola ${customer.name}, te escribimos de Velare.`)}
+                          href={whatsappLink(customer.phone, `Hola ${customer.name}, te escribimos de Ésman Parfum.`)}
                           target="_blank"
                           rel="noreferrer"
                           className={`whitespace-nowrap tabular-nums ${linkStyles.default}`}

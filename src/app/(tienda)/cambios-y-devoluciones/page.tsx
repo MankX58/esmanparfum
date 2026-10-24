@@ -4,7 +4,7 @@ import { getStoreSettings } from "@/lib/orders";
 
 export const metadata: Metadata = {
   title: "Cambios, devoluciones y garantía",
-  description: "Derecho de retracto, garantía y reversión del pago en Velare, según el Estatuto del Consumidor.",
+  description: "Derecho de retracto, garantía y reversión del pago en Ésman Parfum, según el Estatuto del Consumidor.",
   alternates: { canonical: "/cambios-y-devoluciones" },
 };
 

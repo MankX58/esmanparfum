@@ -39,7 +39,7 @@ function render({ title, paragraphs, rows, button }: Email) {
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f7f4;padding:24px 12px">
 <tr><td align="center">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #dde1da">
-<tr><td style="background:${brand};padding:20px 28px;color:#f6f7f4;font-size:14px;letter-spacing:6px">VELARE</td></tr>
+<tr><td style="background:${brand};padding:20px 28px;color:#f6f7f4;font-size:14px;letter-spacing:6px">ÉSMAN PARFUM</td></tr>
 <tr><td style="padding:28px">
 <h1 style="margin:0 0 16px;font-size:22px;font-weight:normal;color:#2b302a">${escapeHtml(title)}</h1>
 ${paragraphs.map((p) => `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#4a5248">${escapeHtml(p)}</p>`).join("")}
@@ -59,7 +59,7 @@ ${
     : ""
 }
 </td></tr>
-<tr><td style="padding:16px 28px;border-top:1px solid #dde1da;font-size:12px;color:#8a9187">Recibes este correo por tu compra o cotización en Velare.</td></tr>
+<tr><td style="padding:16px 28px;border-top:1px solid #dde1da;font-size:12px;color:#8a9187">Recibes este correo por tu compra o cotización en Ésman Parfum.</td></tr>
 </table></td></tr></table></body></html>`;
 
   const text = [
@@ -72,13 +72,13 @@ ${
   return { html, text };
 }
 
-// Remitente: el nombre de EMAIL_FROM ("Velare") con la dirección de SMTP_USER. Gmail manda a Spam
+// Remitente: el nombre de EMAIL_FROM ("Ésman Parfum") con la dirección de SMTP_USER. Gmail manda a Spam
 // (o rechaza) un correo que dice venir de una dirección distinta a la cuenta con la que se envía,
 // así que la dirección siempre es la de la cuenta, aunque EMAIL_FROM diga otra.
 function sender() {
   const user = process.env.SMTP_USER ?? "";
-  const name = (process.env.EMAIL_FROM ?? "").replace(/<[^>]*>/, "").replace(/"/g, "").trim() || "Velare";
-  return { name: name.includes("@") ? "Velare" : name, address: user };
+  const name = (process.env.EMAIL_FROM ?? "").replace(/<[^>]*>/, "").replace(/"/g, "").trim() || "Ésman Parfum";
+  return { name: name.includes("@") ? "Ésman Parfum" : name, address: user };
 }
 
 // Envía un correo. Nunca lanza error: un correo que falla no debe tumbar un pago ni un pedido.

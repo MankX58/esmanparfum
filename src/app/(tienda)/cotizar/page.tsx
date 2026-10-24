@@ -12,7 +12,7 @@ import { QuoteForm } from "./quote-form";
 
 export const metadata: Metadata = {
   title: "Cotizar un perfume",
-  description: "¿Buscas un perfume que no está en el catálogo de Velare? Dinos cuál y te respondemos con el precio.",
+  description: "¿Buscas un perfume que no está en el catálogo de Ésman Parfum? Dinos cuál y te respondemos con el precio.",
   alternates: { canonical: "/cotizar" },
 };
 

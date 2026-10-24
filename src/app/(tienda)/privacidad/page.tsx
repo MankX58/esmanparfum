@@ -4,7 +4,7 @@ import { getStoreSettings } from "@/lib/orders";
 
 export const metadata: Metadata = {
   title: "Política de privacidad",
-  description: "Cómo trata Velare tus datos personales y cómo ejercer tus derechos, según la Ley 1581 de 2012.",
+  description: "Cómo trata Ésman Parfum tus datos personales y cómo ejercer tus derechos, según la Ley 1581 de 2012.",
   alternates: { canonical: "/privacidad" },
 };
 
@@ -213,7 +213,7 @@ export default async function PrivacyPage() {
       title="Política de privacidad"
       intro={
         <p>
-          Esta es la política de tratamiento de datos personales de Velare, según la Ley 1581 de 2012 y sus decretos. Explica qué
+          Esta es la política de tratamiento de datos personales de Ésman Parfum, según la Ley 1581 de 2012 y sus decretos. Explica qué
           datos recogemos, para qué los usamos y cómo puedes consultarlos, corregirlos o pedir que los eliminemos.
         </p>
       }

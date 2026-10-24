@@ -22,15 +22,15 @@ const steps = [
 const headline = "Cada aroma, en su versión original.";
 
 // Datos de la tienda en el formato que leen los buscadores (schema.org): el nombre del
-// sitio, cómo más lo buscan ("Velare Perfumes") y el logo.
+// sitio, cómo más lo buscan ("Ésman Parfum") y el logo.
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
-    { "@type": "WebSite", name: "Velare", alternateName: ["Velare Perfumes", "Velare Colombia"], url: siteUrl },
+    { "@type": "WebSite", name: "Ésman Parfum", alternateName: ["Ésman", "Esman Parfum", "Esman", "Ésman Parfum Colombia"], url: siteUrl },
     {
       "@type": "OnlineStore",
-      name: "Velare",
-      alternateName: "Velare Perfumes",
+      name: "Ésman Parfum",
+      alternateName: ["Ésman", "Esman Parfum"],
       url: siteUrl,
       logo: absoluteUrl("/icon"),
       description: "Tienda de perfumes originales con envío en Colombia.",

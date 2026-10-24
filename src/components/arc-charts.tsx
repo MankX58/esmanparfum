@@ -1,7 +1,7 @@
 "use client";
 
 // Gráficas y cifras animadas del panel. Envuelven los componentes de Arc UI (carpeta "arc",
-// copiados de uiarc.dev) para darles el tema de Velare (clase "arc"), los textos en español
+// copiados de uiarc.dev) para darles el tema de Ésman Parfum (clase "arc"), los textos en español
 // y el formato de pesos. Las páginas usan estos, no los de la carpeta "arc" directamente.
 import "./arc/theme.css";
 import { AnimatedCounter } from "./arc/animated-counter/animated-counter";
