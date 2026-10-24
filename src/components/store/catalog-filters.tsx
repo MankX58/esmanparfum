@@ -73,27 +73,11 @@ export function CatalogFilters({
           placeholder="Buscar por nombre o marca"
           value={current.q}
           onChange={(event) => apply({ ...current, q: event.target.value }, 250)}
-          className={`${controlStyles} h-11 min-w-0 flex-1 basis-56`}
+          className={`${controlStyles} h-11 min-w-0 w-full`}
         />
-        <label className="flex h-11 items-center gap-2 text-sm text-ink-soft">
-          <span className="hidden sm:inline">Ordenar</span>
-          <select
-            aria-label="Ordenar"
-            value={current.orden}
-            onChange={(event) => set("orden", event.target.value)}
-            className={`${controlStyles} h-11 max-w-44 text-ink`}
-          >
-            <option value="">Más vendidos</option>
-            {sorts.map((sort) => (
-              <option key={sort.value} value={sort.value}>
-                {sort.label}
-              </option>
-            ))}
-          </select>
-        </label>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-1 border-b border-line">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 border-b border-line">
         {/* Público: pestañas con subrayado, una sola fila incluso en el teléfono. */}
         <div role="group" aria-label="Para quién" className="flex gap-5 sm:gap-7">
           {[{ value: "", label: "Todos" }, ...audiences].map((audience) => {
@@ -135,6 +119,25 @@ export function CatalogFilters({
               </button>
             );
           })}
+          {/* Orden: un texto con flecha, como Marca y Tamaño. El selector nativo se abre con la lista del teléfono. */}
+          <label className="relative flex items-center py-3 text-sm text-ink-soft transition-colors duration-(--duration-quick) hover:text-ink">
+            <span className="sr-only">Ordenar</span>
+            <select
+              value={current.orden}
+              onChange={(event) => set("orden", event.target.value)}
+              className={`cursor-pointer appearance-none bg-transparent pr-4 outline-none focus-visible:underline ${current.orden ? "text-ink underline decoration-1 underline-offset-4" : ""}`}
+            >
+              <option value="">Más vendidos</option>
+              {sorts.map((sort) => (
+                <option key={sort.value} value={sort.value}>
+                  {sort.label}
+                </option>
+              ))}
+            </select>
+            <svg aria-hidden viewBox="0 0 12 12" className="pointer-events-none absolute right-0 size-3">
+              <path d="M2 4.5 6 8.5l4-4" fill="none" stroke="currentColor" strokeWidth="1.2" />
+            </svg>
+          </label>
         </div>
       </div>
 

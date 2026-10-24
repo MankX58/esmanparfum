@@ -22,7 +22,7 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
       <header className="sticky top-0 z-20 border-b border-line bg-paper/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-4 sm:px-8">
           <Link href="/" aria-label="Ésman Parfum, inicio" className="inline-flex min-h-11 items-center">
-            <Wordmark className="text-sm" />
+            <Wordmark className="text-xs sm:text-sm" />
           </Link>
           <nav aria-label="Principal" className="group/nav flex items-center gap-3 text-sm sm:gap-8">
             <Link href="/catalogo" className={`${navText} ${navLink}`}>
@@ -56,7 +56,7 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
         <nav aria-label="Perfumes por público y marca" className="mx-auto grid max-w-7xl gap-8 px-4 py-10 text-sm sm:grid-cols-[1fr_3fr] sm:px-8">
           <div>
             <h2 className="text-[11px] tracking-[0.18em] text-ink-soft uppercase">Perfumes originales</h2>
-            <ul className="mt-3 flex flex-col [&_a]:inline-flex [&_a]:min-h-9 [&_a]:items-center">
+            <ul className="mt-3 flex flex-wrap gap-x-5 sm:flex-col [&_a]:inline-flex [&_a]:min-h-10 [&_a]:items-center">
               {Object.entries(audienceTitles).map(([audience, title]) => (
                 <li key={audience}>
                   <Link href={audiencePath(audience)} className={linkStyles.default}>
@@ -69,11 +69,12 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
           {brands.length > 0 && (
             <div>
               <h2 className="text-[11px] tracking-[0.18em] text-ink-soft uppercase">Perfumes por marca</h2>
-              <ul className="mt-3 grid grid-cols-2 gap-x-6 sm:grid-cols-3 lg:grid-cols-4 [&_a]:inline-flex [&_a]:min-h-9 [&_a]:items-center">
+              {/* Seguidas, no una por línea: en el teléfono 17 marcas ocuparían media pantalla. */}
+              <ul className="mt-3 flex flex-wrap gap-x-5 [&_a]:inline-flex [&_a]:min-h-10 [&_a]:items-center">
                 {brands.map((brand) => (
                   <li key={brand}>
-                    <Link href={brandPath(brand)} className={linkStyles.default}>
-                      Perfumes {brand}
+                    <Link href={brandPath(brand)} title={`Perfumes ${brand}`} className={linkStyles.default}>
+                      {brand}
                     </Link>
                   </li>
                 ))}

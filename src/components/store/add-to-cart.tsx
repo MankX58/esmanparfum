@@ -42,13 +42,12 @@ export function QuantityStepper({
   );
 }
 
-// Botón de agregar al carrito, con selector de cantidad. Avisa con un toast que lleva al carrito.
-export function AddToCart({ productId }: { productId: number }) {
+// Agrega al carrito y avisa con un toast que lleva al carrito. Lo usan el botón de la página
+// del producto y la barra de compra fija del teléfono.
+export function useAddToCart() {
   const { add } = useCart();
   const router = useRouter();
-  const [quantity, setQuantity] = useState(1);
-
-  function handleAdd() {
+  return (productId: number, quantity = 1) => {
     add(productId, quantity);
     sileo.success({
       title: quantity === 1 ? "Agregado al carrito" : `${quantity} unidades agregadas`,
@@ -57,6 +56,16 @@ export function AddToCart({ productId }: { productId: number }) {
       roundness: 6,
       button: { title: "Ver carrito", onClick: () => router.push("/carrito") },
     });
+  };
+}
+
+// Botón de agregar al carrito, con selector de cantidad.
+export function AddToCart({ productId }: { productId: number }) {
+  const addToCart = useAddToCart();
+  const [quantity, setQuantity] = useState(1);
+
+  function handleAdd() {
+    addToCart(productId, quantity);
     setQuantity(1);
   }
 

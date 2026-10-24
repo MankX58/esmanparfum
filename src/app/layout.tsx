@@ -33,7 +33,7 @@ export const metadata: Metadata = {
 const googleVerification = process.env.GOOGLE_SITE_VERIFICATION;
 
 // Color de la barra del navegador en el teléfono: el verde salvia de la marca (--color-brand).
-export const viewport: Viewport = { themeColor: "#596357" };
+export const viewport: Viewport = { themeColor: "#596357", viewportFit: "cover" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

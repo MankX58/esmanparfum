@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { buttonStyles } from "@/components/button";
 import type { ProductSize } from "@/lib/catalog";
 import { formatCOP } from "@/lib/format";
-import { AddToCart } from "./add-to-cart";
+import { AddToCart, useAddToCart } from "./add-to-cart";
 
 // Precio, tamaños, stock y botón de compra de un perfume. Elegir otro tamaño NO cambia de página:
 // solo cambian el precio (con una transición corta), el tamaño marcado y el producto que se agrega
@@ -14,6 +15,17 @@ export function SizePurchase({ sizes, initialId }: { sizes: ProductSize[]; initi
   // Hasta el primer cambio, el precio entra con la animación de la página; después, con "swap".
   const [changed, setChanged] = useState(false);
   const size = sizes.find((option) => option.id === selectedId) ?? sizes[0];
+  // En el teléfono, mientras el botón de compra no se ve, una barra fija abajo lo repite con el precio.
+  const buyRef = useRef<HTMLDivElement>(null);
+  const [barVisible, setBarVisible] = useState(false);
+  const addToCart = useAddToCart();
+  useEffect(() => {
+    const node = buyRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(([entry]) => setBarVisible(!entry.isIntersecting));
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
   const sizeText = (option: ProductSize) => (option.size_ml ? `${option.size_ml} ml` : "Sin tamaño");
 
   function choose(option: ProductSize) {
@@ -79,8 +91,26 @@ export function SizePurchase({ sizes, initialId }: { sizes: ProductSize[]; initi
         Te lo enviamos después de confirmar tu pago.
       </p>
 
-      <div className="mt-8">
+      <div ref={buyRef} className="mt-8">
         <AddToCart productId={size.id} />
+      </div>
+
+      <div
+        aria-hidden={!barVisible}
+        inert={!barVisible}
+        className={`fixed inset-x-0 bottom-0 z-30 border-t border-line bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md transition duration-(--duration-fast) ease-smooth-out lg:hidden ${
+          barVisible ? "translate-y-0" : "pointer-events-none translate-y-full"
+        }`}
+      >
+        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
+          <div className="min-w-0">
+            <p className="text-lg leading-tight font-medium tabular-nums">{formatCOP(size.list_price)}</p>
+            <p className="truncate text-xs text-ink-soft">{sizeText(size)}</p>
+          </div>
+          <button type="button" onClick={() => addToCart(size.id)} className={`ml-auto ${buttonStyles.primary}`}>
+            Agregar al carrito
+          </button>
+        </div>
       </div>
     </>
   );

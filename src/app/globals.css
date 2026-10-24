@@ -249,6 +249,26 @@ body {
   a {
     text-underline-offset: 0.3em;
   }
+  /* Táctil: sin el parpadeo gris al tocar, sin la espera del doble toque y sin que el teléfono
+     agrande el texto al girarlo. */
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  a,
+  button,
+  summary,
+  input,
+  select,
+  textarea,
+  [role="button"] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Los menús y tarjetas que se desplazan no arrastran la página detrás. */
+  [role="listbox"] {
+    overscroll-behavior: contain;
+  }
   /* Dentro de una zona verde, el foco y la selección pasan a claro para seguir viéndose. */
   .bg-brand :focus-visible {
     outline-color: var(--color-on-brand);
