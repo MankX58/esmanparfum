@@ -10,6 +10,8 @@ import { findCity, shippingFor } from "@/lib/shipping";
 export type CartItem = { id: number; quantity: number };
 
 const MAX_PENDING_ORDERS = 3; // evita que una cuenta llene el panel de pedidos sin pagar
+const HOLD_MINUTES = 30; // cuánto tiempo aparta unidades un pedido que aún no se paga
+const ORDER_LOCK = 7_001; // número del cerrojo que hace que los pedidos se creen de uno en uno
 
 // Crea el pedido. Del navegador solo se aceptan ids, cantidades y datos de envío:
 // nombres, precios, costos y totales se toman de la base de datos.
@@ -67,32 +69,75 @@ export async function createOrder(items: CartItem[], formData: FormData): Promis
     on conflict (user_id) do update set name = excluded.name, phone = excluded.phone
     returning id`;
 
-  // Una sola sentencia crea el pedido y sus líneas: o se guarda todo o nada.
-  // Cada línea copia el nombre, el precio y el costo de este momento. El nombre lleva
-  // el tamaño ("Asad, 100 ml") para saber cuál presentación hay que despachar.
-  const rows = await sql`
-    with new_order as (
-      insert into orders
-        (customer_id, user_id, status, channel, payment_method,
-         shipping_name, shipping_phone, shipping_address, shipping_city, shipping_notes, shipping_fee,
-         promo_code, promo_percent, terms_accepted_at)
-      values
-        (${customer.id}, ${user.id}, 'pending', 'Tienda web', ${paymentMethod},
-         ${name}, ${phone}, ${address}, ${city!.label}, ${notes}, ${shippingFee},
-         ${promo?.code ?? null}, ${promo?.percent ?? null}, now())
-      returning id
-    )
-    -- El descuento del código se calcula por línea, redondeado al peso (lib/promo.ts, lineDiscount).
-    insert into order_items (order_id, product_id, product_name, quantity, unit_price, discount, unit_cost)
-    select new_order.id, p.id, p.name || coalesce(', ' || p.size_ml || ' ml', ''), item.quantity, p.list_price,
-           round(item.quantity * p.list_price * ${promo?.percent ?? 0}::int / 100.0)::int, s.avg_cost
-    from new_order,
-         jsonb_to_recordset(${JSON.stringify(items)}::jsonb) as item(id int, quantity int)
-    join products p on p.id = item.id and p.is_active
-    join product_stats s on s.product_id = p.id
-    returning order_id`;
+  // Dos transacciones a la vez no pueden repartirse la misma unidad: el cerrojo hace que los pedidos
+  // se creen de uno en uno, y la sentencia siguiente (que ya ve lo que guardó el pedido anterior)
+  // comprueba el stock libre antes de insertar. El pedido y sus líneas se guardan en una sola sentencia:
+  // o se guarda todo o nada. Cada línea copia el nombre, el precio y el costo de este momento. El nombre
+  // lleva el tamaño ("Asad, 100 ml") para saber cuál presentación hay que despachar.
+  // Stock libre = stock - lo que otros pedidos sin pagar tienen apartado (HOLD_MINUTES). Solo se
+  // limita un perfume que SÍ tiene stock; sin stock se sigue vendiendo bajo pedido.
+  const [, rows] = await sql.transaction([
+    sql`select pg_advisory_xact_lock(${ORDER_LOCK})`,
+    sql`
+      with wanted as (
+        select item.id as product_id, item.quantity, s.stock,
+               coalesce((select sum(oi.quantity) from order_items oi join orders o on o.id = oi.order_id
+                         where oi.product_id = item.id
+                           and (o.status = 'payment_reported'
+                                or (o.status = 'pending' and o.created_at > now() - make_interval(mins => ${HOLD_MINUTES})))), 0)::int as held
+        from jsonb_to_recordset(${JSON.stringify(items)}::jsonb) as item(id int, quantity int)
+        join product_stats s on s.product_id = item.id
+      ),
+      allowed as (
+        select not exists (select 1 from wanted where stock > 0 and quantity > stock - held)
+               and (select count(*) from orders where user_id = ${user.id} and status = 'pending') < ${MAX_PENDING_ORDERS} as ok
+      ),
+      new_order as (
+        insert into orders
+          (customer_id, user_id, status, channel, payment_method,
+           shipping_name, shipping_phone, shipping_address, shipping_city, shipping_notes, shipping_fee,
+           promo_code, promo_percent, terms_accepted_at)
+        select ${customer.id}, ${user.id}, 'pending', 'Tienda web', ${paymentMethod},
+               ${name}, ${phone}, ${address}, ${city!.label}, ${notes}, ${shippingFee},
+               ${promo?.code ?? null}, ${promo?.percent ?? null}, now()
+        from allowed where ok
+        returning id
+      )
+      -- El descuento del código se calcula por línea, redondeado al peso (lib/promo.ts, lineDiscount).
+      insert into order_items (order_id, product_id, product_name, quantity, unit_price, discount, unit_cost)
+      select new_order.id, p.id, p.name || coalesce(', ' || p.size_ml || ' ml', ''), item.quantity, p.list_price,
+             round(item.quantity * p.list_price * ${promo?.percent ?? 0}::int / 100.0)::int, s.avg_cost
+      from new_order,
+           jsonb_to_recordset(${JSON.stringify(items)}::jsonb) as item(id int, quantity int)
+      join products p on p.id = item.id and p.is_active
+      join product_stats s on s.product_id = p.id
+      returning order_id`,
+  ]);
+  if (rows.length > 0) return { ok: true, id: rows[0].order_id as number };
 
-  return { ok: true, id: rows[0].order_id as number };
+  // No se creó: o alguien se quedó con las unidades, o se llenó el tope de pedidos pendientes.
+  const [short] = await sql`
+    select p.name, p.size_ml, s.stock - coalesce(h.held, 0) as free
+    from jsonb_to_recordset(${JSON.stringify(items)}::jsonb) as item(id int, quantity int)
+    join products p on p.id = item.id
+    join product_stats s on s.product_id = p.id
+    left join lateral (
+      select sum(oi.quantity)::int as held from order_items oi join orders o on o.id = oi.order_id
+      where oi.product_id = p.id
+        and (o.status = 'payment_reported' or (o.status = 'pending' and o.created_at > now() - make_interval(mins => ${HOLD_MINUTES})))
+    ) h on true
+    where s.stock > 0 and item.quantity > s.stock - coalesce(h.held, 0)
+    limit 1`;
+  if (short) {
+    const label = `${short.name}${short.size_ml ? `, ${short.size_ml} ml` : ""}`;
+    return {
+      message:
+        short.free > 0
+          ? `Solo quedan ${short.free} de ${label}. Baja la cantidad en tu carrito e inténtalo de nuevo.`
+          : `${label} ya está apartado por otro pedido que se está pagando. Vuelve a intentarlo en unos minutos: si no lo pagan, se libera.`,
+    };
+  }
+  return { message: "Tienes varios pedidos pendientes de pago. Paga o cancela alguno antes de crear otro." };
 }
 
 // Comprueba un código promocional antes de hacer el pedido, para mostrar el descuento.

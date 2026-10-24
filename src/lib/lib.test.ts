@@ -130,7 +130,8 @@ test("la firma de un evento se valida como en el ejemplo de Wompi, y un cambio l
 
 test("la referencia de pago dice de qué pedido es", () => {
   assert.equal(orderIdFromReference(paymentReference(42)), 42);
-  assert.equal(orderIdFromReference("VEL42"), null);
+  assert.equal(orderIdFromReference("ESM42"), null);
+  assert.equal(orderIdFromReference("VEL42-abc1"), 42); // pago iniciado antes del cambio de nombre
   assert.equal(orderIdFromReference("otra-cosa"), null);
 });
 

@@ -99,7 +99,7 @@ export async function cancelOrder(orderId: number): Promise<FormState> {
 // Borra un pedido que no ha salido (enviado o entregado ya no se puede). Se van también sus
 // productos, y si estaba pagado deja de contar en ventas, stock y caja.
 // Después la numeración vuelve al último pedido que queda: si se borra el más reciente
-// (VEL-0004), el siguiente pedido vuelve a ser VEL-0004. Un número de en medio no se reutiliza.
+// (ESM-0004), el siguiente pedido vuelve a ser ESM-0004. Un número de en medio no se reutiliza.
 export async function deleteOrder(orderId: number): Promise<FormState> {
   await requireAdmin();
   if (!Number.isInteger(orderId)) return { message: "Pedido no válido." };

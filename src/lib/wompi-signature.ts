@@ -9,12 +9,13 @@ const sha256 = (text: string) => createHash("sha256").update(text).digest("hex")
 export const integritySignature = (reference: string, amountInCents: string, secret: string) =>
   sha256(`${reference}${amountInCents}COP${secret}`);
 
-// Cada intento de pago lleva su propia referencia: VEL<id del pedido>-<marca de tiempo>.
+// Cada intento de pago lleva su propia referencia: ESM<id del pedido>-<marca de tiempo>.
 // Así el cliente puede reintentar tras un pago rechazado, y la referencia dice de qué pedido es.
-export const paymentReference = (orderId: number, now = Date.now()) => `VEL${orderId}-${now.toString(36)}`;
+export const paymentReference = (orderId: number, now = Date.now()) => `ESM${orderId}-${now.toString(36)}`;
 
 export const orderIdFromReference = (reference: string) => {
-  const match = /^VEL(\d+)-[a-z0-9]+$/.exec(reference);
+  // VEL: referencias de pagos hechos antes del cambio de nombre; siguen siendo válidas.
+  const match = /^(?:ESM|VEL)(\d+)-[a-z0-9]+$/.exec(reference);
   return match ? Number(match[1]) : null;
 };
 

@@ -1,7 +1,7 @@
 -- Fase 4: pedidos de la tienda web con pago por transferencia verificado a mano.
 
 alter table orders
-  -- Código que ve el cliente y que pone en la transferencia: VEL-0001, VEL-0002...
+  -- Código que ve el cliente y que pone en la transferencia: VEL-0001, VEL-0002... (desde la migración 012: ESM-0001)
   add column code text generated always as ('VEL-' || lpad(id::text, 4, '0')) stored,
   add column user_id integer references users (id),
   -- Datos de envío

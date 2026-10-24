@@ -53,6 +53,30 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
       {/* Pie: un directorio de la tienda (público y marcas), que además ayuda a los buscadores a
           encontrar todas las páginas; después marca, una frase y los enlaces. */}
       <footer className="border-t border-line">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-8 gap-y-2 px-4 py-5 text-sm text-ink-soft sm:px-8">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+            <Logo className="h-6" />
+            <p>Perfumes para ser recordado. Envíos a toda Colombia.</p>
+          </div>
+          <nav aria-label="Pie de página" className="flex flex-wrap gap-x-6 [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center">
+            <Link href="/catalogo" className={linkStyles.default}>
+              Catálogo
+            </Link>
+            <Link href="/cotizar" className={linkStyles.default}>
+              Cotizar
+            </Link>
+            <Link href="/carrito" className={linkStyles.default}>
+              Carrito
+            </Link>
+            {isAdmin && (
+              <Link href="/admin" className={linkStyles.default}>
+                Panel
+              </Link>
+            )}
+          </nav>
+          
+        </div>
+        <div className="border-t border-line" />
         <nav aria-label="Perfumes por público y marca" className="mx-auto grid max-w-7xl gap-8 px-4 py-10 text-sm sm:grid-cols-[1fr_3fr] sm:px-8">
           <div>
             <h2 className="text-[11px] tracking-[0.18em] text-ink-soft uppercase">Perfumes originales</h2>
@@ -82,29 +106,6 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
             </div>
           )}
         </nav>
-        <div className="border-t border-line" />
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-8 gap-y-2 px-4 py-5 text-sm text-ink-soft sm:px-8">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
-            <Logo className="h-6" />
-            <p>Perfumes para ser recordado. Envíos a toda Colombia.</p>
-          </div>
-          <nav aria-label="Pie de página" className="flex flex-wrap gap-x-6 [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center">
-            <Link href="/catalogo" className={linkStyles.default}>
-              Catálogo
-            </Link>
-            <Link href="/cotizar" className={linkStyles.default}>
-              Cotizar
-            </Link>
-            <Link href="/carrito" className={linkStyles.default}>
-              Carrito
-            </Link>
-            {isAdmin && (
-              <Link href="/admin" className={linkStyles.default}>
-                Panel
-              </Link>
-            )}
-          </nav>
-        </div>
         {/* Lo legal: segunda franja, más discreta. */}
         <div className="border-t border-line">
           <nav
