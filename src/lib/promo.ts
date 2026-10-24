@@ -8,10 +8,6 @@ export type PromoCode = { code: string; percent: number };
 export const normalizeCode = (raw: string) => raw.trim().toUpperCase();
 export const validCode = (code: string) => /^[A-Z0-9_-]{3,30}$/.test(code);
 
-// Descuento por pagar con transferencia, en %. Se suma al del código promocional.
-export const TRANSFER_DISCOUNT = 5;
-
 // Descuento de una línea: su valor por el porcentaje, redondeado al peso.
 // El del pedido es la suma de sus líneas, así el carrito, el pedido y Wompi muestran lo mismo.
-// Con código y transferencia, cada descuento se redondea por separado y se suman.
 export const lineDiscount = (lineTotal: number, percent: number) => Math.round((lineTotal * percent) / 100);

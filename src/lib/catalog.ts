@@ -21,7 +21,7 @@ export type StoreProduct = {
 };
 
 // Un tamaño de un perfume, para el selector de la página del producto.
-export type ProductSize = { slug: string; size_ml: number | null; list_price: number };
+export type ProductSize = { id: number; slug: string; size_ml: number | null; list_price: number; in_stock: boolean };
 
 export const sortOptions = [
   { value: "precio-asc", label: "Precio: menor a mayor" },
@@ -32,7 +32,8 @@ export const sortOptions = [
 // Lista de productos con búsqueda, filtros y orden. Sin `orden`, salen primero los más vendidos.
 // Un perfume con varios tamaños sale UNA sola vez: lo representa su tamaño más barato
 // ("distinct on"), y lo vendido y el stock se suman entre todos sus tamaños (ventana "g").
-export async function listProducts({ q = "", marca = "", publico = "", orden = "", limit = 200 } = {}) {
+// Con `tamano` (en ml) solo cuentan los perfumes que vienen en ese tamaño, y la tarjeta muestra ese.
+export async function listProducts({ q = "", marca = "", publico = "", orden = "", tamano = 0, limit = 200 } = {}) {
   const like = `%${q}%`;
   return (await sql`
     select id, slug, name, brand, audience, size_ml, category, description, list_price, images, in_stock, group_id, sizes
@@ -50,6 +51,7 @@ export async function listProducts({ q = "", marca = "", publico = "", orden = "
         and (${q} = '' or p.name ilike ${like} or p.brand ilike ${like})
         and (${marca} = '' or p.brand = ${marca})
         and (${publico} = '' or p.audience = ${publico})
+        and (${tamano}::int = 0 or p.size_ml = ${tamano}::int)
       window g as (partition by coalesce(p.parent_id, p.id))
       order by coalesce(p.parent_id, p.id), p.list_price asc, p.id asc
     ) perfume
@@ -75,10 +77,11 @@ export const getProduct = cache(async (slug: string) => {
 // Los tamaños activos de un perfume, del más pequeño al más grande.
 export async function listSizes(groupId: number) {
   return (await sql`
-    select slug, size_ml, list_price
-    from products
-    where is_active and coalesce(parent_id, id) = ${groupId}
-    order by size_ml asc nulls last, id asc`) as ProductSize[];
+    select p.id, p.slug, p.size_ml, p.list_price, s.stock > 0 as in_stock
+    from products p
+    join product_stats s on s.product_id = p.id
+    where p.is_active and coalesce(p.parent_id, p.id) = ${groupId}
+    order by p.size_ml asc nulls last, p.id asc`) as ProductSize[];
 }
 
 // Productos por id, para mostrar el carrito con precios actuales.
@@ -89,6 +92,12 @@ export async function getProductsById(ids: number[]) {
     from products p
     join product_stats s on s.product_id = p.id
     where p.is_active and p.id = any(${ids})`) as StoreProduct[];
+}
+
+// Los tamaños (en ml) en que hay perfumes activos, para el filtro del catálogo.
+export async function listSizeOptions() {
+  const rows = await sql`select distinct size_ml from products where is_active and size_ml is not null order by size_ml`;
+  return rows.map((row) => row.size_ml as number);
 }
 
 export async function listBrands() {

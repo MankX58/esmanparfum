@@ -4,7 +4,7 @@ import { buttonStyles } from "@/components/button";
 import { FilterBar } from "@/components/filter-bar";
 import { BackToTop } from "@/components/store/back-to-top";
 import { ProductCard } from "@/components/store/product-tile";
-import { brandPath, listBrands, listProducts, sortOptions } from "@/lib/catalog";
+import { brandPath, listBrands, listProducts, listSizeOptions, sortOptions } from "@/lib/catalog";
 import { queryText } from "@/lib/form";
 
 type CatalogParams = Awaited<PageProps<"/catalogo">["searchParams"]>;
@@ -44,9 +44,16 @@ export default async function CatalogPage({ searchParams }: PageProps<"/catalogo
   const marca = queryText(params.marca);
   const publico = queryText(params.publico);
   const orden = queryText(params.orden);
+  // ?tamano=100: solo los perfumes que vienen en 100 ml. Cualquier otra cosa se ignora.
+  const tamanoText = queryText(params.tamano);
+  const tamano = /^\d{1,4}$/.test(tamanoText) ? Number(tamanoText) : 0;
 
-  const [products, brands] = await Promise.all([listProducts({ q, marca, publico, orden }), listBrands()]);
-  const filtering = Boolean(q || marca || publico);
+  const [products, brands, sizes] = await Promise.all([
+    listProducts({ q, marca, publico, orden, tamano }),
+    listBrands(),
+    listSizeOptions(),
+  ]);
+  const filtering = Boolean(q || marca || publico || tamano);
   const brand = brandPage(params, brands);
 
   return (
@@ -62,10 +69,11 @@ export default async function CatalogPage({ searchParams }: PageProps<"/catalogo
 
       <FilterBar
         placeholder="Buscar por nombre o marca"
-        values={{ q, marca, publico, orden }}
+        values={{ q, marca, publico, tamano: tamano ? String(tamano) : "", orden }}
         filters={[
           { name: "marca", label: "Todas las marcas", options: brands.map((brand) => ({ value: brand, label: brand })) },
           { name: "publico", label: "Para todos", options: audiences.map((audience) => ({ value: audience, label: audience })) },
+          { name: "tamano", label: "Todos los tamaños", options: sizes.map((ml) => ({ value: String(ml), label: `${ml} ml` })) },
           { name: "orden", label: "Más vendidos primero", options: sortOptions },
         ]}
       />
@@ -82,7 +90,7 @@ export default async function CatalogPage({ searchParams }: PageProps<"/catalogo
       ) : (
         // key: al cambiar los filtros la rejilla vuelve a entrar.
         <div
-          key={`${q}|${marca}|${publico}|${orden}`}
+          key={`${q}|${marca}|${publico}|${tamano}|${orden}`}
           className="group/grid grid grid-cols-2 gap-x-5 gap-y-10 motion-safe:animate-settle md:grid-cols-3 xl:grid-cols-4"
         >
           {products.map((product) => (

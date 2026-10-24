@@ -25,7 +25,7 @@ Boutique de perfumería internacional: premium, elegante, moderna, limpia y mini
 
 ## Operating Context
 
-- Pago en línea con Wompi (tarjeta, PSE, Nequi, Bancolombia), que confirma el pedido solo, o por transferencia con QR y 5% de descuento, que el administrador confirma a mano.
+- Pago en línea con Wompi (tarjeta, PSE, Nequi, Bancolombia), que confirma el pedido solo, o por transferencia con QR, que el administrador confirma a mano.
 - Sin dominio propio: `<proyecto>.vercel.app`.
 - Sin correos transaccionales: el estado del pedido se ve en la web y se avisa por WhatsApp.
 

@@ -26,7 +26,8 @@ export default async function ProductsPage({ searchParams }: PageProps<"/admin/p
   // Stock, costo promedio, ganancia, margen e inventario los calcula la vista product_stats.
   const products = (await sql`
     select p.id, p.sku, p.name, p.brand, p.audience, p.size_ml, p.list_price, p.is_active,
-           s.stock, s.avg_cost, s.unit_profit, s.margin, s.inventory_value, s.alert
+           s.stock, s.avg_cost, s.unit_profit, s.margin, s.inventory_value, s.alert,
+           (select count(*) from products g where coalesce(g.parent_id, g.id) = coalesce(p.parent_id, p.id))::int as sizes
     from products p
     join product_stats s on s.product_id = p.id
     where (${q} = '' or p.name ilike ${like} or p.brand ilike ${like} or p.sku ilike ${like})

@@ -16,6 +16,7 @@ export type ProductRow = {
   margin: number;
   inventory_value: number;
   alert: StockAlert;
+  sizes?: number; // cuántos tamaños tiene su perfume (1 = no tiene otros)
 };
 
 export type StockAlert = "OK" | "PEDIR" | "AGOTADO";
@@ -76,7 +77,8 @@ export function ProductsTable({ products }: { products: ProductRow[] }) {
                   {p.brand && <span className="font-display tracking-[0.14em] uppercase">{p.brand}</span>}
                   <span>{p.sku}</span>
                   {p.audience && <span className="hidden sm:inline">{p.audience}</span>}
-                  {p.size_ml && <span className="hidden sm:inline">{p.size_ml} ml</span>}
+                  {p.size_ml && <span>{p.size_ml} ml</span>}
+                  {(p.sizes ?? 1) > 1 && <span className="text-brand">Uno de {p.sizes} tamaños</span>}
                   {!p.is_active && <span className="text-warn">Inactivo</span>}
                 </p>
               </td>

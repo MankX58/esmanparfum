@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { LegalLink, LegalPage, ResponsibleParty, type LegalSection } from "@/components/store/legal-page";
 import { getStoreSettings } from "@/lib/orders";
-import { TRANSFER_DISCOUNT } from "@/lib/promo";
 import { deliveryEstimate } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -111,8 +110,7 @@ export default async function TermsPage() {
               confirma cuando Wompi aprueba el pago.
             </li>
             <li>
-              <strong>Por transferencia</strong>, con un {TRANSFER_DISCOUNT}% de descuento sobre el valor de los productos. Te
-              mostramos el código QR y el valor exacto. Después de pagar, nos avisas desde tu pedido y lo confirmamos cuando vemos el
+              <strong>Por transferencia</strong>: te mostramos el código QR y el valor exacto. Después de pagar, nos avisas desde tu pedido y lo confirmamos cuando vemos el
               dinero en nuestra cuenta. Si el valor transferido no coincide, te contactamos antes de seguir.
             </li>
           </ul>
@@ -128,7 +126,6 @@ export default async function TermsPage() {
           <li>Se puede usar un código por pedido, y se aplica al hacer el pedido.</li>
           <li>El descuento es un porcentaje sobre el valor de los productos; no se aplica al envío.</li>
           <li>Cada código tiene su propia vigencia y podemos pausarlo o terminarlo en cualquier momento, sin afectar los pedidos ya hechos.</li>
-          <li>Se puede sumar al descuento por pagar con transferencia.</li>
           <li>Los códigos no se cambian por dinero ni se aplican a pedidos anteriores.</li>
         </ul>
       ),

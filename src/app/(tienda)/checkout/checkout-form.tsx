@@ -9,7 +9,7 @@ import { Field, fieldProps, inputStyles } from "@/components/field";
 import { useCart } from "@/lib/cart";
 import type { StoreProduct } from "@/lib/catalog";
 import { formatCOP } from "@/lib/format";
-import { lineDiscount, TRANSFER_DISCOUNT, type PromoCode } from "@/lib/promo";
+import { lineDiscount, type PromoCode } from "@/lib/promo";
 import { SearchSelect } from "@/components/search-select";
 import { cityOptions, shippingFor, shippingZones, zoneOf, type ShippingRates } from "@/lib/shipping";
 import { deliveryEstimate } from "@/lib/site";
@@ -50,15 +50,14 @@ export function CheckoutForm({ defaultName, shippingRates }: { defaultName: stri
   const shippingFee = rate ?? 0;
   const zoneLabel = cityCode ? shippingZones.find((zone) => zone.id === zoneOf(cityCode))?.label : null;
 
-  // Cómo va a pagar. Con transferencia hay un descuento extra (TRANSFER_DISCOUNT).
+  // Cómo va a pagar: Wompi o transferencia. Los dos cuestan lo mismo.
   const [method, setMethod] = useState<"Wompi" | "Transferencia">("Wompi");
 
   // Mismo cálculo que el servidor: cada descuento por línea, redondeado, y luego la suma.
   const discountOf = (percent: number) =>
     lines.reduce((total, product) => total + lineDiscount(product.list_price * cart[product.id], percent), 0);
   const promoDiscount = promo ? discountOf(promo.percent) : 0;
-  const transferDiscount = method === "Transferencia" ? discountOf(TRANSFER_DISCOUNT) : 0;
-  const discount = promoDiscount + transferDiscount;
+  const discount = promoDiscount;
 
   function applyPromo() {
     if (!promoInput.trim()) return;
@@ -139,7 +138,7 @@ export function CheckoutForm({ defaultName, shippingRates }: { defaultName: stri
             },
             {
               value: "Transferencia" as const,
-              title: `Transferencia, con ${TRANSFER_DISCOUNT}% de descuento`,
+              title: "Transferencia o Nequi con QR",
               text: "Te mostramos el QR para pagar el valor exacto. Después avisas que pagaste y confirmamos la transferencia en el banco.",
             },
           ].map((option) => (
@@ -230,12 +229,6 @@ export function CheckoutForm({ defaultName, shippingRates }: { defaultName: stri
                     Descuento {promo.code} ({promo.percent}%)
                   </dt>
                   <dd className="tabular-nums">−{formatCOP(promoDiscount)}</dd>
-                </div>
-              )}
-              {transferDiscount > 0 && (
-                <div className="flex justify-between gap-4 text-ok motion-safe:animate-swap">
-                  <dt>Descuento por transferencia ({TRANSFER_DISCOUNT}%)</dt>
-                  <dd className="tabular-nums">−{formatCOP(transferDiscount)}</dd>
                 </div>
               )}
               <div className="flex justify-between gap-4">

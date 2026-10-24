@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next"
 import { Geist, Jost } from "next/font/google";
 import { Toaster } from "sileo";
 import { siteUrl } from "@/lib/site";
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           donde la busca el verificador de Google, sin esperar a los datos de cada página. */}
       <head>{googleVerification && <meta name="google-site-verification" content={googleVerification} />}</head>
       <body className="flex min-h-full flex-col bg-paper font-sans text-ink">
+        <Analytics />
         {/* Lo primero que encuentra quien navega con teclado: salta la cabecera y va al contenido. */}
         <a
           href="#contenido"

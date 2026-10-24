@@ -247,3 +247,71 @@ export async function deleteProduct(id: number): Promise<FormState> {
   revalidatePath("/admin", "layout");
   return { ok: true };
 }
+
+// ---------- Unir y separar tamaños ----------
+
+// Une otro producto que ya existe (con todos sus tamaños, si tiene) como tamaño de este perfume.
+// Desde ahí la tienda los muestra como un solo perfume con selector de tamaño. Lo que describe al
+// perfume (nombre, marca, público, categoría y descripción) pasa a ser el de este producto; cada
+// tamaño conserva su SKU, precio, stock, costo y fotos.
+export async function joinSizes(productId: number, otherId: number): Promise<FormState> {
+  await requireAdmin();
+  if (!Number.isInteger(productId) || !Number.isInteger(otherId) || productId === otherId) return { message: "Producto no válido." };
+
+  const [base] = await sql`select coalesce(parent_id, id) as root from products where id = ${productId}`;
+  const [other] = await sql`select coalesce(parent_id, id) as root from products where id = ${otherId}`;
+  if (!base || !other) return { message: "El producto ya no existe." };
+  if (base.root === other.root) return { message: "Ese producto ya es un tamaño de este perfume." };
+
+  // Dos productos con el mismo tamaño no pueden ser el mismo perfume.
+  const [clash] = await sql`
+    select size_ml from products
+    where coalesce(parent_id, id) = ${other.root} and size_ml is not null
+      and size_ml in (select size_ml from products where coalesce(parent_id, id) = ${base.root} and size_ml is not null)
+    limit 1`;
+  if (clash) return { message: `Este perfume ya tiene un tamaño de ${clash.size_ml} ml. Cambia el tamaño de uno de los dos antes de unirlos.` };
+
+  await sql.transaction([
+    // Todo el grupo del otro producto pasa a colgar del producto original de este perfume.
+    sql`update products set parent_id = ${base.root}, updated_at = now() where coalesce(parent_id, id) = ${other.root}`,
+    // Lo que describe al perfume queda igual en todos sus tamaños. Si este no tenía descripción, se usa la de otro tamaño.
+    sql`
+      update products set
+        name = r.name, brand = r.brand,
+        audience = coalesce(r.audience, products.audience), category = coalesce(r.category, products.category),
+        description = coalesce(r.description, (
+          select d.description from products d
+          where coalesce(d.parent_id, d.id) = ${base.root} and d.description is not null
+          order by d.id limit 1)),
+        updated_at = now()
+      from (select name, brand, audience, category, description from products where id = ${base.root}) r
+      where coalesce(products.parent_id, products.id) = ${base.root}`,
+  ]);
+
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+// Separa un tamaño: vuelve a ser un perfume aparte en la tienda. Si es el producto original del
+// perfume, el siguiente tamaño toma su lugar como original.
+export async function leaveSizes(productId: number): Promise<FormState> {
+  await requireAdmin();
+  if (!Number.isInteger(productId)) return { message: "Producto no válido." };
+
+  const [product] = await sql`select parent_id from products where id = ${productId}`;
+  if (!product) return { message: "El producto ya no existe." };
+
+  if (product.parent_id !== null) {
+    await sql`update products set parent_id = null, updated_at = now() where id = ${productId}`;
+  } else {
+    const [next] = await sql`select min(id) as id from products where parent_id = ${productId}`;
+    if (!next?.id) return { message: "Este perfume no tiene otros tamaños." };
+    await sql.transaction([
+      sql`update products set parent_id = null, updated_at = now() where id = ${next.id}`,
+      sql`update products set parent_id = ${next.id}, updated_at = now() where parent_id = ${productId}`,
+    ]);
+  }
+
+  revalidatePath("/", "layout");
+  return { ok: true };
+}

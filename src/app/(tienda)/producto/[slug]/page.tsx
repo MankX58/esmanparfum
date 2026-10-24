@@ -3,12 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ViewTransition } from "react";
 import { linkStyles } from "@/components/button";
-import { AddToCart } from "@/components/store/add-to-cart";
+import { SizePurchase } from "@/components/store/size-purchase";
 import { Gallery } from "@/components/store/gallery";
 import { ProductCard, ProductLabel, transitionName } from "@/components/store/product-tile";
 import { brandPath, getProduct, listProducts, listSizes } from "@/lib/catalog";
 import { formatCOP } from "@/lib/format";
-import { TRANSFER_DISCOUNT } from "@/lib/promo";
 import { absoluteUrl } from "@/lib/site";
 
 // Título y descripción para buscadores y para la vista previa al compartir el enlace.
@@ -82,10 +81,25 @@ export default async function ProductPage({ params }: PageProps<"/producto/[slug
   // group_id y no id: en la lista, este perfume puede estar representado por otro de sus tamaños.
   const sameBrand = brandProducts.filter((other) => other.group_id !== product.group_id).slice(0, 4);
 
+  // Si el perfume no tiene otros tamaños activos, el selector recibe solo este.
+  const purchaseSizes =
+    sizes.length > 0
+      ? sizes
+      : [{ id: product.id, slug: product.slug, size_ml: product.size_ml, list_price: product.list_price, in_stock: product.in_stock }];
+
   const details = [
     { label: "Marca", value: product.brand },
     { label: "Para", value: product.audience },
-    { label: "Tamaño", value: product.size_ml ? `${product.size_ml} ml` : null },
+    // Con varios tamaños se listan todos: este dato no cambia al elegir uno.
+    {
+      label: sizes.length > 1 ? "Tamaños" : "Tamaño",
+      value:
+        sizes.length > 1
+          ? sizes.map((size) => (size.size_ml ? `${size.size_ml} ml` : "sin tamaño")).join(", ")
+          : product.size_ml
+            ? `${product.size_ml} ml`
+            : null,
+    },
     { label: "Categoría", value: product.category },
   ].filter((detail) => detail.value);
 
@@ -126,53 +140,8 @@ export default async function ProductPage({ params }: PageProps<"/producto/[slug
           <h1 className="mt-3 font-display text-4xl leading-[1.05] font-light tracking-tight text-balance motion-safe:animate-unveil motion-safe:[animation-delay:var(--duration-micro)] sm:text-6xl">
             {product.name}
           </h1>
-          <p className="mt-6 text-3xl font-medium motion-safe:animate-unveil motion-safe:[animation-delay:calc(var(--duration-micro)*2)]">
-            {formatCOP(product.list_price)}
-          </p>
-
-          {/* Cada tamaño es un producto con su propia página: elegir uno es ir a ella.
-              scroll={false} y replace: la página no salta arriba ni llena el botón Atrás. */}
-          {sizes.length > 1 && (
-            <nav
-              aria-label="Tamaño"
-              className="group/sizes mt-6 flex flex-wrap gap-2 motion-safe:animate-unveil motion-safe:[animation-delay:calc(var(--duration-micro)*3)]"
-            >
-              {sizes.map((size) => {
-                const current = size.slug === product.slug;
-                return (
-                  <Link
-                    key={size.slug}
-                    href={`/producto/${size.slug}`}
-                    scroll={false}
-                    replace
-                    aria-current={current ? "page" : undefined}
-                    // Al señalar uno, sube un poco y los demás se atenúan (como en el catálogo).
-                    className={`flex min-h-11 flex-col justify-center border px-4 py-2 text-sm transition duration-(--duration-medium) ease-smooth-out hover:-translate-y-0.5 hover:duration-(--duration-quick) active:translate-y-0 [@media(hover:hover)]:group-has-[a:hover]/sizes:not-hover:opacity-50 ${
-                      current ? "border-brand bg-brand text-on-brand" : "border-line bg-surface hover:border-ink"
-                    }`}
-                  >
-                    <span className="font-medium tabular-nums">{size.size_ml ? `${size.size_ml} ml` : "Sin tamaño"}</span>
-                    <span className={`text-xs tabular-nums ${current ? "text-on-brand-soft" : "text-ink-soft"}`}>
-                      {formatCOP(size.list_price)}
-                    </span>
-                  </Link>
-                );
-              })}
-            </nav>
-          )}
-
-          <p className="mt-6 flex items-start gap-3 text-sm leading-relaxed text-ink-soft">
-            {product.in_stock && (
-              <span className="mt-0.5 shrink-0 bg-ok-soft px-2 py-1 text-[11px] leading-none font-medium tracking-[0.08em] text-ok uppercase">
-                En stock
-              </span>
-            )}
-            Te lo enviamos después de confirmar tu pago.
-          </p>
-
-          <div className="mt-8">
-            <AddToCart productId={product.id} productName={product.name} />
-          </div>
+          {/* Precio, tamaños, stock y compra: al elegir otro tamaño solo cambia esto (ver size-purchase.tsx). */}
+          <SizePurchase sizes={purchaseSizes} initialId={product.id} productName={product.name} />
 
           {product.description && <p className="mt-10 max-w-[60ch] leading-relaxed whitespace-pre-line">{product.description}</p>}
 
@@ -186,7 +155,7 @@ export default async function ProductPage({ params }: PageProps<"/producto/[slug
           </dl>
 
           <p className="mt-8 border-t border-line pt-6 text-sm leading-relaxed text-ink-soft">
-            Pagos seguros con Wompi (tarjeta, PSE, Nequi o Bancolombia) o por transferencia con {TRANSFER_DISCOUNT}% de descuento.
+            Pagos seguros con Wompi (tarjeta, PSE, Nequi o Bancolombia) o por transferencia.
           </p>
         </div>
       </div>

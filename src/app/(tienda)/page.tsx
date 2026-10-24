@@ -5,7 +5,6 @@ import { Fragment, ViewTransition } from "react";
 import { buttonStyles } from "@/components/button";
 import { ProductCard, ProductLabel, transitionName } from "@/components/store/product-tile";
 import { brandPath, countByAudience, listBrands, listProducts } from "@/lib/catalog";
-import { TRANSFER_DISCOUNT } from "@/lib/promo";
 import { absoluteUrl, siteUrl } from "@/lib/site";
 
 // El título y la descripción son los del sitio (layout raíz); aquí solo se fija la dirección oficial.
@@ -15,7 +14,7 @@ const audienceNames: Record<string, string> = { Hombre: "Para él", Mujer: "Para
 
 const steps = [
   { title: "Elige", text: "Explora el catálogo y agrega al carrito lo que te guste." },
-  { title: "Paga como prefieras", text: `En línea con Wompi (tarjeta, PSE, Nequi o Bancolombia) o por transferencia con ${TRANSFER_DISCOUNT}% de descuento.` },
+  { title: "Paga como prefieras", text: "En línea con Wompi (tarjeta, PSE, Nequi o Bancolombia) o por transferencia con el QR de la tienda." },
   { title: "Preparamos tu pedido", text: "Apenas se confirma el pago, lo alistamos. Con Wompi es inmediato." },
   { title: "Recíbelo", text: "Te lo enviamos a la dirección que indiques al hacer el pedido." },
 ];

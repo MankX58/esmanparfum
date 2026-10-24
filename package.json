@@ -15,12 +15,14 @@
     "db:descriptions": "node --env-file=.env.local scripts/set-descriptions.mjs",
     "db:fotos": "node --env-file=.env.local scripts/link-photos.mjs",
     "db:productos": "node --env-file=.env.local scripts/add-products.mjs",
-    "db:envios": "node --env-file=.env.local scripts/shipping-rates.mjs"
+    "db:envios": "node --env-file=.env.local scripts/shipping-rates.mjs",
+    "db:calculadora": "node --env-file=.env.local scripts/import-calculator.mjs"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^4.31.0",
     "@neondatabase/serverless": "^1.2.0",
     "@phosphor-icons/react": "^2.1.10",
+    "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^2.8.0",
     "motion": "^14.0.0",
     "next": "16.3.8",

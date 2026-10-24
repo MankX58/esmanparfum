@@ -4,7 +4,6 @@ import { sileo } from "sileo";
 import { buttonStyles } from "@/components/button";
 import { Field, fieldProps, inputStyles } from "@/components/field";
 import type { StoreSettings } from "@/lib/orders";
-import { TRANSFER_DISCOUNT } from "@/lib/promo";
 import { shippingZones } from "@/lib/shipping";
 import { useServerForm } from "@/lib/use-server-form";
 import { saveStoreSettings } from "./actions";
@@ -67,8 +66,7 @@ export function SettingsForm({
       <section className="flex flex-col gap-6 border-t border-line pt-10">
         <h2 className="font-display text-xl">Pago por transferencia</h2>
         <p className="-mt-3 max-w-[60ch] text-sm leading-relaxed text-ink-soft">
-          Quien elige transferencia al hacer el pedido recibe un {TRANSFER_DISCOUNT}% de descuento y ve este QR con el valor
-          exacto. Después pulsa Ya pagué y tú confirmas el pago en Pedidos cuando lo veas en el banco.
+          Quien elige transferencia al hacer el pedido ve este QR con el valor exacto. Después pulsa Ya pagué y tú confirmas el pago en Pedidos cuando lo veas en el banco.
         </p>
         <Field
           label="Imagen del QR de pago"

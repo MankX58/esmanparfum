@@ -11,6 +11,7 @@ import { formatCOP, formatPercent } from "@/lib/format";
 import { deleteProduct, suggestSku } from "../actions";
 import { ProductForm, type Product } from "../product-form";
 import { ProductImages } from "../product-images";
+import { productOption } from "@/components/search-select";
 import { ProductSizes, type SizeRow } from "../product-sizes";
 
 export const metadata = { title: "Editar producto" };
@@ -53,6 +54,12 @@ export default async function EditProductPage({ params }: PageProps<"/admin/prod
     where coalesce(p.parent_id, p.id) = (select coalesce(parent_id, id) from products where id = ${id})
     order by p.size_ml asc nulls last, p.id asc`) as SizeRow[];
   const suggestedSku = await suggestSku();
+  // Los demás productos (fuera de este perfume), para unirlos como un tamaño más.
+  const others = (await sql`
+    select id, sku, brand, name, size_ml from products
+    where coalesce(parent_id, id) <> (select coalesce(parent_id, id) from products where id = ${id})
+    order by brand nulls last, name, size_ml`) as { id: number; sku: string; brand: string | null; name: string; size_ml: number | null }[];
+  const candidates = others.map((other) => productOption(other));
 
   return (
     <div className="motion-safe:animate-settle">
@@ -111,7 +118,7 @@ export default async function EditProductPage({ params }: PageProps<"/admin/prod
       </div>
 
       <div className="mt-16 border-t border-line pt-10">
-        <ProductSizes productId={product.id} sizes={sizes} suggestedSku={suggestedSku} />
+        <ProductSizes productId={product.id} sizes={sizes} suggestedSku={suggestedSku} candidates={candidates} />
       </div>
 
       <div className="mt-16 border-t border-line pt-10">

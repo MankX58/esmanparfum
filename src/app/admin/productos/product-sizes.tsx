@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useState, useTransition } from "react";
 import { sileo } from "sileo";
 import { buttonStyles, linkStyles } from "@/components/button";
+import { ConfirmButton } from "@/components/confirm-button";
 import { Field, fieldProps, inputStyles } from "@/components/field";
+import { SearchSelect, type SearchOption } from "@/components/search-select";
 import { formatCOP } from "@/lib/format";
 import { useServerForm } from "@/lib/use-server-form";
-import { addSize, setPrice } from "./actions";
+import { addSize, joinSizes, leaveSizes, setPrice } from "./actions";
 
 export type SizeRow = {
   id: number;
@@ -20,9 +23,21 @@ export type SizeRow = {
 const input = `${inputStyles} h-11`;
 const sizeLabel = (size: SizeRow) => (size.size_ml ? `${size.size_ml} ml` : "Sin tamaño");
 
-// Tamaños de presentación de un perfume: la lista con el precio de cada uno y el formulario
-// para agregar otro. `productId` es el producto que se está editando en esta página.
-export function ProductSizes({ productId, sizes, suggestedSku }: { productId: number; sizes: SizeRow[]; suggestedSku: string }) {
+// Tamaños de presentación de un perfume: la lista con el precio de cada uno, el formulario para
+// agregar un tamaño nuevo y el buscador para unir un producto que ya existe (por ejemplo, el mismo
+// perfume que se creó aparte en otro tamaño). `productId` es el producto que se está editando.
+// `candidates`: los demás productos, para unirlos como tamaño de este.
+export function ProductSizes({
+  productId,
+  sizes,
+  suggestedSku,
+  candidates,
+}: {
+  productId: number;
+  sizes: SizeRow[];
+  suggestedSku: string;
+  candidates: SearchOption[];
+}) {
   return (
     <section aria-labelledby="tamanos" className="flex flex-col gap-6">
       <div>
@@ -47,10 +62,13 @@ export function ProductSizes({ productId, sizes, suggestedSku }: { productId: nu
             </div>
             {size.id === productId ? (
               // El precio de este se cambia en el formulario de arriba: un solo lugar por dato.
-              <p className="text-sm text-ink-soft">
-                <span className="mr-3 font-medium text-ink tabular-nums">{formatCOP(size.list_price)}</span>
-                Es el que estás editando
-              </p>
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink-soft">
+                <p>
+                  <span className="mr-3 font-medium text-ink tabular-nums">{formatCOP(size.list_price)}</span>
+                  Es el que estás editando
+                </p>
+                {sizes.length > 1 && <SeparateButton size={size} />}
+              </div>
             ) : (
               <div className="flex flex-wrap items-center gap-4">
                 {/* key: si el precio cambia por otro lado, el campo vuelve a mostrar el guardado. */}
@@ -58,6 +76,7 @@ export function ProductSizes({ productId, sizes, suggestedSku }: { productId: nu
                 <Link href={`/admin/productos/${size.id}`} className={`text-sm ${linkStyles.default}`}>
                   Abrir
                 </Link>
+                <SeparateButton size={size} />
               </div>
             )}
           </li>
@@ -66,7 +85,70 @@ export function ProductSizes({ productId, sizes, suggestedSku }: { productId: nu
 
       {/* key: al agregar un tamaño cambia el SKU sugerido y el formulario empieza limpio. */}
       <AddSizeForm key={suggestedSku} productId={productId} suggestedSku={suggestedSku} />
+      {/* key: tras unir uno, la lista de candidatos cambia y el buscador empieza vacío. */}
+      <JoinSizeForm key={candidates.length} productId={productId} candidates={candidates} />
     </section>
+  );
+}
+
+// Separa un tamaño del perfume: vuelve a verse como un perfume aparte en la tienda.
+function SeparateButton({ size }: { size: SizeRow }) {
+  return (
+    <ConfirmButton
+      action={leaveSizes.bind(null, size.id)}
+      label="Separar"
+      question={`¿Separar el de ${sizeLabel(size)}? Se verá como otro perfume.`}
+      confirmLabel="Sí, separar"
+      successMessage="Tamaño separado"
+      failureTitle="No se pudo separar"
+      danger={false}
+    />
+  );
+}
+
+// Une un producto que ya existe como otro tamaño de este perfume.
+function JoinSizeForm({ productId, candidates }: { productId: number; candidates: SearchOption[] }) {
+  const [otherId, setOtherId] = useState("");
+  const [pending, startTransition] = useTransition();
+
+  function join() {
+    if (!otherId) return;
+    startTransition(async () => {
+      const result = await joinSizes(productId, Number(otherId));
+      if (result.ok) {
+        sileo.success({ title: "Tamaño unido", description: "En la tienda ya se ven como un solo perfume." });
+        setOtherId("");
+      } else {
+        sileo.error({ title: "No se pudo unir", description: result.message });
+      }
+    });
+  }
+
+  return (
+    <div className="flex flex-col gap-3 border-t border-line pt-6">
+      <h3 className="font-medium">Unir un producto que ya existe</h3>
+      <p className="max-w-[60ch] text-sm leading-relaxed text-ink-soft">
+        Si este perfume ya estaba creado aparte en otro tamaño, búscalo aquí y únelo. Conserva su SKU, precio, stock, costo y
+        fotos; el nombre, la marca y la descripción pasan a ser los de este perfume.
+      </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+        <div className="min-w-0 flex-1">
+          <label htmlFor={`join-${productId}`} className="sr-only">
+            Producto para unir
+          </label>
+          <SearchSelect
+            id={`join-${productId}`}
+            options={candidates}
+            value={otherId}
+            onChange={setOtherId}
+            placeholder="Busca por nombre, marca o SKU"
+          />
+        </div>
+        <button type="button" onClick={join} disabled={!otherId || pending} className={buttonStyles.secondary}>
+          {pending ? "Uniendo…" : "Unir como tamaño"}
+        </button>
+      </div>
+    </div>
   );
 }
 
