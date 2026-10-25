@@ -7,7 +7,7 @@ export const siteUrl = (process.env.APP_BASE_URL ?? "http://localhost:3000").rep
 export const deliveryEstimate = "unos 15 días";
 
 // Lo mismo como rango en días, para dar fechas concretas.
-const deliveryDays = { min: 12, max: 15 };
+export const deliveryDays ={ min: 12, max: 15 };
 
 // "entre el 5 y el 8 de noviembre": cuándo llegaría un pedido pagado hoy (días calendario, hora de Colombia).
 export function deliveryWindow(from = new Date()) {

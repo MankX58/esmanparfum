@@ -1,5 +1,5 @@
 import { sql } from "@/lib/db";
-import { absoluteUrl, siteUrl } from "@/lib/site";
+import { absoluteUrl, deliveryDays, siteUrl } from "@/lib/site";
 
 // Se arma cuando Google lo pide, igual que el mapa del sitio: precios y stock siempre al día.
 export const dynamic = "force-dynamic";
@@ -36,6 +36,9 @@ export async function GET() {
     where p.is_active and cardinality(p.images) > 0
     order by p.id`) as Row[];
 
+  // Los "bajo pedido" exigen fecha de disponibilidad: hoy + el plazo máximo de entrega (hora de Colombia, UTC-5).
+  const backorderDate = `${new Date(Date.now() + (deliveryDays.max * 24 - 5) * 36e5).toISOString().slice(0, 10)}T00:00-05:00`;
+
   const items = rows
     .map((p) => {
       const title = `${p.name}${p.size_ml ? ` ${p.size_ml} ml` : ""}`;
@@ -48,7 +51,8 @@ ${tag("link", absoluteUrl(`/producto/${p.slug}`))}
 ${tag("image_link", absoluteUrl(p.images[0]))}
 ${p.images.slice(1, 10).map((image) => tag("additional_image_link", absoluteUrl(image))).join("")}
 ${tag("availability", p.in_stock ? "in_stock" : "backorder")}
-${tag("price", `${p.list_price} COP`)}
+${p.in_stock ? "" : tag("availability_date", backorderDate)}
+${tag("price",`${p.list_price} COP`)}
 ${tag("brand", p.brand ?? "Ésman Parfum")}
 ${tag("condition", "new")}
 ${tag("identifier_exists", "no")}
