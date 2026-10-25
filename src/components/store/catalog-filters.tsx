@@ -7,7 +7,7 @@ import { controlStyles } from "../field";
 
 type Option = { value: string; label: string };
 type Values = { q: string; marca: string; publico: string; tamano: string; orden: string };
-type Menu = "marca" | "tamano";
+type Menu = "marca" | "tamano" | "orden";
 
 // Búsqueda y filtros del catálogo. El público está a la vista como pestañas; marca y tamaño son dos
 // menús compactos que muestran lo elegido y se abren sobre la página (sin empujar el contenido).
@@ -62,6 +62,7 @@ export function CatalogFilters({
   const menus: { name: Menu; label: string; all: string; options: Option[] }[] = [
     { name: "marca", label: "Marca", all: "Todas las marcas", options: brands },
     { name: "tamano", label: "Tamaño", all: "Todos los tamaños", options: sizes },
+    { name: "orden", label: "Ordenar por", all: "Más vendidos", options: sorts },
   ];
 
   return (
@@ -119,25 +120,6 @@ export function CatalogFilters({
               </button>
             );
           })}
-          {/* Orden: un texto con flecha, como Marca y Tamaño. El selector nativo se abre con la lista del teléfono. */}
-          <label className="relative flex items-center py-3 text-sm text-ink-soft transition-colors duration-(--duration-quick) hover:text-ink">
-            <span className="sr-only">Ordenar</span>
-            <select
-              value={current.orden}
-              onChange={(event) => set("orden", event.target.value)}
-              className={`cursor-pointer appearance-none bg-transparent pr-4 outline-none focus-visible:underline ${current.orden ? "text-ink underline decoration-1 underline-offset-4" : ""}`}
-            >
-              <option value="">Más vendidos</option>
-              {sorts.map((sort) => (
-                <option key={sort.value} value={sort.value}>
-                  {sort.label}
-                </option>
-              ))}
-            </select>
-            <svg aria-hidden viewBox="0 0 12 12" className="pointer-events-none absolute right-0 size-3">
-              <path d="M2 4.5 6 8.5l4-4" fill="none" stroke="currentColor" strokeWidth="1.2" />
-            </svg>
-          </label>
         </div>
       </div>
 

@@ -51,11 +51,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Saltar al contenido
         </a>
         {children}
-        {/* Avisos (toasts) de toda la app. Se lanzan con sileo.success(...), sileo.error(...).
-            Salen arriba al centro y duran 4 segundos. fill es el color del texto
-            (--color-ink); la librería lo necesita como valor fijo. Los colores de
-            cada tipo de aviso se ajustan en globals.css. */}
-        <Toaster position="top-center" theme="light" options={{ fill: "#161d14", roundness: 6, duration: 4000 }} />
+        {/* Avisos (toasts) de toda la app. Se lanzan con sileo.success(...), sileo.error(...). */}
+        <Toaster position="top-center" theme="light" options={{ fill: "#596357", roundness: 6, duration: 2000 }} />
       </body>
     </html>
   );

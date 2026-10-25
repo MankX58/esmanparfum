@@ -51,9 +51,6 @@ export function useAddToCart() {
     add(productId, quantity);
     sileo.success({
       title: quantity === 1 ? "Agregado al carrito" : `${quantity} unidades agregadas`,
-      duration: 2000,
-      fill: "#596357",
-      roundness: 6,
       button: { title: "Ver carrito", onClick: () => router.push("/carrito") },
     });
   };
