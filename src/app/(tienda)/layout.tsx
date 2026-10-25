@@ -5,7 +5,10 @@ import { CartLink } from "@/components/store/header-links";
 import { navLink, navText, navUnderline } from "@/components/store/nav-styles";
 import { Logo } from "@/components/logo";
 import { getCurrentUser } from "@/lib/auth";
+import { WhatsappButton } from "@/components/store/whatsapp-button";
 import { audiencePath, audienceTitles, brandPath, listBrands } from "@/lib/catalog";
+import { whatsappLink } from "@/lib/format";
+import { getStoreSettings } from "@/lib/orders";
 
 // ponytail: las páginas de la tienda consultan la base de datos en cada visita, así
 // un cambio de precio en el panel se ve al instante. Si el tráfico crece, pasar a
@@ -14,7 +17,7 @@ export const dynamic = "force-dynamic";
 
 // Marco de la tienda pública: cabecera fija, contenido y pie.
 export default async function StoreLayout({ children }: LayoutProps<"/">) {
-  const [user, brands] = await Promise.all([getCurrentUser(), listBrands()]);
+  const [user, brands, store] = await Promise.all([getCurrentUser(), listBrands(), getStoreSettings()]);
   const isAdmin = user?.role === "admin";
 
   return (
@@ -127,6 +130,7 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
           </nav>
         </div>
       </footer>
+      {store.whatsapp && <WhatsappButton href={whatsappLink(store.whatsapp, "Hola, quiero información sobre un perfume de Ésman Parfum.")} />}
     </>
   );
 }
