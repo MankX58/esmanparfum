@@ -8,5 +8,5 @@ export async function proxy(request: Request) {
 
 export const config = {
   // api/wompi: los avisos de Wompi no traen sesión y no deben pasar por Auth0.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|api/wompi).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|merchant-feed.xml|api/wompi).*)"],
 };

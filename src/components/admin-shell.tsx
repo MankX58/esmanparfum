@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AdminNav } from "./admin-nav";
 import { linkStyles } from "./button";
-import { Wordmark } from "./wordmark";
+import { Logo } from "./logo";
 
 // Marco del panel. La zona verde lleva la marca, las secciones y la sesión:
 // - En pantallas anchas (xl) es una barra lateral fija, con las secciones agrupadas.
@@ -11,8 +11,8 @@ export function AdminShell({ userLabel, children }: { userLabel: string; childre
   return (
     <div className="flex flex-1 flex-col xl:flex-row">
       <header className="flex flex-wrap items-center gap-x-10 bg-brand px-4 text-on-brand sm:px-8 xl:sticky xl:top-0 xl:h-screen xl:w-60 xl:shrink-0 xl:flex-col xl:flex-nowrap xl:items-stretch xl:overflow-y-auto xl:px-0">
-        <Link href="/admin" className="flex h-16 shrink-0 items-center xl:px-6">
-          <Wordmark className="text-sm" />
+        <Link href="/admin" aria-label="Panel de Ésman Parfum" className="flex h-16 shrink-0 items-center xl:px-6">
+          <Logo tone="light" className="h-9" />
         </Link>
         <div className="order-last w-full xl:order-none xl:flex-1">
           <AdminNav />
