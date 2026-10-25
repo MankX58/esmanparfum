@@ -3,7 +3,7 @@
 import { ArrowUp } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
-const SHOW_AFTER = 600; // px bajados antes de que aparezca el botón
+export const SHOW_AFTER = 600; // px bajados antes de que aparezca el botón
 
 // Botón para volver arriba. Aparece al bajar, y su anillo se va llenando a medida que se recorre
 // la página (animación ligada al scroll, en globals.css: .scroll-progress). Al señalarlo, la flecha
