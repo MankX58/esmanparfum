@@ -10,13 +10,6 @@ import { inputStyles } from "./field";
 
 export type SearchOption = { value: string; label: string; hint?: string };
 
-// Cómo se nombra un perfume en estas listas: "P007 · Armaf Club de Nuit Intense man EDT, 105 ml".
-// Lleva marca y SKU para poder buscar por cualquiera de los dos.
-export function productOption(p: { id: number; sku: string; brand: string | null; name: string; size_ml: number | null }, hint?: string): SearchOption {
-  const name = [p.brand, p.name].filter(Boolean).join(" ") + (p.size_ml ? `, ${p.size_ml} ml` : "");
-  return { value: String(p.id), label: `${p.sku} · ${name}`, hint };
-}
-
 const MAX_SHOWN = 50; // más resultados no caben a la vista; escribir más reduce la lista
 
 // Sin tildes ni mayúsculas, para que "lattafa" encuentre "Lattafa" y "acqua" encuentre "Acqua".

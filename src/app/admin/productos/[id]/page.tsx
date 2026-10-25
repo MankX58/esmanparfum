@@ -11,7 +11,7 @@ import { formatCOP, formatPercent } from "@/lib/format";
 import { deleteProduct, suggestSku } from "../actions";
 import { ProductForm, type Product } from "../product-form";
 import { ProductImages } from "../product-images";
-import { productOption } from "@/components/search-select";
+import { productOption } from "@/lib/product-option";
 import { ProductSizes, type SizeRow } from "../product-sizes";
 
 export const metadata = { title: "Editar producto" };

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { productOption, SearchSelect } from "@/components/search-select";
+import { SearchSelect } from "@/components/search-select";
+import { productOption } from "@/lib/product-option";
 import { Field, fieldProps, inputStyles } from "@/components/field";
 import { cell, numberCell, th } from "@/components/products-table";
 import { SummaryLine } from "@/components/summary-line";
