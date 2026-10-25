@@ -16,6 +16,8 @@ export default function AdminError({ error, retry }: { error: Error & { digest?:
         Suele ser un problema pasajero de conexión con la base de datos. Vuelve a intentarlo; si sigue fallando, revisa
         tu conexión a internet.
       </p>
+      {/* El código identifica este error en los registros de Vercel (Logs → buscar el digest). */}
+      {error.digest && <p className="mt-3 text-xs text-ink-faint">Código del error: {error.digest}</p>}
       <button onClick={() => retry()} className={`mt-6 ${buttonStyles.primary}`}>
         Reintentar
       </button>
