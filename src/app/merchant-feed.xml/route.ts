@@ -44,7 +44,7 @@ export async function GET() {
       const title = `${p.name}${p.size_ml ? ` ${p.size_ml} ml` : ""}`;
       const description = p.description?.trim() || `Perfume original ${title}${p.brand ? ` de ${p.brand}` : ""}.`;
       return `<item>
-${tag("id", p.slug)}
+${tag("id", p.slug.slice(0, 50))}
 ${tag("title", `Perfume ${title}`)}
 ${tag("description", description)}
 ${tag("link", absoluteUrl(`/producto/${p.slug}`))}
