@@ -78,7 +78,8 @@ export async function deliverOrder(orderId: number): Promise<FormState> {
   return { ok: true };
 }
 
-// Cancela un pedido que todavía no ha salido. Deja de contar en ventas, stock y caja.
+// Cancela un pedido, también uno ya enviado o entregado (una devolución). Deja de contar en
+// ventas, stock y caja: las unidades vuelven al inventario.
 export async function cancelOrder(orderId: number): Promise<FormState> {
   await requireAdmin();
   if (!Number.isInteger(orderId)) return { message: "Pedido no válido." };
@@ -86,17 +87,15 @@ export async function cancelOrder(orderId: number): Promise<FormState> {
   // Si ya estaba pagado, el cliente recibe un correo: hay que devolverle el dinero.
   const [before] = await sql`select status from orders where id = ${orderId}`;
   const updated = await sql`
-    update orders set status = 'cancelled'
-    where id = ${orderId} and status in ('pending', 'payment_reported', 'payment_confirmed', 'preparing')
-    returning id`;
-  if (updated.length === 0) return { message: "Un pedido enviado o entregado ya no se puede cancelar." };
-  if (before.status === "payment_confirmed" || before.status === "preparing") notifyOrder(orderId, "cancelled");
+    update orders set status = 'cancelled' where id = ${orderId} and status <> 'cancelled' returning id`;
+  if (updated.length === 0) return { message: "Este pedido ya estaba cancelado." };
+  if (before.status !== "pending" && before.status !== "payment_reported") notifyOrder(orderId, "cancelled");
 
   revalidatePath("/", "layout");
   return { ok: true };
 }
 
-// Borra un pedido que no ha salido (enviado o entregado ya no se puede). Se van también sus
+// Borra un pedido en cualquier estado (por ejemplo, uno registrado por error). Se van también sus
 // productos, y si estaba pagado deja de contar en ventas, stock y caja.
 // Después la numeración vuelve al último pedido que queda: si se borra el más reciente
 // (ESM-0004), el siguiente pedido vuelve a ser ESM-0004. Un número de en medio no se reutiliza.
@@ -105,10 +104,10 @@ export async function deleteOrder(orderId: number): Promise<FormState> {
   if (!Number.isInteger(orderId)) return { message: "Pedido no válido." };
 
   const [deleted] = await sql.transaction([
-    sql`delete from orders where id = ${orderId} and status not in ('shipped', 'delivered') returning id`,
+    sql`delete from orders where id = ${orderId} returning id`,
     sql`select setval(pg_get_serial_sequence('orders', 'id'), coalesce((select max(id) from orders), 0) + 1, false)`,
   ]);
-  if (deleted.length === 0) return { message: "Un pedido enviado o entregado ya no se puede borrar." };
+  if (deleted.length === 0) return { message: "Este pedido ya no existe." };
 
   revalidatePath("/", "layout");
   return { ok: true };

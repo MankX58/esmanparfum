@@ -188,30 +188,29 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/pedid
             />
           </section>
 
-          {/* Cancelar deja el pedido a la vista como cancelado; borrar lo quita del todo. */}
-          {(awaitingPayment || toShip || order.status === "cancelled") && (
-            <div className="flex flex-wrap gap-x-8 gap-y-3 border-t border-line pt-6">
-              {order.status !== "cancelled" && (
-                <ConfirmButton
-                  action={cancelOrder.bind(null, order.id)}
-                  label="Cancelar el pedido"
-                  question="¿Cancelar este pedido? No contará en ventas, stock ni caja."
-                  confirmLabel="Sí, cancelar"
-                  failureTitle="No se pudo cancelar"
-                  successMessage="Pedido cancelado"
-                />
-              )}
+          {/* Cancelar deja el pedido a la vista como cancelado (sirve para una devolución: el stock
+              vuelve); borrar lo quita del todo (para uno registrado por error). */}
+          <div className="flex flex-wrap gap-x-8 gap-y-3 border-t border-line pt-6">
+            {order.status !== "cancelled" && (
               <ConfirmButton
-                action={deleteOrder.bind(null, order.id)}
-                label="Borrar el pedido"
-                question={`¿Borrar ${order.code} para siempre? ${toShip ? "Ya está pagado: saldrá de ventas y de caja. " : ""}No se puede deshacer.`}
-                confirmLabel="Sí, borrar"
-                failureTitle="No se pudo borrar"
-                successMessage="Pedido borrado"
-                redirectTo="/admin/pedidos"
+                action={cancelOrder.bind(null, order.id)}
+                label={closed || order.status === "shipped" ? "Registrar devolución" : "Cancelar el pedido"}
+                question={`¿${closed || order.status === "shipped" ? "Registrar la devolución de" : "Cancelar"} este pedido? No contará en ventas, stock ni caja: las unidades vuelven al inventario.${order.status !== "pending" && order.status !== "payment_reported" ? " Al cliente le llegará un correo avisando que se le devolverá el dinero." : ""}`}
+                confirmLabel="Sí, confirmar"
+                failureTitle="No se pudo cancelar"
+                successMessage="Pedido cancelado"
               />
-            </div>
-          )}
+            )}
+            <ConfirmButton
+              action={deleteOrder.bind(null, order.id)}
+              label="Borrar el pedido"
+              question={`¿Borrar ${order.code} para siempre? ${order.status !== "pending" && order.status !== "payment_reported" && order.status !== "cancelled" ? "Ya está pagado: saldrá de ventas y de caja. " : ""}No se puede deshacer.`}
+              confirmLabel="Sí, borrar"
+              failureTitle="No se pudo borrar"
+              successMessage="Pedido borrado"
+              redirectTo="/admin/pedidos"
+            />
+          </div>
         </div>
 
         <aside className="border border-line bg-surface p-6 lg:sticky lg:top-8">
